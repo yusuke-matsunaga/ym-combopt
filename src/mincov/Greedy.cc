@@ -64,7 +64,6 @@ Greedy::set_debug_flag(bool flag)
   mDebug = flag;
 }
 
-static
 bool Greedy::mDebug = false;
 
 END_NAMESPACE_YM_MINCOV

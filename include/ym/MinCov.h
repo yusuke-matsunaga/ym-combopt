@@ -9,10 +9,10 @@
 /// All rights reserved.
 
 
-#include "ym_config.h"
+#include "ym/mincov_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
 /// @class MinCov MinCov.h "ym/MinCov.h"
@@ -229,7 +229,7 @@ inline
 MinCov::MinCov(int row_size,
 	       const vector<int>& col_cost_array) :
   mRowSize(row_size),
-  mColSize(col_cost_array.size()),
+  mColSize(col_cost_array.size())
 {
   init_cost_array(col_cost_array);
 }
@@ -330,6 +330,6 @@ MinCov::elem_list() const
   return mElemList;
 }
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_MINCOV
 
 #endif // YM_MINCOV_H

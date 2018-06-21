@@ -8,7 +8,6 @@
 
 
 #include "McSolver.h"
-#include "McSolverImpl.h"
 #include "McMatrix.h"
 #include "LbMAX.h"
 #include "LbMIS1.h"

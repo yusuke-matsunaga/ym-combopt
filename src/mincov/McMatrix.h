@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/ym_mincov.h"
+#include "ym/mincov_nsdef.h"
 
 #include "McRowHead.h"
 #include "McColHead.h"

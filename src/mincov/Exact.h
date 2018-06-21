@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/ym_mincov.h"
+#include "ym/mincov_nsdef.h"
 #include "McMatrix.h"
 #include "LbCalc.h"
 #include "Selector.h"
@@ -67,12 +67,12 @@ public:
   /// @brief partition フラグを設定する．
   static
   void
-  set_partition(bool flag);
+  set_partition_flag(bool flag);
 
   /// @brief デバッグフラグを設定する．
   static
   void
-  set_debug(bool flag);
+  set_debug_flag(bool flag);
 
   /// @brief mMaxDepth を設定する．
   static

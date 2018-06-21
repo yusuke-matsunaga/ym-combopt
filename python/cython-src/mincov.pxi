@@ -8,6 +8,7 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
+from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 from CXX_MinCov cimport MinCov as CXX_MinCov
 

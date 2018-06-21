@@ -4,8 +4,8 @@
 # インクルードパスの設定
 # ===================================================================
 include_directories (
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../ym-base/cython-src
-  ${CMAKE_CURRENT_SOURCE_DIR}/../cython-src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ym-base/cython-src
+  ${CMAKE_CURRENT_SOURCE_DIR}/cython-src
   )
 
 
@@ -27,7 +27,7 @@ add_subdirectory ( cython-src )
 # ===================================================================
 
 set ( CYTHON_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/../cython-src/combopt.pyx
+  ${CMAKE_CURRENT_SOURCE_DIR}/cython-src/combopt.pyx
   )
 
 set_source_files_properties (

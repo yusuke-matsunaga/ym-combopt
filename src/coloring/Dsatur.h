@@ -10,7 +10,7 @@
 
 
 #include "ym/udgraph_nsdef.h"
-#include "ColGraph.h"
+#include "coloring/ColGraph.h"
 
 
 BEGIN_NAMESPACE_YM_UDGRAPH

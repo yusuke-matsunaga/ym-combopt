@@ -321,14 +321,14 @@ Exact::matrix() const
 
 // @brief partition フラグを設定する．
 void
-Exact::set_partition(bool flag)
+Exact::set_partition_flag(bool flag)
 {
   mDoPartition = flag;
 }
 
 // @brief デバッグフラグを設定する．
 void
-Exact::set_debug(bool flag)
+Exact::set_debug_flag(bool flag)
 {
   mDebug = flag;
 }

@@ -58,7 +58,6 @@ set ( mincov_SOURCES
   src/mincov/LbMIS3.cc
   src/mincov/MaxClique.cc
   src/mincov/McMatrix.cc
-  src/mincov/McSolver.cc
   src/mincov/MinCov.cc
   src/mincov/MisNodeHeap.cc
   src/mincov/SelCS.cc

@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "ColGraph.h"
+#include "coloring/ColGraph.h"
 #include "ym/UdGraph.h"
 #include "ym/Range.h"
 

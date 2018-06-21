@@ -20,7 +20,7 @@
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_MINCOV
 
 BEGIN_NONAMESPACE
 
@@ -38,7 +38,7 @@ parse_option(const string& option_str,
   string tmp_str(option_str);
   for ( ; ; ) {
     string::size_type p = tmp_str.find_first_of(',');
-    string tmp = tmp_str_str.substr(0, p);
+    string tmp = tmp_str.substr(0, p);
     // tmp を ':' で区切る．
     string::size_type q = tmp.find_first_of(':');
     if ( q == string::npos ) {
@@ -50,7 +50,6 @@ parse_option(const string& option_str,
       string r_str = tmp.substr(q + 1, string::npos);
       opt_list.push_back(make_pair(l_str, r_str));
     }
-    str_list.push_back(tmp);
     if ( p == string::npos ) {
       // 末尾だったので終わる．
       break;
@@ -115,10 +114,10 @@ MinCov::exact(vector<int>& solution,
     }
     else if ( opt_kwd == string("partition") ) {
       if ( opt_val == string() || opt_val == string("on") ) {
-	ExactSolver::set_partition(true);
+	Exact::set_partition_flag(true);
       }
       else if ( opt_val == string("off") ) {
-	ExactSolver::set_partition(false);
+	Exact::set_partition_flag(false);
       }
       else {
 	cerr << "Error in MinCov::exact(): illegal value for 'partition': "
@@ -126,12 +125,12 @@ MinCov::exact(vector<int>& solution,
 	// 無視
       }
     }
-    else if ( opt_kwd = string("debug") ) {
+    else if ( opt_kwd == string("debug") ) {
       if ( opt_val == string() || opt_val == string("on") ) {
-	Exact::set_debug(true);
+	Exact::set_debug_flag(true);
       }
       else if ( opt_val == string("off") ) {
-	Exact::set_debug(false);
+	Exact::set_debug_flag(false);
       }
       else {
 	cerr << "Error in MinCov::exact(): illegal value for 'debug': "
@@ -139,9 +138,9 @@ MinCov::exact(vector<int>& solution,
 	// 無視
       }
     }
-    else if ( opt_kwd = string("debug_depth") ) {
+    else if ( opt_kwd == string("debug_depth") ) {
       int debug_depth = atoi(opt_val.c_str());
-      ExactSolver::set_max_depth(debug_depth);
+      Exact::set_max_depth(debug_depth);
     }
   }
 
@@ -192,7 +191,7 @@ MinCov::exact(vector<int>& solution,
 
   Exact solver(matrix, lb_list, *selector);
 
-  return solver.exact(solution);
+  return solver.solve(solution);
 }
 
 // @brief ヒューリスティックで最小被覆問題を解く．
@@ -213,6 +212,7 @@ MinCov::heuristic(vector<int>& solution,
   else {
     return greedy(string(), solution);
   }
+  return 0;
 }
 
 // @brief greedy アルゴリズムで解を求める．
@@ -236,12 +236,12 @@ MinCov::greedy(const string& option,
       // 重複していたら最後の指定が有効となる．
       sel_str = opt_val;
     }
-    else if ( opt_kwd = string("debug") ) {
+    else if ( opt_kwd == string("debug") ) {
       if ( opt_val == string() || opt_val == string("on") ) {
-	Greedy::set_debug(true);
+	Greedy::set_debug_flag(true);
       }
       else if ( opt_val == string("off") ) {
-	Greedy::set_debug(false);
+	Greedy::set_debug_flag(false);
       }
       else {
 	cerr << "Error in MinCov::greedy(): illegal value for 'debug': "
@@ -275,4 +275,4 @@ MinCov::greedy(const string& option,
   return Greedy::solve(matrix, *selector, solution);
 }
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_MINCOV

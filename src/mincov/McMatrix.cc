@@ -8,7 +8,6 @@
 
 
 #include "McMatrix.h"
-#include "McSolverImpl.h"
 
 
 //#define VERIFY_MCMATRIX 1
