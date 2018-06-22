@@ -200,34 +200,16 @@ MinCov::exact(vector<int>& solution,
   return solver.solve(solution);
 }
 
-// @brief ヒューリスティックで最小被覆問題を解く．
-// @param[out] solution 選ばれた列集合
-// @param[in] algorithm ヒューリスティックの名前
-// @param[in] option オプション文字列
-// @return 解のコスト
-int
-MinCov::heuristic(vector<int>& solution,
-		  const string& algorithm,
-		  const string& option)
-{
-  if ( algorithm == string("greedy") ) {
-    return greedy(option, solution);
-  }
-  else if ( algorithm == string("random") ) {
-  }
-  else {
-    return greedy(string(), solution);
-  }
-  return 0;
-}
+BEGIN_NONAMESPACE
 
 // @brief greedy アルゴリズムで解を求める．
 // @param[in] option オプション文字列
 // @param[out] solution 解
 // @return 解のコスト
-int
-MinCov::greedy(const string& option,
-	       vector<int>& solution)
+void
+greedy(const McMatrix& matrix,
+       const string& option,
+       vector<int>& solution)
 {
   // ここの仕事はオプション文字列を解析して
   // Greedy を呼ぶこと．
@@ -276,9 +258,40 @@ MinCov::greedy(const string& option,
     selector = &sel_simple;
   }
 
-  McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+  Greedy::solve(matrix, *selector, solution);
+}
 
-  return Greedy::solve(matrix, *selector, solution);
+END_NONAMESPACE
+
+// @brief ヒューリスティックで最小被覆問題を解く．
+// @param[out] solution 選ばれた列集合
+// @param[in] algorithm ヒューリスティックの名前
+// @param[in] option オプション文字列
+// @return 解のコスト
+int
+MinCov::heuristic(vector<int>& solution,
+		  const string& algorithm,
+		  const string& option)
+{
+  McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+  matrix.reduce(solution);
+
+  if ( matrix.row_num() > 0 ) {
+    vector<int> solution1;
+    if ( algorithm == string("greedy") ) {
+      greedy(matrix, option, solution1);
+    }
+    else if ( algorithm == string("random") ) {
+    }
+    else {
+      greedy(matrix, string(), solution1);
+    }
+    solution.insert(solution.end(), solution1.begin(), solution1.end());
+  }
+
+  ASSERT_COND( matrix.verify(solution) );
+
+  return matrix.cost(solution);
 }
 
 END_NAMESPACE_YM_MINCOV

@@ -166,14 +166,6 @@ private:
   void
   init_cost_array(const vector<int>& col_cost_array);
 
-  /// @brief greedy アルゴリズムで解を求める．
-  /// @param[in] option オプション文字列
-  /// @param[out] solution 解
-  /// @return 解のコスト
-  int
-  greedy(const string& option,
-	 vector<int>& solution);
-
 
 private:
   //////////////////////////////////////////////////////////////////////

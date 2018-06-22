@@ -1,8 +1,8 @@
-﻿#ifndef GREEDY_H
-#define GREEDY_H
+﻿#ifndef TABU_H
+#define TABU_H
 
-/// @file Greedy.h
-/// @brief Greedy のヘッダファイル
+/// @file Tabu.h
+/// @brief Tabu のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
@@ -15,12 +15,12 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class Greedy Greedy.h "Greedy.h"
-/// @brief Minimum Covering 問題を greedy に解くクラス
+/// @class Tabu Tabu.h "Tabu.h"
+/// @brief Minimum Covering 問題を tabu search で解くクラス
 ///
 /// 実はクラスである必要はほとんどない．
 //////////////////////////////////////////////////////////////////////
-class Greedy
+class Tabu
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -63,4 +63,4 @@ private:
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // GREEDY_H
+#endif // TABU_H
