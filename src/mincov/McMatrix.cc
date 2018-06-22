@@ -420,9 +420,7 @@ int
 McMatrix::cost(const vector<int>& col_list) const
 {
   int cur_cost = 0;
-  for (vector<int>::const_iterator p = col_list.begin();
-       p != col_list.end(); ++ p) {
-    int col = *p;
+  for ( auto col: col_list ) {
     cur_cost += col_cost(col);
   }
   return cur_cost;
