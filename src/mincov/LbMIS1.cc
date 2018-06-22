@@ -185,13 +185,13 @@ LbMIS1::operator()(const McMatrix& matrix)
 
     // 処理済みの印をつける．
     best_node->mDeleted = true;
-    for (ymuint i = 0; i < best_node->mAdjNum; ++ i) {
+    for ( int i = 0; i < best_node->mAdjNum; ++ i ) {
       // best_node に隣接しているノードも処理済みとする．
       Node* node2 = best_node->mAdjLink[i];
       if ( !node2->mDeleted ) {
 	node2->mDeleted = true;
 	// さらにこのノードに隣接しているノードの mNum を減らす．
-	for (ymuint j = 0; j < node2->mAdjNum; ++ j) {
+	for ( int j = 0; j < node2->mAdjNum; ++ j ) {
 	  Node* node3 = node2->mAdjLink[j];
 	  -- node3->mNum;
 	}

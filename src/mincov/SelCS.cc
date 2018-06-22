@@ -68,8 +68,7 @@ SelCS::operator()(const McMatrix& matrix)
 
     vector<bool> row_mark(matrix.row_size(), false);
     vector<int> row_list;
-    for ( int i = 0; i < col_list.size(); ++ i ) {
-      int col_pos = col_list[i];
+    for ( auto col_pos: col_list ) {
       const McColHead* col1 = matrix.col(col_pos);
       double cost1 = matrix.col_cost(col_pos);
       cost1 /= col1->num();
@@ -88,8 +87,7 @@ SelCS::operator()(const McMatrix& matrix)
     }
 
     double delta_sum = 0.0;
-    for ( ymuint i = 0; i < row_list.size(); ++ i ) {
-      int row_pos = row_list[i];
+    for ( auto row_pos: row_list ) {
       const McRowHead* row = matrix.row(row_pos);
       double min_weight = DBL_MAX;
       for (const McCell* cell = row->front();

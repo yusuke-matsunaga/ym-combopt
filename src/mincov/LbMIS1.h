@@ -29,9 +29,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 下界の計算をする
-  virtual
   int
-  operator()(const McMatrix& matrix);
+  operator()(const McMatrix& matrix) override;
 
 };
 

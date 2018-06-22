@@ -32,9 +32,8 @@ public:
   /// @brief 次の列を選ぶ．
   /// @param[in] matrix 対象の行列
   /// @return 選ばれた列番号を返す．
-  virtual
   int
-  operator()(const McMatrix& matrix);
+  operator()(const McMatrix& matrix) override;
 
 };
 
