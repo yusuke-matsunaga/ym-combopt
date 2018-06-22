@@ -24,6 +24,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 class McRowHead
 {
   friend class McMatrix;
+  friend class McRowList;
 
 private:
 

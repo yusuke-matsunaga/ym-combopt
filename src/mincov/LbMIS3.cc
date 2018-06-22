@@ -45,8 +45,7 @@ LbMIS3::operator()(const McMatrix& matrix)
   }
 
   int idx = 0;
-  for ( const McRowHead* row1 = matrix.row_front();
-	!matrix.is_row_end(row1); row1 = row1->next() ) {
+  for ( auto row1: matrix.row_list() ) {
     int row_pos = row1->pos();
     row_map[row_pos] = idx;
     ++ idx;
@@ -56,8 +55,7 @@ LbMIS3::operator()(const McMatrix& matrix)
   // node1 と列を共有する行の Node が node1->mAdjLink[0:node1->mAdjNum -1]
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
-  for ( const McRowHead* row1 = matrix.row_front();
-	!matrix.is_row_end(row1); row1 = row1->next() ) {
+  for ( auto row1: matrix.row_list() ) {
     // マークを消す．
     // 結構めんどくさいけど効率はいい
     for ( const McCell* cell1 = row1->front();
@@ -89,8 +87,7 @@ LbMIS3::operator()(const McMatrix& matrix)
   }
 
   // 各行を被覆する列の最小コストを求める．
-  for ( const McRowHead* row1 = matrix.row_front();
-	!matrix.is_row_end(row1); row1 = row1->next() ) {
+  for ( auto row1: matrix.row_list() ) {
     int row_pos = row1->pos();
     int id = row_map[row_pos];
     int min_cost = UINT_MAX;

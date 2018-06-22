@@ -30,9 +30,13 @@ verify_matrix(McMatrix& a,
   ASSERT_COND( a.row_num() == b.row_num() );
   ASSERT_COND( a.col_num() == b.col_num() );
 
-  const McRowHead* row_a = a.row_front();
-  const McRowHead* row_b = b.row_front();
+  McRowIterator it_a = a.row_list().begin();
+  McRowIterator it_b = b.row_list().begin();
+  McRowIterator end_a = a.row_list().end();
+  McRowIterator end_b = b.row_list().end();
   for ( ; ; ) {
+    const McRowHead* row_a = *it_a;
+    const McRowHead* row_b = *it_b;
     ASSERT_COND( row_a->pos() == row_b->pos() );
     ASSERT_COND( row_a->num() == row_b->num() );
 
@@ -49,10 +53,10 @@ verify_matrix(McMatrix& a,
 	break;
       }
     }
-    row_a = row_a->next();
-    row_b = row_b->next();
-    if ( a.is_row_end(row_a) ) {
-      ASSERT_COND( b.is_row_end(row_b) );
+    ++ it_a;
+    ++ it_b;
+    if ( it_a == end_a ) {
+      ASSERT_COND( it_b == end_b );
       break;
     }
   }

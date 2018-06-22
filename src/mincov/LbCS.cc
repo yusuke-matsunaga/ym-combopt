@@ -24,8 +24,7 @@ int
 LbCS::operator()(const McMatrix& matrix)
 {
   double cost = 0.0;
-  for ( const McRowHead* row = matrix.row_front();
-	!matrix.is_row_end(row); row = row->next() ) {
+  for ( auto row: matrix.row_list() ) {
     double min_cost = DBL_MAX;
     for ( const McCell* cell = row->front();
 	  !row->is_end(cell); cell = cell->row_next() ) {

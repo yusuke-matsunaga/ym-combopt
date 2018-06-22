@@ -12,6 +12,7 @@
 #include "ym/mincov_nsdef.h"
 
 #include "McRowHead.h"
+#include "McRowList.h"
 #include "McColHead.h"
 #include "ym/UnitAlloc.h"
 
@@ -83,6 +84,7 @@ public:
   McRowHead*
   row(int row_pos);
 
+#if 0
   /// @brief 行の先頭を取り出す．
   const McRowHead*
   row_front() const;
@@ -96,6 +98,11 @@ public:
   /// @return row が終端の時 true を返す．
   bool
   is_row_end(const McRowHead* row) const;
+#endif
+
+  /// @brief 行のリストを返す．
+  const McRowList&
+  row_list() const;
 
   /// @brief 実効的な行数を返す．
   int
@@ -330,8 +337,11 @@ private:
   // 行の先頭の配列
   McRowHead** mRowArray;
 
+  // 有効な行のリスト
+  McRowList mRowList;
+
   // 行の先頭をつなぐリンクトリストのダミー
-  McRowHead mRowHead;
+  //McRowHead mRowHead;
 
   // 実際の行数
   int mRowNum;
@@ -402,6 +412,7 @@ McMatrix::row(int row_pos)
   return mRowArray[row_pos];
 }
 
+#if 0
 // @brief 行の先頭を取り出す．
 inline
 const McRowHead*
@@ -426,6 +437,15 @@ bool
 McMatrix::is_row_end(const McRowHead* row) const
 {
   return row == &mRowHead;
+}
+#endif
+
+// @brief 行のリストを返す．
+inline
+const McRowList&
+McMatrix::row_list() const
+{
+  return mRowList;
 }
 
 // @brief 実効的な行数を返す．

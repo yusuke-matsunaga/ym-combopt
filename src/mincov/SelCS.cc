@@ -27,12 +27,11 @@ SelCS::operator()(const McMatrix& matrix)
   // その重みの和が最大となる列を選ぶ．
   int nr = matrix.row_size();
   vector<double> row_weights(nr);
-  for ( const McRowHead* row = matrix.row_front();
-	!matrix.is_row_end(row); row = row->next() ) {
+  for ( auto row: matrix.row_list() ) {
     int row_pos = row->pos();
     double min_cost = DBL_MAX;
-    for (const McCell* cell = row->front();
-	 !row->is_end(cell); cell = cell->row_next()) {
+    for ( const McCell* cell = row->front();
+	  !row->is_end(cell); cell = cell->row_next() ) {
       const McColHead* col = matrix.col(cell->col_pos());
       double col_cost = static_cast<double>(matrix.col_cost(col->pos())) / col->num();
       if ( min_cost > col_cost ) {
@@ -56,8 +55,8 @@ SelCS::operator()(const McMatrix& matrix)
 	 !col->is_end(cell); cell = cell->col_next()) {
       int row_pos = cell->row_pos();
       const McRowHead* row = matrix.row(row_pos);
-      for (const McCell* cell1 = row->front();
-	   !row->is_end(cell1); cell1 = cell1->row_next()) {
+      for ( const McCell* cell1 = row->front();
+	   !row->is_end(cell1); cell1 = cell1->row_next() ) {
 	int col_pos = cell1->col_pos();
 	if ( col_delta[col_pos] == 0 ) {
 	  col_list.push_back(col_pos);
@@ -90,8 +89,8 @@ SelCS::operator()(const McMatrix& matrix)
     for ( auto row_pos: row_list ) {
       const McRowHead* row = matrix.row(row_pos);
       double min_weight = DBL_MAX;
-      for (const McCell* cell = row->front();
-	   !row->is_end(cell); cell = cell->row_next()) {
+      for ( const McCell* cell = row->front();
+	    !row->is_end(cell); cell = cell->row_next() ) {
 	int col_pos1 = cell->col_pos();
 	double n = matrix.col(col_pos1)->num() - col_delta[col_pos1];
 	double cost1 = matrix.col_cost(col_pos1) / n;
