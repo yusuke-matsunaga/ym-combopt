@@ -102,7 +102,7 @@ cdef class MinCov :
         cdef string c_option
         cdef vector[int] c_solution
         cdef int cost
-        if kwargs['option'] :
+        if 'option' in kwargs :
             c_option = kwargs['option'].encode('UTF-8')
         cost = self._this.exact(c_solution, c_option)
         solution = [ c_solution[i] for i in range(c_solution.size()) ]
@@ -117,9 +117,9 @@ cdef class MinCov :
         cdef string c_option
         cdef vector[int] c_solution
         cdef int cost
-        if kwargs['algorithm'] :
+        if 'algorithm' in kwargs :
             c_algorithm = kwargs['algorithm'].encode('UTF-8')
-        if kwargs['option'] :
+        if 'option' in kwargs :
             c_option = kwargs['option'].encode('UTF-8')
         cost = self._this.heuristic(c_solution, c_algorithm, c_option)
         solution = [ c_solution[i] for i in range(c_solution.size()) ]

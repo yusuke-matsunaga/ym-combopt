@@ -255,7 +255,7 @@ MinCov::greedy(const string& option,
   SelNaive sel_naive;
   SelCS sel_cs;
   Selector* selector = nullptr;
-  if ( sel_str == string("simple") ) {
+  if ( sel_str == string() || sel_str == string("simple") ) {
     selector = &sel_simple;
   }
   else if ( sel_str == string("naive") ) {
