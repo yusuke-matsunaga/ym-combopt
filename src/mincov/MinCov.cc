@@ -32,7 +32,7 @@ BEGIN_NONAMESPACE
 // * 結果を opt_list に格納する．
 void
 parse_option(const string& option_str,
-	     vector<pair<string, string> >& opt_list)
+	     vector<pair<string, string>>& opt_list)
 {
   // ',' で区切る
   string tmp_str(option_str);
@@ -167,12 +167,18 @@ MinCov::exact(vector<int>& solution,
 	   << lb_str << ", ignored." << endl;
     }
   }
+  if ( lb_list.empty() ) {
+    // 'lower_bound' オプションが指定されていない時の
+    // でファオルトフォールバック
+    lb_list.push_back(&lb_cs);
+    lb_list.push_back(&lb_mis1);
+  }
 
   SelSimple sel_simple;
   SelNaive sel_naive;
   SelCS sel_cs;
   Selector* selector = nullptr;
-  if ( sel_str == string("simple") ) {
+  if ( sel_str == string() || sel_str == string("simple") ) {
     selector = &sel_simple;
   }
   else if ( sel_str == string("naive") ) {
