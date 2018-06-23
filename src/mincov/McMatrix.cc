@@ -207,7 +207,7 @@ McHead::row_search(McCell* cell)
 	// pcell と ncell の間に cell を挿入する．
 	break;
       }
-      ASSERT_COND( !is_end(ncell) );
+      ASSERT_COND( ncell != &mDummy );
     }
   }
   cell->mLeftLink = pcell;
@@ -246,7 +246,7 @@ McHead::col_search(McCell* cell)
 	// pcell と ncell の間に cell を挿入する．
 	break;
       }
-      ASSERT_COND(!is_end(ncell) );
+      ASSERT_COND( ncell != &mDummy );
     }
   }
   cell->mUpLink = pcell;
@@ -255,93 +255,6 @@ McHead::col_search(McCell* cell)
   return true;
 }
 
-#if 0
-//////////////////////////////////////////////////////////////////////
-// クラス McRowHead
-//////////////////////////////////////////////////////////////////////
-
-// @brief 要素を追加する位置を探す．
-// @param[in] cell 追加する要素
-// @retval true 追加が成功した．
-// @retval false 同じ要素がすでに存在した．
-// @note 結果は cell の mLeftLink, mRightLink に設定される．
-bool
-McRowHead::search_insert_pos(McCell* cell)
-{
-  int col_pos = cell->col_pos();
-  McCell* pcell;
-  McCell* ncell;
-  if ( num() == 0 || back()->col_pos() < col_pos ) {
-    // 末尾への追加
-    ncell = &mDummy;
-    pcell = ncell->mLeftLink;
-  }
-  else {
-    // 追加位置を探索
-    // この時点で back->col_pos() >= col_pos が成り立っている．
-    for (pcell = &mDummy; ; pcell = ncell) {
-      ncell = pcell->mRightLink;
-      if ( ncell->col_pos() == col_pos ) {
-	// 列番号が重複しているので無視する．
-	return false;
-      }
-      if ( ncell->col_pos() > col_pos ) {
-	// pcell と ncell の間に cell を挿入する．
-	break;
-      }
-      ASSERT_COND(!is_end(ncell) );
-    }
-  }
-  cell->mLeftLink = pcell;
-  cell->mRightLink = ncell;
-
-  return true;
-}
-#endif
-
-#if 0
-//////////////////////////////////////////////////////////////////////
-// クラス McColHead
-//////////////////////////////////////////////////////////////////////
-
-// @brief 要素を追加する位置を探す．
-// @param[in] cell 追加する要素
-// @retval true 追加が成功した．
-// @retval false 同じ要素がすでに存在した．
-// @note 結果は cell の mUpLink, mDownLink に設定される．
-bool
-McColHead::search_insert_pos(McCell* cell)
-{
-  int row_pos = cell->row_pos();
-  McCell* pcell;
-  McCell* ncell;
-  if ( num() == 0 || back()->row_pos() < row_pos ) {
-    // 末尾への追加
-    ncell = &mDummy;
-    pcell = ncell->mUpLink;
-  }
-  else {
-    // 追加位置を探索
-    // この時点で back->row_pos() >= row_pos が成り立っている．
-    for (pcell = &mDummy; ; pcell = ncell) {
-      ncell = pcell->mDownLink;
-      if ( ncell->row_pos() == row_pos ) {
-	// 列番号が重複しているので無視する．
-	return false;
-      }
-      if ( ncell->row_pos() > row_pos ) {
-	// pcell と ncell の間に cell を挿入する．
-	break;
-      }
-      ASSERT_COND(!is_end(ncell) );
-    }
-  }
-  cell->mUpLink = pcell;
-  cell->mDownLink = ncell;
-
-  return true;
-}
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // クラス McMatrix
@@ -518,8 +431,7 @@ McMatrix::copy(const McMatrix& src)
 
   for ( auto src_row: src.row_list() ) {
     int row_pos = src_row->pos();
-    for ( auto src_cell = src_row->row_front();
-	  !src_row->is_end(src_cell); src_cell = src_cell->row_next() ) {
+    for ( auto src_cell: src_row->row_list() ) {
       int col_pos = src_cell->col_pos();
       insert_elem(row_pos, col_pos);
     }
@@ -622,8 +534,7 @@ int
 McMatrix::mark_rows(const McHead* col) const
 {
   int nc = 0;
-  for ( auto cell = col->col_front();
-	!col->is_end(cell); cell = cell->col_next() ) {
+  for ( auto cell: col->col_list() ) {
     int row_pos = cell->row_pos();
     auto row1 = row(row_pos);
     if ( row1->mWork == 0U ) {
@@ -641,8 +552,7 @@ int
 McMatrix::mark_cols(const McHead* row) const
 {
   int nc = 0;
-  for ( auto cell = row->row_front();
-	!row->is_end(cell); cell = cell->row_next() ) {
+  for ( auto cell: row->row_list() ) {
     int col_pos = cell->col_pos();
     auto col1 = col(col_pos);
     if ( col1->mWork == 0U ) {
@@ -666,8 +576,7 @@ McMatrix::verify(const vector<int>& col_list) const
   }
   for ( auto col_pos: col_list ) {
     auto col1 = col(col_pos);
-    for ( auto cell = col1->col_front();
-	  !col1->is_end(cell); cell = cell->col_next() ) {
+    for ( auto cell: col1->col_list() ) {
       int row_pos = cell->row_pos();
       row(row_pos)->mWork = 1U;
     }
@@ -725,8 +634,7 @@ McMatrix::select_col(int col_pos)
 
   vector<int> row_pos_list;
   row_pos_list.reserve(col1->num());
-  for ( auto cell = col1->col_front();
-	!col1->is_end(cell); cell = cell->col_next() ) {
+  for ( auto cell: col1->col_list() ) {
     row_pos_list.push_back(cell->row_pos());
   }
   delete_col(col_pos);
@@ -931,8 +839,7 @@ McMatrix::row_dominance()
     // row1 の行に要素を持つ列で要素数が最小のものを求める．
     int min_num = row_size() + 1;
     const McHead* min_col = nullptr;
-    for ( auto cell = row1->row_front();
-	  !row1->is_end(cell); cell = cell->row_next() ) {
+    for ( auto cell: row1->row_list() ) {
       int col_pos = cell->col_pos();
       auto col1 = col(col_pos);
       int col_num = col1->num();
@@ -942,8 +849,7 @@ McMatrix::row_dominance()
       }
     }
     // min_col に要素を持つ行のうち row1 に支配されている行を求める．
-    for ( auto cell = min_col->col_front();
-	  !min_col->is_end(cell); cell = cell->col_next() ) {
+    for ( auto cell: min_col->col_list() ) {
       auto row2 = row(cell->row_pos());
       if ( row2 == row1 ) {
 	// 自分自身は比較しない．
@@ -958,34 +864,9 @@ McMatrix::row_dominance()
 	continue;
       }
 
-      // row1 が row2 を支配しているか調べる．
-      auto cell1 = row1->row_front();
-      int pos1 = cell1->col_pos();
-      auto cell2 = row2->row_front();
-      int pos2 = cell2->col_pos();
-      bool found = false;
-      for ( ; ; ) {
-	if ( pos1 < pos2 ) {
-	  // row1 に含まれていて row2 に含まれていない列があるので
-	  // row1 は row2 を支配しない．
-	  break;
-	}
-	else if ( pos1 == pos2 ) {
-	  cell1 = cell1->row_next();
-	  if ( row1->is_end(cell1) ) {
-	    found = true;
-	    break;
-	  }
-	  pos1 = cell1->col_pos();
-	}
-	cell2 = cell2->row_next();
-	if ( row2->is_end(cell2) ) {
-	  break;
-	}
-	pos2 = cell2->col_pos();
-      }
-      if ( found ) {
-	// row1 は row2 を支配している．
+      // row1 に含まれる要素をすべて row2 が含んでいる場合
+      // row1 が row2 を支配している．
+      if ( check_containment(row2->row_list(), row1->row_list()) ) {
 	int row_pos = row2->pos();
 	delete_row(row_pos);
 	row2->mWork = 1;
@@ -1027,8 +908,7 @@ McMatrix::col_dominance()
     // col1 の列に要素を持つ行で要素数が最小のものを求める．
     int min_num = col_size() + 1;
     const McHead* min_row = nullptr;
-    for ( auto cell = col1->col_front();
-	  !col1->is_end(cell); cell = cell->col_next() ) {
+    for ( auto cell: col1->col_list() ) {
       int row_pos = cell->row_pos();
       auto row1 = row(row_pos);
       int row_num = row1->num();
@@ -1039,8 +919,7 @@ McMatrix::col_dominance()
     }
 
     // min_row の行に要素を持つ列を対象にして支配関係のチェックを行う．
-    for ( auto cell = min_row->row_front();
-	  !min_row->is_end(cell); cell = cell->row_next() ) {
+    for ( auto cell: min_row->row_list() ) {
       auto col2 = col(cell->col_pos());
       if ( col2 == col1 ) {
 	// 自分自身は比較しない．
@@ -1055,51 +934,13 @@ McMatrix::col_dominance()
 	continue;
       }
 
-      auto cell1 = col1->col_front();
-      int pos1 = cell1->row_pos();
-      auto cell2 = col2->col_front();
-      int pos2 = cell2->row_pos();
-      bool found = false;
-      for ( ; ; ) {
-	if ( pos1 < pos2 ) {
-	  // col1 に含まれていて col2 に含まれない行があるので
-	  // col2 は col1 を支配しない．
-	  break;
-	}
-	if ( pos1 == pos2 ) {
-	  cell1 = cell1->col_next();
-	  if ( col1->is_end(cell1) ) {
-	    found = true;
-	    break;
-	  }
-	  pos1 = cell1->row_pos();
-	}
-	cell2 = cell2->col_next();
-	if ( col2->is_end(cell2) ) {
-	  break;
-	}
-	pos2 = cell2->row_pos();
-      }
-      if ( found ) {
-	// col2 は col1 を支配している．
+      // col1 に含まれる要素を col2 がすべて含んでいる場合
+      // col2 は col1 を支配している．
+      if ( check_containment(col2->col_list(), col1->col_list() ) ) {
 	delete_col(col1->pos());
 	if ( mcmatrix_debug > 1 ) {
 	  cout << "Col#" << col1->pos() << " is dominated by Col#"
 	       << col2->pos() << endl;
-	  if ( mcmatrix_debug > 2 ) {
-	    cout << "Col#" << col1->pos() << ":";
-	    for ( auto cell = col1->col_front();
-		  !col1->is_end(cell); cell = cell->col_next() ) {
-	      cout << " " << cell->row_pos();
-	    }
-	    cout << endl;
-	    cout << "Col#" << col2->pos() << ":";
-	    for ( auto cell = col2->col_front();
-		  !col2->is_end(cell); cell = cell->col_next() ) {
-	      cout << " " << cell->row_pos();
-	    }
-	    cout << endl;
-	  }
 	}
 	change = true;
 	break;
@@ -1175,8 +1016,7 @@ McMatrix::print(ostream& s) const
   }
   for ( auto row: row_list() ) {
     s << "Row#" << row->pos() << ":";
-    for ( auto cell = row->row_front();
-	  !row->is_end(cell); cell = cell->row_next() ) {
+    for ( auto cell: row->row_list() ) {
       s << " " << cell->col_pos();
     }
     s << endl;

@@ -105,22 +105,6 @@ public:
   McHead*
   col(int col_pos);
 
-#if 0
-  /// @brief 列の先頭を取り出す．
-  const McColHead*
-  col_front() const;
-
-  /// @brief 列の末尾を取り出す．
-  const McColHead*
-  col_back() const;
-
-  /// @brief col が終端かどうか調べる．
-  /// @param[in] col 対象の行
-  /// @return col が終端の時 true を返す．
-  bool
-  is_col_end(const McColHead* col) const;
-#endif
-
   /// @brief 列のリストを返す．
   const McHeadList&
   col_list() const;
@@ -341,14 +325,6 @@ private:
   // 列の先頭の配列
   McHead** mColArray;
 
-#if 0
-  // 列の先頭をつなぐリンクトリストのダミー
-  McColHead mColHead;
-
-  // 実際の列数
-  int mColNum;
-#endif
-
   // 有効な列のリスト
   McHeadList mColList;
 
@@ -456,34 +432,6 @@ McMatrix::col(int col_pos)
   }
   return mColArray[col_pos];
 }
-
-#if 0
-// @brief 列の先頭を取り出す．
-inline
-const McColHead*
-McMatrix::col_front() const
-{
-  return mColHead.mNext;
-}
-
-// @brief 列の末尾を取り出す．
-inline
-const McColHead*
-McMatrix::col_back() const
-{
-  return mColHead.mPrev;
-}
-
-// @brief col が終端かどうか調べる．
-// @param[in] col 対象の行
-// @return col が終端の時 true を返す．
-inline
-bool
-McMatrix::is_col_end(const McColHead* col) const
-{
-  return col == &mColHead;
-}
-#endif
 
 /// @brief 列のリストを返す．
 inline

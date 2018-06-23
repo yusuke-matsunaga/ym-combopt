@@ -29,8 +29,7 @@ SelSimple::operator()(const McMatrix& matrix)
   int max_col = 0;
   for ( auto col: matrix.col_list() ) {
     double weight = 0.0;
-    for ( auto cell = col->col_front();
-	  !col->is_end(cell); cell = cell->col_next() ) {
+    for ( auto cell: col->col_list() ) {
       auto row = matrix.row(cell->row_pos());
       weight += (1.0 / (row->num() - 1.0));
     }

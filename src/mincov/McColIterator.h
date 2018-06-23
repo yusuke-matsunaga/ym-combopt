@@ -1,8 +1,8 @@
-#ifndef MCHEADITERATOR_H
-#define MCHEADITERATOR_H
+#ifndef MCCOLITERATOR_H
+#define MCCOLITERATOR_H
 
-/// @file McHeadIterator.h
-/// @brief McHeadIterator のヘッダファイル
+/// @file McColIterator.h
+/// @brief McColIterator のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018 Yusuke Matsunaga
@@ -10,23 +10,25 @@
 
 
 #include "ym/mincov_nsdef.h"
+#include "McCell.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McHeadIterator McHeadIterator.h "McHeadIterator.h"
-/// @brief McHead の反復子
+/// @class McColIterator McColIterator.h "McColIterator.h"
+/// @brief McCell を列方向にたどる反復子
 //////////////////////////////////////////////////////////////////////
-class McHeadIterator
+class McColIterator
 {
 public:
 
   /// @brief コンストラクタ
-  McHeadIterator(const McHead* head = nullptr);
+  /// @param[in] cell 対象の McCell
+  McColIterator(McCell* cell = nullptr);
 
   /// @brief デストラクタ
-  ~McHeadIterator();
+  ~McColIterator();
 
 
 public:
@@ -35,20 +37,20 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @breif dereference 演算子
-  const McHead*
+  McCell*
   operator*() const;
 
   /// @brief インクリメント演算子
-  McHeadIterator
+  McColIterator
   operator++();
 
-  /// @brief インクリメント演算子
-  McHeadIterator
+  /// @brief インクリメント演算子(後置)
+  McColIterator
   operator++(int);
 
   /// @brief 等価比較演算子
   bool
-  operator==(const McHeadIterator& right) const;
+  operator==(const McColIterator& right) const;
 
 
 private:
@@ -62,15 +64,15 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 現在の ヘッダ
-  const McHead* mCurHead;
+  // 現在のセル
+  McCell* mCurCell;
 
 };
 
 /// @brief 非等価比較演算子
 bool
-operator!=(const McHeadIterator& left,
-	   const McHeadIterator& right);
+operator!=(const McColIterator& left,
+	   const McColIterator& right);
 
 
 //////////////////////////////////////////////////////////////////////
@@ -78,47 +80,48 @@ operator!=(const McHeadIterator& left,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] cell 対象の McCell
 inline
-McHeadIterator::McHeadIterator(const McHead* head) :
-  mCurHead(head)
+McColIterator::McColIterator(McCell* cell) :
+  mCurCell(cell)
 {
 }
 
 // @brief デストラクタ
 inline
-McHeadIterator::~McHeadIterator()
+McColIterator::~McColIterator()
 {
 }
 
 // @breif dereference 演算子
 inline
-const McHead*
-McHeadIterator::operator*() const
+McCell*
+McColIterator::operator*() const
 {
-  return mCurHead;
+  return mCurCell;
 }
 
 // @brief インクリメント演算子
 inline
-McHeadIterator
-McHeadIterator::operator++()
+McColIterator
+McColIterator::operator++()
 {
-  if ( mCurHead != nullptr ) {
-    mCurHead = mCurHead->next();
+  if ( mCurCell != nullptr ) {
+    mCurCell = mCurCell->col_next();
   }
 
   return *this;
 }
 
-// @brief インクリメント演算子(後置)
+// @brief インクリメント演算子
 inline
-McHeadIterator
-McHeadIterator::operator++(int)
+McColIterator
+McColIterator::operator++(int)
 {
-  McHeadIterator ans(mCurHead);
+  McColIterator ans(mCurCell);
 
-  if ( mCurHead != nullptr ) {
-    mCurHead = mCurHead->next();
+  if ( mCurCell != nullptr ) {
+    mCurCell = mCurCell->col_next();
   }
 
   return ans;
@@ -127,20 +130,20 @@ McHeadIterator::operator++(int)
 // @brief 等価比較演算子
 inline
 bool
-McHeadIterator::operator==(const McHeadIterator& right) const
+McColIterator::operator==(const McColIterator& right) const
 {
-  return mCurHead == right.mCurHead;
+  return mCurCell == right.mCurCell;
 }
 
-/// @brief 非等価比較演算子
+// @brief 非等価比較演算子
 inline
 bool
-operator!=(const McHeadIterator& left,
-	   const McHeadIterator& right)
+operator!=(const McColIterator& left,
+	   const McColIterator& right)
 {
   return !left.operator==(right);
 }
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCHEADITERATOR_H
+#endif // MCCOLITERATOR_H

@@ -36,38 +36,14 @@ verify_matrix(McMatrix& a,
     auto row_a = a.row(row_pos);
     auto row_b = b.row(row_pos);
 
-    auto cell_a = row_a->row_front();
-    auto cell_b = row_b->row_front();
-    for ( ; ; ) {
-      ASSERT_COND( cell_a->row_pos() == row_a->pos() );
-      ASSERT_COND( cell_b->row_pos() == row_b->pos() );
-      ASSERT_COND( cell_a->col_pos() == cell_b->col_pos() );
-      cell_a = cell_a->row_next();
-      cell_b = cell_b->row_next();
-      if ( row_a->is_end(cell_a) ) {
-	ASSERT_COND( row_b->is_end(cell_b) );
-	break;
-      }
-    }
+    ASSERT_COND( row_a->row_list() == row_b->row_list() );
   }
 
   for ( int col_pos: Range(a.col_size()) ) {
     auto col_a = a.col(col_pos);
     auto col_b = b.col(col_pos);
 
-    auto cell_a = col_a->col_front();
-    auto cell_b = col_b->col_front();
-    for ( ; ; ) {
-      ASSERT_COND( cell_a->col_pos() == col_a->pos() );
-      ASSERT_COND( cell_b->col_pos() == col_b->pos() );
-      ASSERT_COND( cell_a->row_pos() == cell_b->row_pos() );
-      cell_a = cell_a->col_next();
-      cell_b = cell_b->col_next();
-      if ( col_a->is_end(cell_a) ) {
-	ASSERT_COND( col_b->is_end(cell_b) );
-	break;
-      }
-    }
+    ASSERT_COND( col_a->col_list() == col_b->col_list() );
   }
 }
 

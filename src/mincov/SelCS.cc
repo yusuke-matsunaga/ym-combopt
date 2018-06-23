@@ -30,8 +30,7 @@ SelCS::operator()(const McMatrix& matrix)
   for ( auto row: matrix.row_list() ) {
     int row_pos = row->pos();
     double min_cost = DBL_MAX;
-    for ( auto cell = row->row_front();
-	  !row->is_end(cell); cell = cell->row_next() ) {
+    for ( auto cell: row->row_list() ) {
       auto col = matrix.col(cell->col_pos());
       double col_cost = static_cast<double>(matrix.col_cost(col->pos())) / col->num();
       if ( min_cost > col_cost ) {
@@ -50,12 +49,10 @@ SelCS::operator()(const McMatrix& matrix)
 
     vector<int> col_delta(matrix.col_size(), 0);
     vector<int> col_list;
-    for ( auto cell = col->col_front();
-	 !col->is_end(cell); cell = cell->col_next()) {
+    for ( auto cell: col->col_list() ) {
       int row_pos = cell->row_pos();
       auto row = matrix.row(row_pos);
-      for ( auto cell1 = row->row_front();
-	    !row->is_end(cell1); cell1 = cell1->row_next() ) {
+      for ( auto cell1: row->row_list() ) {
 	int col_pos = cell1->col_pos();
 	if ( col_delta[col_pos] == 0 ) {
 	  col_list.push_back(col_pos);
@@ -70,8 +67,7 @@ SelCS::operator()(const McMatrix& matrix)
       auto col1 = matrix.col(col_pos);
       double cost1 = matrix.col_cost(col_pos);
       cost1 /= col1->num();
-      for ( auto cell = col1->col_front();
-	   !col1->is_end(cell); cell = cell->col_next()) {
+      for ( auto cell: col1->col_list() ) {
 	int row_pos = cell->row_pos();
 	if ( row_weights[row_pos] < cost1 ) {
 	  continue;
@@ -88,8 +84,7 @@ SelCS::operator()(const McMatrix& matrix)
     for ( auto row_pos: row_list ) {
       auto row = matrix.row(row_pos);
       double min_weight = DBL_MAX;
-      for ( auto cell = row->row_front();
-	    !row->is_end(cell); cell = cell->row_next() ) {
+      for ( auto cell: row->row_list() ) {
 	int col_pos1 = cell->col_pos();
 	double n = matrix.col(col_pos1)->num() - col_delta[col_pos1];
 	double cost1 = matrix.col_cost(col_pos1) / n;

@@ -105,11 +105,9 @@ LbMIS1::operator()(const McMatrix& matrix)
   for ( auto row1: matrix.row_list() ) {
     // マークを消す．
     // 結構めんどくさいけど効率はいい
-    for ( auto cell1 = row1->row_front();
-	  !row1->is_end(cell1); cell1 = cell1->row_next() ) {
+    for ( auto cell1: row1->row_list() ) {
       auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2 = col1->col_front();
-	    !col1->is_end(cell2); cell2 = cell2->col_next() ) {
+      for ( auto cell2: col1->col_list() ) {
 	int row_pos = cell2->row_pos();
 	matrix.row(row_pos)->mWork = 0;
       }
@@ -117,11 +115,9 @@ LbMIS1::operator()(const McMatrix& matrix)
     // マークを用いて隣接関係を作る．
     int row_pos1 = row1->pos();
     int row_list_idx = 0;
-    for ( auto cell1 = row1->row_front();
-	  !row1->is_end(cell1); cell1 = cell1->row_next() ) {
+    for ( auto cell1: row1->row_list() ) {
       auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2 = col1->col_front();
-	    !col1->is_end(cell2); cell2 = cell2->col_next() ) {
+      for ( auto cell2: col1->col_list() ) {
 	int row_pos2 = cell2->row_pos();
 	if ( matrix.row(row_pos2)->mWork == 0 ) {
 	  matrix.row(row_pos2)->mWork = 1;
@@ -172,8 +168,7 @@ LbMIS1::operator()(const McMatrix& matrix)
     // best_node に対応する行を被覆する列の最小コストを求める．
     int min_cost = UINT_MAX;
     auto row = matrix.row(best_node->mRowPos);
-    for ( auto cell = row->row_front();
-	  !row->is_end(cell); cell = cell->row_next() ) {
+    for ( auto cell: row->row_list() ) {
       int cpos = cell->col_pos();
       if ( min_cost > matrix.col_cost(cpos) ) {
 	min_cost = matrix.col_cost(cpos);

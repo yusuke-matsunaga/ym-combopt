@@ -11,6 +11,8 @@
 
 #include "ym/mincov_nsdef.h"
 
+#include "McRowList.h"
+#include "McColList.h"
 #include "McCell.h"
 
 
@@ -59,12 +61,16 @@ public:
   dec_num();
 
   /// @brief 行の先頭の要素を返す．
-  const McCell*
+  McCell*
   row_front() const;
 
   /// @brief 行の末尾の要素を返す．
-  const McCell*
+  McCell*
   row_back() const;
+
+  /// @brief 行方向のリストを返す．
+  McRowList
+  row_list();
 
   /// @brief 行方向で挿入する位置を探す．
   /// @param[in] cell 挿入する要素
@@ -76,12 +82,16 @@ public:
   row_search(McCell* cell);
 
   /// @brief 列の先頭の要素を返す．
-  const McCell*
+  McCell*
   col_front() const;
 
   /// @brief 列の末尾の要素を返す．
-  const McCell*
+  McCell*
   col_back() const;
+
+  /// @brief 列方向のリストを返す．
+  McColList
+  col_list();
 
   /// @brief 列方向で挿入する位置を探す．
   /// @param[in] cell 挿入する要素
@@ -91,12 +101,6 @@ public:
   /// 結果は cell の mUpLink, mDownLink に設定される．
   bool
   col_search(McCell* cell);
-
-  /// @brief cell が終端かどうか調べる．
-  /// @param[in] cell 対象の要素
-  /// @return cell が終端の時 true を返す．
-  bool
-  is_end(const McCell* cell) const;
 
   /// @brief 直前のヘッダを返す．
   const McHead*
@@ -209,7 +213,7 @@ McHead::dec_num()
 
 // @brief 行の先頭の要素を返す．
 inline
-const McCell*
+McCell*
 McHead::row_front() const
 {
   return mDummy.mRightLink;
@@ -217,15 +221,23 @@ McHead::row_front() const
 
 // @brief 行の末尾の要素を返す．
 inline
-const McCell*
+McCell*
 McHead::row_back() const
 {
   return mDummy.mLeftLink;
 }
 
+// @brief 行方向のリストを返す．
+inline
+McRowList
+McHead::row_list()
+{
+  return McRowList(row_front(), &mDummy);
+}
+
 // @brief 列の先頭の要素を返す．
 inline
-const McCell*
+McCell*
 McHead::col_front() const
 {
   return mDummy.mDownLink;
@@ -233,20 +245,18 @@ McHead::col_front() const
 
 // @brief 列の末尾の要素を返す．
 inline
-const McCell*
+McCell*
 McHead::col_back() const
 {
   return mDummy.mUpLink;
 }
 
-// @brief cell が終端かどうか調べる．
-// @param[in] cell 対象の要素
-// @return cell が終端の時 true を返す．
+// @brief 列方向のリストを返す．
 inline
-bool
-McHead::is_end(const McCell* cell) const
+McColList
+McHead::col_list()
 {
-  return cell == &mDummy;
+  return McColList(col_front(), &mDummy);
 }
 
 // @brief 直前のヘッダを返す．
