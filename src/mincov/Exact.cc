@@ -10,7 +10,6 @@
 #include "Exact.h"
 #include "McMatrix.h"
 #include "McHead.h"
-#include "McColHead.h"
 #include "McCell.h"
 #include "LbCalc.h"
 #include "Selector.h"
@@ -31,14 +30,14 @@ verify_matrix(McMatrix& a,
   ASSERT_COND( a.row_size() == b.row_size() );
   ASSERT_COND( a.col_size() == b.col_size() );
   ASSERT_COND( a.row_list() == b.row_list() );
-  ASSERT_COND( a.col_num() == b.col_num() );
+  ASSERT_COND( a.col_list() == b.col_list() );
 
   for ( int row_pos: Range(a.row_size()) ) {
-    const McHead* row_a = a.row(row_pos);
-    const McHead* row_b = b.row(row_pos);
+    auto row_a = a.row(row_pos);
+    auto row_b = b.row(row_pos);
 
-    const McCell* cell_a = row_a->row_front();
-    const McCell* cell_b = row_b->row_front();
+    auto cell_a = row_a->row_front();
+    auto cell_b = row_b->row_front();
     for ( ; ; ) {
       ASSERT_COND( cell_a->row_pos() == row_a->pos() );
       ASSERT_COND( cell_b->row_pos() == row_b->pos() );
@@ -52,30 +51,22 @@ verify_matrix(McMatrix& a,
     }
   }
 
-  const McColHead* col_a = a.col_front();
-  const McColHead* col_b = b.col_front();
-  for ( ; ; ) {
-    ASSERT_COND( col_a->pos() == col_b->pos() );
-    ASSERT_COND( col_a->num() == col_b->num() );
-    const McCell* cell_a = col_a->front();
-    const McCell* cell_b = col_b->front();
+  for ( int col_pos: Range(a.col_size()) ) {
+    auto col_a = a.col(col_pos);
+    auto col_b = b.col(col_pos);
+
+    auto cell_a = col_a->col_front();
+    auto cell_b = col_b->col_front();
     for ( ; ; ) {
       ASSERT_COND( cell_a->col_pos() == col_a->pos() );
       ASSERT_COND( cell_b->col_pos() == col_b->pos() );
       ASSERT_COND( cell_a->row_pos() == cell_b->row_pos() );
-
       cell_a = cell_a->col_next();
       cell_b = cell_b->col_next();
       if ( col_a->is_end(cell_a) ) {
 	ASSERT_COND( col_b->is_end(cell_b) );
 	break;
       }
-    }
-    col_a = col_a->next();
-    col_b = col_b->next();
-    if ( a.is_col_end(col_a) ) {
-      ASSERT_COND( b.is_col_end(col_b) );
-      break;
     }
   }
 }

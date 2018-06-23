@@ -13,7 +13,6 @@
 
 #include "McHead.h"
 #include "McHeadList.h"
-#include "McColHead.h"
 #include "ym/UnitAlloc.h"
 
 
@@ -98,14 +97,15 @@ public:
 
   /// @brief 列を取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  const McColHead*
+  const McHead*
   col(int col_pos) const;
 
   /// @brief 列を取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  McColHead*
+  McHead*
   col(int col_pos);
 
+#if 0
   /// @brief 列の先頭を取り出す．
   const McColHead*
   col_front() const;
@@ -119,6 +119,15 @@ public:
   /// @return col が終端の時 true を返す．
   bool
   is_col_end(const McColHead* col) const;
+#endif
+
+  /// @brief 列のリストを返す．
+  const McHeadList&
+  col_list() const;
+
+  /// @brief 列のリストを返す．
+  McHeadList&
+  col_list();
 
   /// @brief 実効的な列数を返す．
   int
@@ -210,22 +219,6 @@ public:
   void
   reduce(vector<int>& selected_cols);
 
-  /// @brief 行支配を探し，行を削除する．
-  /// @return 削除された行があったら true を返す．
-  bool
-  row_dominance();
-
-  /// @brief 列支配を探し，列を削除する．
-  /// @return 削除された列があったら true を返す．
-  bool
-  col_dominance();
-
-  /// @brief 必須列を探し，列を選択する．
-  /// @param[out] selected_cols 選択された列を追加する列集合
-  /// @return 選択された列があったら true を返す．
-  bool
-  essential_col(vector<int>& selected_cols);
-
   /// @brief 削除スタックにマーカーを書き込む．
   void
   save();
@@ -253,7 +246,7 @@ private:
   /// @param[in] col 対象の列
   /// @return マークされた列数を返す．
   int
-  mark_rows(const McColHead* col) const;
+  mark_rows(const McHead* col) const;
 
   /// @brief row に接続している列をマークする．
   /// @param[in] row 対象の行
@@ -264,6 +257,22 @@ private:
   /// @brief 内容をコピーする．
   void
   copy(const McMatrix& src);
+
+  /// @brief 行支配を探し，行を削除する．
+  /// @return 削除された行があったら true を返す．
+  bool
+  row_dominance();
+
+  /// @brief 列支配を探し，列を削除する．
+  /// @return 削除された列があったら true を返す．
+  bool
+  col_dominance();
+
+  /// @brief 必須列を探し，列を選択する．
+  /// @param[out] selected_cols 選択された列を追加する列集合
+  /// @return 選択された列があったら true を返す．
+  bool
+  essential_col(vector<int>& selected_cols);
 
   /// @brief 行を復元する．
   void
@@ -330,13 +339,18 @@ private:
   McHeadList mRowList;
 
   // 列の先頭の配列
-  McColHead** mColArray;
+  McHead** mColArray;
 
+#if 0
   // 列の先頭をつなぐリンクトリストのダミー
   McColHead mColHead;
 
   // 実際の列数
   int mColNum;
+#endif
+
+  // 有効な列のリスト
+  McHeadList mColList;
 
   // コストの配列
   // サイズは mColSize;
@@ -422,11 +436,11 @@ McMatrix::row_num() const
 // @brief 列の先頭を取り出す．
 // @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
 inline
-const McColHead*
+const McHead*
 McMatrix::col(int col_pos) const
 {
   if ( mColArray[col_pos] == nullptr ) {
-    mColArray[col_pos] = new McColHead(col_pos);
+    mColArray[col_pos] = new McHead(col_pos);
   }
   return mColArray[col_pos];
 }
@@ -434,15 +448,16 @@ McMatrix::col(int col_pos) const
 // @brief 列の先頭を取り出す．
 // @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
 inline
-McColHead*
+McHead*
 McMatrix::col(int col_pos)
 {
   if ( mColArray[col_pos] == nullptr ) {
-    mColArray[col_pos] = new McColHead(col_pos);
+    mColArray[col_pos] = new McHead(col_pos);
   }
   return mColArray[col_pos];
 }
 
+#if 0
 // @brief 列の先頭を取り出す．
 inline
 const McColHead*
@@ -468,14 +483,30 @@ McMatrix::is_col_end(const McColHead* col) const
 {
   return col == &mColHead;
 }
+#endif
+
+/// @brief 列のリストを返す．
+inline
+const McHeadList&
+McMatrix::col_list() const
+{
+  return mColList;
+}
+
+// @brief 列のリストを返す．
+inline
+McHeadList&
+McMatrix::col_list()
+{
+  return mColList;
+}
 
 // @brief 実効的な列数を返す．
 inline
 int
 McMatrix::col_num() const
 {
-  //ASSERT_COND( mColNum == _remain_col_size() );
-  return mColNum;
+  return mColList.num();
 }
 
 // @brief 列のコストを取り出す．

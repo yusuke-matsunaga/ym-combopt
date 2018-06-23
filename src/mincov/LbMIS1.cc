@@ -108,7 +108,7 @@ LbMIS1::operator()(const McMatrix& matrix)
     for ( auto cell1 = row1->row_front();
 	  !row1->is_end(cell1); cell1 = cell1->row_next() ) {
       auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2 = col1->front();
+      for ( auto cell2 = col1->col_front();
 	    !col1->is_end(cell2); cell2 = cell2->col_next() ) {
 	int row_pos = cell2->row_pos();
 	matrix.row(row_pos)->mWork = 0;
@@ -120,7 +120,7 @@ LbMIS1::operator()(const McMatrix& matrix)
     for ( auto cell1 = row1->row_front();
 	  !row1->is_end(cell1); cell1 = cell1->row_next() ) {
       auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2 = col1->front();
+      for ( auto cell2 = col1->col_front();
 	    !col1->is_end(cell2); cell2 = cell2->col_next() ) {
 	int row_pos2 = cell2->row_pos();
 	if ( matrix.row(row_pos2)->mWork == 0 ) {

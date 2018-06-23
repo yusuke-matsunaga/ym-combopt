@@ -228,7 +228,7 @@ inline
 const McCell*
 McHead::col_front() const
 {
-  return mDummy.mUpLink;
+  return mDummy.mDownLink;
 }
 
 // @brief 列の末尾の要素を返す．
@@ -236,7 +236,7 @@ inline
 const McCell*
 McHead::col_back() const
 {
-  return mDummy.mDownLink;
+  return mDummy.mUpLink;
 }
 
 // @brief cell が終端かどうか調べる．

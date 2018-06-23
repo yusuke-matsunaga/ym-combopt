@@ -26,8 +26,7 @@ SelNaive::operator()(const McMatrix& matrix)
   // 最もカバーしている行の多い列を選ぶ
   int max_num = 0;
   int max_col = 0;
-  for ( auto col = matrix.col_front();
-	!matrix.is_col_end(col); col = col->next() ) {
+  for ( auto col: matrix.col_list() ) {
     if ( max_num < col->num() ) {
       max_num = col->num();
       max_col = col->pos();

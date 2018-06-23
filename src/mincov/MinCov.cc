@@ -274,8 +274,8 @@ MinCov::heuristic(vector<int>& solution,
 		  const string& option)
 {
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-  matrix.reduce(solution);
 
+  matrix.reduce(solution);
   if ( matrix.row_num() > 0 ) {
     vector<int> solution1;
     if ( algorithm == string("greedy") ) {
@@ -289,7 +289,10 @@ MinCov::heuristic(vector<int>& solution,
     solution.insert(solution.end(), solution1.begin(), solution1.end());
   }
 
-  ASSERT_COND( matrix.verify(solution) );
+  {
+    McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+    ASSERT_COND( matrix.verify(solution) );
+  }
 
   return matrix.cost(solution);
 }

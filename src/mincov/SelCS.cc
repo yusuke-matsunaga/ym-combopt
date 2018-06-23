@@ -44,14 +44,13 @@ SelCS::operator()(const McMatrix& matrix)
   double min_delta = DBL_MAX;
   int min_col = 0;
 
-  for ( auto col = matrix.col_front();
-	!matrix.is_col_end(col); col = col->next()) {
+  for ( auto col: matrix.col_list() ) {
     int col_pos = col->pos();
     double col_cost = matrix.col_cost(col_pos);
 
     vector<int> col_delta(matrix.col_size(), 0);
     vector<int> col_list;
-    for ( auto cell = col->front();
+    for ( auto cell = col->col_front();
 	 !col->is_end(cell); cell = cell->col_next()) {
       int row_pos = cell->row_pos();
       auto row = matrix.row(row_pos);
@@ -71,7 +70,7 @@ SelCS::operator()(const McMatrix& matrix)
       auto col1 = matrix.col(col_pos);
       double cost1 = matrix.col_cost(col_pos);
       cost1 /= col1->num();
-      for ( auto cell = col1->front();
+      for ( auto cell = col1->col_front();
 	   !col1->is_end(cell); cell = cell->col_next()) {
 	int row_pos = cell->row_pos();
 	if ( row_weights[row_pos] < cost1 ) {

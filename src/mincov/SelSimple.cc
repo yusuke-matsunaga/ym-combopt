@@ -27,10 +27,9 @@ SelSimple::operator()(const McMatrix& matrix)
   // その重みの和が最大となる列を選ぶ．
   double max_weight = 0.0;
   int max_col = 0;
-  for ( auto col = matrix.col_front();
-	!matrix.is_col_end(col); col = col->next() ) {
+  for ( auto col: matrix.col_list() ) {
     double weight = 0.0;
-    for ( auto cell = col->front();
+    for ( auto cell = col->col_front();
 	  !col->is_end(cell); cell = cell->col_next() ) {
       auto row = matrix.row(cell->row_pos());
       weight += (1.0 / (row->num() - 1.0));
