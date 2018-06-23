@@ -58,10 +58,10 @@ LbMIS3::operator()(const McMatrix& matrix)
   for ( auto row1: matrix.row_list() ) {
     // マークを消す．
     // 結構めんどくさいけど効率はいい
-    for ( const McCell* cell1 = row1->front();
+    for ( auto cell1 = row1->row_front();
 	  !row1->is_end(cell1); cell1 = cell1->row_next() ) {
-      const McColHead* col1 = matrix.col(cell1->col_pos());
-      for ( const McCell* cell2 = col1->front();
+      auto col1 = matrix.col(cell1->col_pos());
+      for ( auto cell2 = col1->front();
 	    !col1->is_end(cell2); cell2 = cell2->col_next() ) {
 	int row_pos = cell2->row_pos();
 	matrix.row(row_pos)->mWork = 0;
@@ -71,10 +71,10 @@ LbMIS3::operator()(const McMatrix& matrix)
     int row_pos1 = row1->pos();
     int id1 = row_map[row_pos1];
     int row_list_idx = 0;
-    for ( const McCell* cell1 = row1->front();
+    for ( auto cell1 = row1->row_front();
 	  !row1->is_end(cell1); cell1 = cell1->row_next() ) {
-      const McColHead* col1 = matrix.col(cell1->col_pos());
-      for ( const McCell* cell2 = col1->front();
+      auto col1 = matrix.col(cell1->col_pos());
+      for ( auto cell2 = col1->front();
 	    !col1->is_end(cell2); cell2 = cell2->col_next() ) {
 	int row_pos2 = cell2->row_pos();
 	if ( matrix.row(row_pos2)->mWork == 0 ) {
@@ -91,7 +91,7 @@ LbMIS3::operator()(const McMatrix& matrix)
     int row_pos = row1->pos();
     int id = row_map[row_pos];
     int min_cost = UINT_MAX;
-    for ( const McCell* cell = row1->front();
+    for ( auto cell = row1->row_front();
 	  !row1->is_end(cell); cell = cell->row_next() ) {
       int cpos = cell->col_pos();
       if ( min_cost > matrix.col_cost(cpos) ) {

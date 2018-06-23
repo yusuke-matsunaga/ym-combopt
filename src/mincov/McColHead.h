@@ -127,6 +127,7 @@ private:
 
   // 削除フラグ
   bool mDeleted;
+
 };
 
 
@@ -140,6 +141,7 @@ inline
 McColHead::McColHead(int pos) :
   mPos(pos),
   mNum(0),
+  mDummy(-1, -1),
   mPrev(nullptr),
   mNext(nullptr),
   mDeleted(false)

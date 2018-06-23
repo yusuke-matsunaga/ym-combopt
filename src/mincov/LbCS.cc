@@ -26,9 +26,9 @@ LbCS::operator()(const McMatrix& matrix)
   double cost = 0.0;
   for ( auto row: matrix.row_list() ) {
     double min_cost = DBL_MAX;
-    for ( const McCell* cell = row->front();
+    for ( auto cell = row->row_front();
 	  !row->is_end(cell); cell = cell->row_next() ) {
-      const McColHead* col = matrix.col(cell->col_pos());
+      auto col = matrix.col(cell->col_pos());
       double col_cost = static_cast<double>(matrix.col_cost(col->pos())) / col->num();
       if ( min_cost > col_cost ) {
 	min_cost = col_cost;

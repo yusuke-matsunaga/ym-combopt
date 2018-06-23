@@ -9,11 +9,12 @@
 
 #include "Exact.h"
 #include "McMatrix.h"
-#include "McRowHead.h"
+#include "McHead.h"
 #include "McColHead.h"
 #include "McCell.h"
 #include "LbCalc.h"
 #include "Selector.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -27,21 +28,17 @@ void
 verify_matrix(McMatrix& a,
 	      McMatrix& b)
 {
-  ASSERT_COND( a.row_num() == b.row_num() );
+  ASSERT_COND( a.row_size() == b.row_size() );
+  ASSERT_COND( a.col_size() == b.col_size() );
+  ASSERT_COND( a.row_list() == b.row_list() );
   ASSERT_COND( a.col_num() == b.col_num() );
 
-  McRowIterator it_a = a.row_list().begin();
-  McRowIterator it_b = b.row_list().begin();
-  McRowIterator end_a = a.row_list().end();
-  McRowIterator end_b = b.row_list().end();
-  for ( ; ; ) {
-    const McRowHead* row_a = *it_a;
-    const McRowHead* row_b = *it_b;
-    ASSERT_COND( row_a->pos() == row_b->pos() );
-    ASSERT_COND( row_a->num() == row_b->num() );
+  for ( int row_pos: Range(a.row_size()) ) {
+    const McHead* row_a = a.row(row_pos);
+    const McHead* row_b = b.row(row_pos);
 
-    const McCell* cell_a = row_a->front();
-    const McCell* cell_b = row_b->front();
+    const McCell* cell_a = row_a->row_front();
+    const McCell* cell_b = row_b->row_front();
     for ( ; ; ) {
       ASSERT_COND( cell_a->row_pos() == row_a->pos() );
       ASSERT_COND( cell_b->row_pos() == row_b->pos() );
@@ -53,13 +50,8 @@ verify_matrix(McMatrix& a,
 	break;
       }
     }
-    ++ it_a;
-    ++ it_b;
-    if ( it_a == end_a ) {
-      ASSERT_COND( it_b == end_b );
-      break;
-    }
   }
+
   const McColHead* col_a = a.col_front();
   const McColHead* col_b = b.col_front();
   for ( ; ; ) {

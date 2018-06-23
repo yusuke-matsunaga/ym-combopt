@@ -11,8 +11,8 @@
 
 #include "ym/mincov_nsdef.h"
 
-#include "McRowHead.h"
-#include "McRowList.h"
+#include "McHead.h"
+#include "McHeadList.h"
 #include "McColHead.h"
 #include "ym/UnitAlloc.h"
 
@@ -44,7 +44,7 @@ public:
   /// @param[in] src コピー元のオブジェクト
   McMatrix(const McMatrix& src);
 
-  /// @brief 部分的なコピーコンストラクタ
+  /// @brief 部分的なムーブコンストラクタ
   /// @param[in] src コピー元のオブジェクト
   /// @param[in] row_list コピーする行番号のリスト
   /// @param[in] col_list コピーする列番号のリスト
@@ -76,33 +76,21 @@ public:
 
   /// @brief 行を取り出す．
   /// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
-  const McRowHead*
+  const McHead*
   row(int row_pos) const;
 
   /// @brief 行を取り出す．
   /// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
-  McRowHead*
+  McHead*
   row(int row_pos);
 
-#if 0
-  /// @brief 行の先頭を取り出す．
-  const McRowHead*
-  row_front() const;
-
-  /// @brief 行の末尾を取り出す．
-  const McRowHead*
-  row_back() const;
-
-  /// @brief row が終端かどうか調べる．
-  /// @param[in] row 対象の行
-  /// @return row が終端の時 true を返す．
-  bool
-  is_row_end(const McRowHead* row) const;
-#endif
+  /// @brief 行のリストを返す．
+  const McHeadList&
+  row_list() const;
 
   /// @brief 行のリストを返す．
-  const McRowList&
-  row_list() const;
+  McHeadList&
+  row_list();
 
   /// @brief 実効的な行数を返す．
   int
@@ -187,6 +175,9 @@ public:
   clear();
 
   /// @brief 分割した行列をもとに戻す．
+  /// @param[in] matrix1, matrix2 分割した行列
+  ///
+  /// matrix1 と matrix2 の内容は破棄される．
   void
   merge(McMatrix& matrix1,
 	McMatrix& matrix2);
@@ -205,10 +196,12 @@ public:
   select_col(int col_pos);
 
   /// @brief 行を削除する．
+  /// @param[in] row_pos 削除する行番号
   void
   delete_row(int row_pos);
 
   /// @brief 列を削除する．
+  /// @param[in] col_pos 削除する列番号
   void
   delete_col(int col_pos);
 
@@ -247,18 +240,11 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 実効的な行数を返す．
-  int
-  _remain_row_size() const;
-
-  /// @brief 実効的な列数を返す．
-  int
-  _remain_col_size() const;
-
   /// @brief サイズを変更する．
   /// @param[in] row_size 行数
   /// @param[in] col_size 列数
-  /// @note 内容はクリアされる．
+  ///
+  /// 内容はクリアされる．
   void
   resize(int row_size,
 	 int col_size);
@@ -273,7 +259,7 @@ private:
   /// @param[in] row 対象の行
   /// @return マークされた列数を返す．
   int
-  mark_cols(const McRowHead* row) const;
+  mark_cols(const McHead* row) const;
 
   /// @brief 内容をコピーする．
   void
@@ -288,8 +274,11 @@ private:
   restore_col(int col_pos);
 
   /// @brief セルの生成
+  /// @param[in] row_pos 行番号
+  /// @param[in] col_pos 列番号
   McCell*
-  alloc_cell();
+  alloc_cell(int row_pos,
+	     int col_pos);
 
   /// @brief セルの解放
   void
@@ -335,16 +324,10 @@ private:
   int mColSize;
 
   // 行の先頭の配列
-  McRowHead** mRowArray;
+  McHead** mRowArray;
 
   // 有効な行のリスト
-  McRowList mRowList;
-
-  // 行の先頭をつなぐリンクトリストのダミー
-  //McRowHead mRowHead;
-
-  // 実際の行数
-  int mRowNum;
+  McHeadList mRowList;
 
   // 列の先頭の配列
   McColHead** mColArray;
@@ -391,11 +374,11 @@ McMatrix::col_size() const
 // @brief 行の先頭を取り出す．
 // @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
 inline
-const McRowHead*
+const McHead*
 McMatrix::row(int row_pos) const
 {
   if ( mRowArray[row_pos] == nullptr ) {
-    mRowArray[row_pos] = new McRowHead(row_pos);
+    mRowArray[row_pos] = new McHead(row_pos);
   }
   return mRowArray[row_pos];
 }
@@ -403,47 +386,27 @@ McMatrix::row(int row_pos) const
 // @brief 行の先頭を取り出す．
 // @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
 inline
-McRowHead*
+McHead*
 McMatrix::row(int row_pos)
 {
   if ( mRowArray[row_pos] == nullptr ) {
-    mRowArray[row_pos] = new McRowHead(row_pos);
+    mRowArray[row_pos] = new McHead(row_pos);
   }
   return mRowArray[row_pos];
 }
 
-#if 0
-// @brief 行の先頭を取り出す．
+// @brief 行のリストを返す．
 inline
-const McRowHead*
-McMatrix::row_front() const
+const McHeadList&
+McMatrix::row_list() const
 {
-  return mRowHead.mNext;
+  return mRowList;
 }
-
-// @brief 行の末尾を取り出す．
-inline
-const McRowHead*
-McMatrix::row_back() const
-{
-  return mRowHead.mPrev;
-}
-
-// @brief row が終端かどうか調べる．
-// @param[in] row 対象の行
-// @return row が終端の時 true を返す．
-inline
-bool
-McMatrix::is_row_end(const McRowHead* row) const
-{
-  return row == &mRowHead;
-}
-#endif
 
 // @brief 行のリストを返す．
 inline
-const McRowList&
-McMatrix::row_list() const
+McHeadList&
+McMatrix::row_list()
 {
   return mRowList;
 }
@@ -453,8 +416,7 @@ inline
 int
 McMatrix::row_num() const
 {
-  //ASSERT_COND( mRowNum == _remain_row_size() );
-  return mRowNum;
+  return mRowList.num();
 }
 
 // @brief 列の先頭を取り出す．

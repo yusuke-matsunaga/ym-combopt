@@ -27,12 +27,12 @@ SelSimple::operator()(const McMatrix& matrix)
   // その重みの和が最大となる列を選ぶ．
   double max_weight = 0.0;
   int max_col = 0;
-  for ( const McColHead* col = matrix.col_front();
+  for ( auto col = matrix.col_front();
 	!matrix.is_col_end(col); col = col->next() ) {
     double weight = 0.0;
-    for ( const McCell* cell = col->front();
+    for ( auto cell = col->front();
 	  !col->is_end(cell); cell = cell->col_next() ) {
-      const McRowHead* row = matrix.row(cell->row_pos());
+      auto row = matrix.row(cell->row_pos());
       weight += (1.0 / (row->num() - 1.0));
     }
     weight /= matrix.col_cost(col->pos());
