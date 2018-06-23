@@ -25,7 +25,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] cell 対象の McCell
-  McColIterator(McCell* cell = nullptr);
+  McColIterator(const McCell* cell = nullptr);
 
   /// @brief デストラクタ
   ~McColIterator();
@@ -37,7 +37,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @breif dereference 演算子
-  McCell*
+  const McCell*
   operator*() const;
 
   /// @brief インクリメント演算子
@@ -65,7 +65,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 現在のセル
-  McCell* mCurCell;
+  const McCell* mCurCell;
 
 };
 
@@ -82,7 +82,7 @@ operator!=(const McColIterator& left,
 // @brief コンストラクタ
 // @param[in] cell 対象の McCell
 inline
-McColIterator::McColIterator(McCell* cell) :
+McColIterator::McColIterator(const McCell* cell) :
   mCurCell(cell)
 {
 }
@@ -95,7 +95,7 @@ McColIterator::~McColIterator()
 
 // @breif dereference 演算子
 inline
-McCell*
+const McCell*
 McColIterator::operator*() const
 {
   return mCurCell;

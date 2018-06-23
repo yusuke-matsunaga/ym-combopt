@@ -10,7 +10,6 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "McHead.h"
 #include "McColIterator.h"
 
 
@@ -33,8 +32,8 @@ public:
   /// @brief コンストラクタ
   /// @param[in] begin_cell 先頭の要素
   /// @param[in] end_cell 末尾の要素
-  McColList(McCell* begin_cell,
-	    McCell* end_cell);
+  McColList(const McCell* begin_cell,
+	    const McCell* end_cell);
 
   /// @brief デストラクタ
   ~McColList();
@@ -71,10 +70,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 先頭の要素
-  McCell* mBegin;
+  const McCell* mBegin;
 
   // 末尾の要素
-  McCell* mEnd;
+  const McCell* mEnd;
 
 };
 
@@ -110,8 +109,8 @@ check_containment(const McColList& list1,
 // @param[in] begin_cell 先頭の要素
 // @param[in] end_cell 末尾の要素
 inline
-McColList::McColList(McCell* begin_cell,
-		     McCell* end_cell) :
+McColList::McColList(const McCell* begin_cell,
+		     const McCell* end_cell) :
   mBegin(begin_cell),
   mEnd(end_cell)
 {

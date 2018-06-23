@@ -70,7 +70,7 @@ public:
 
   /// @brief 行方向のリストを返す．
   McRowList
-  row_list();
+  row_list() const;
 
   /// @brief 行方向で挿入する位置を探す．
   /// @param[in] cell 挿入する要素
@@ -91,7 +91,7 @@ public:
 
   /// @brief 列方向のリストを返す．
   McColList
-  col_list();
+  col_list() const;
 
   /// @brief 列方向で挿入する位置を探す．
   /// @param[in] cell 挿入する要素
@@ -230,7 +230,7 @@ McHead::row_back() const
 // @brief 行方向のリストを返す．
 inline
 McRowList
-McHead::row_list()
+McHead::row_list() const
 {
   return McRowList(row_front(), &mDummy);
 }
@@ -254,7 +254,7 @@ McHead::col_back() const
 // @brief 列方向のリストを返す．
 inline
 McColList
-McHead::col_list()
+McHead::col_list() const
 {
   return McColList(col_front(), &mDummy);
 }

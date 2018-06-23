@@ -51,11 +51,11 @@ public:
   col_pos() const;
 
   /// @brief 同じ行の直前の要素を返す．
-  McCell*
+  const McCell*
   row_prev() const;
 
   /// @brief 同じ行の直後の要素を返す．
-  McCell*
+  const McCell*
   row_next() const;
 
   /// @brief 行方向に cell を挿入する．
@@ -69,11 +69,11 @@ public:
   row_delete(McCell* cell);
 
   /// @brief 同じ列の直前の要素を返す．
-  McCell*
+  const McCell*
   col_prev() const;
 
   /// @brief 同じ列の直後の要素を返す．
-  McCell*
+  const McCell*
   col_next() const;
 
   /// @brief 列方向に cell を挿入する．
@@ -152,7 +152,7 @@ McCell::col_pos() const
 
 // @brief 同じ行の直前の要素を返す．
 inline
-McCell*
+const McCell*
 McCell::row_prev() const
 {
   return mLeftLink;
@@ -160,7 +160,7 @@ McCell::row_prev() const
 
 // @brief 同じ行の直後の要素を返す．
 inline
-McCell*
+const McCell*
 McCell::row_next() const
 {
   return mRightLink;
@@ -190,7 +190,7 @@ McCell::row_delete(McCell* cell)
 
 // @brief 同じ列の直前の要素を返す．
 inline
-McCell*
+const McCell*
 McCell::col_prev() const
 {
   return mUpLink;
@@ -198,7 +198,7 @@ McCell::col_prev() const
 
 // @brief 同じ列の直後の要素を返す．
 inline
-McCell*
+const McCell*
 McCell::col_next() const
 {
   return mDownLink;

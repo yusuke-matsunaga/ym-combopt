@@ -683,7 +683,7 @@ McMatrix::delete_row(int row_pos)
   mRowList.exclude(row1);
 
   for ( auto cell = row1->mDummy.mRightLink;
-	!row1->is_end(cell); cell = cell->mRightLink ) {
+	cell != &row1->mDummy; cell = cell->mRightLink ) {
     McCell::col_delete(cell);
     int col_pos = cell->col_pos();
     auto col1 = col(col_pos);
@@ -703,7 +703,7 @@ McMatrix::restore_row(int row_pos)
   mRowList.restore(row1);
 
   for ( auto cell = row1->mDummy.mRightLink;
-	!row1->is_end(cell); cell = cell->mRightLink ) {
+	cell != &row1->mDummy; cell = cell->mRightLink ) {
     McCell::col_insert(cell);
   }
 }
@@ -718,8 +718,8 @@ McMatrix::delete_col(int col_pos)
   }
   mColList.exclude(col1);
 
-  for ( McCell* cell = col1->mDummy.mDownLink;
-	!col1->is_end(cell); cell = cell->mDownLink ) {
+  for ( auto cell = col1->mDummy.mDownLink;
+	cell != &col1->mDummy; cell = cell->mDownLink ) {
     McCell::row_delete(cell);
     int row_pos = cell->row_pos();
     auto row1 = row(row_pos);
@@ -740,8 +740,8 @@ McMatrix::restore_col(int col_pos)
 
   mColList.restore(col1);
 
-  for ( McCell* cell = col1->mDummy.mDownLink;
-	!col1->is_end(cell); cell = cell->mDownLink ) {
+  for ( auto cell = col1->mDummy.mDownLink;
+	cell != &col1->mDummy; cell = cell->mDownLink ) {
     McCell::row_insert(cell);
   }
 }
