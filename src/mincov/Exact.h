@@ -10,9 +10,10 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "McMatrix.h"
-#include "LbCalc.h"
-#include "Selector.h"
+#include "mincov/McMatrix.h"
+#include "mincov/McBlock.h"
+#include "mincov/LbCalc.h"
+#include "mincov/Selector.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -60,9 +61,9 @@ public:
   int
   solve(vector<int>& solution);
 
-  /// @brief 内部の行列を返す．
-  const McMatrix&
-  matrix() const;
+  /// @brief 対象のブロックを返す．
+  const McBlock&
+  block() const;
 
   /// @brief partition フラグを設定する．
   static
@@ -102,8 +103,11 @@ private:
   // 列を選択するクラス
   Selector& mSelector;
 
-  // 問題を表す行列
+  // 対象の行列
   McMatrix mMatrix;
+
+  // 対象のブロック
+  McBlock mBlock;
 
   // 現在のベスト
   int mBest;

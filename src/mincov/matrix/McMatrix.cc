@@ -7,7 +7,8 @@
 /// All rights reserved.
 
 
-#include "McMatrix.h"
+#include "mincov/McMatrix.h"
+#include "ym/Range.h"
 
 
 //#define VERIFY_MCMATRIX 1
@@ -16,245 +17,6 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 int mcmatrix_debug = 0;
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス McHeadList
-//////////////////////////////////////////////////////////////////////
-
-// @brief 内容をセットする．
-void
-McHeadList::set(const vector<McHead*>& head_list)
-{
-  mNum = 0;
-  McHead* prev_head = &mDummy;
-  for ( auto head: head_list ) {
-    prev_head->mNext = head;
-    head->mPrev = prev_head;
-    prev_head = head;
-    ++ mNum;
-  }
-  prev_head->mNext = &mDummy;
-  mDummy.mPrev = prev_head;
-}
-
-// @brief 要素を追加する．
-void
-McHeadList::insert(McHead* head)
-{
-  McHead* prev = mDummy.mPrev; // 末尾
-  McHead* next = &mDummy;
-  int pos = head->pos();
-  if ( prev == next || prev->pos() < pos ) {
-    // 末尾に追加
-    // よくあるパタンなので最初に調べる．
-    ;
-  }
-  else {
-    for ( prev = &mDummy; ; prev = next ) {
-      next = prev->mNext;
-      ASSERT_COND( next->pos() != pos );
-      if ( next->pos() > pos ) {
-	// prev と next の間に挿入する．
-	break;
-      }
-      ASSERT_COND( next != &mDummy );
-    }
-  }
-  prev->mNext = head;
-  head->mPrev = prev;
-  head->mNext = next;
-  next->mPrev = head;
-  ++ mNum;
-}
-
-// @brief 要素を削除する．
-// @param[in] head 削除する要素
-//
-// row がこのリストに含まれていると仮定する．
-void
-McHeadList::exclude(McHead* head)
-{
-  ASSERT_COND( !head->mDeleted );
-  head->mDeleted = true;
-  -- mNum;
-
-  McHead* prev = head->mPrev;
-  McHead* next = head->mNext;
-  prev->mNext = next;
-  next->mPrev = prev;
-}
-
-// @brief exclude() で削除した行を復元する．
-void
-McHeadList::restore(McHead* head)
-{
-  ASSERT_COND( head->mDeleted );
-  head->mDeleted = false;
-  ++ mNum;
-
-  McHead* prev = head->mPrev;
-  McHead* next = head->mNext;
-  prev->mNext = head;
-  next->mPrev = head;
-}
-
-// @brief 分割したリストをマージして元にもどす．
-// @param[in] src1, src2 分割したリスト
-//
-// src1, src2 の内容は破棄される．
-void
-McHeadList::merge(McHeadList& src1,
-		  McHeadList& src2)
-{
-  vector<McHead*> row_list;
-  row_list.reserve(src1.num() + src2.num());
-  McHead* head1 = src1.mDummy.mNext;
-  McHead* head2 = src2.mDummy.mNext;
-  McHead* end1 = &src1.mDummy;
-  McHead* end2 = &src2.mDummy;
-  while ( head1 != end1 && head2 != end2 ) {
-    if ( head1->pos() < head2->pos() ) {
-      row_list.push_back(head1);
-      head1 = head1->mNext;
-    }
-    else if ( head1->pos() > head2->pos() ) {
-      row_list.push_back(head2);
-      head2 = head2->mNext;
-    }
-    else {
-      ASSERT_NOT_REACHED;
-    }
-  }
-  for ( ; head1 != end1; head1 = head1->mNext ) {
-    row_list.push_back(head1);
-  }
-  for ( ; head2 != end2; head2 = head2->mNext ) {
-    row_list.push_back(head2);
-  }
-  set(row_list);
-}
-
-// @brief 等価比較演算子
-// @param[in] list1, list2 オペランド
-bool
-operator==(const McHeadList& list1,
-	   const McHeadList& list2)
-{
-  if ( list1.num() != list2.num() ) {
-    return false;
-  }
-
-  McHeadIterator it1 = list1.begin();
-  McHeadIterator end1 = list1.end();
-  McHeadIterator it2 = list2.begin();
-  McHeadIterator end2 = list2.end();
-  for ( ; ; ) {
-    const McHead* head1 = *it1;
-    const McHead* head2 = *it2;
-    if ( head1->pos() != head2->pos() ) {
-      return false;
-    }
-    if ( head1->num() != head2->num() ) {
-      return false;
-    }
-
-    ++ it1;
-    ++ it2;
-    if ( it1 == end1 ) {
-      if ( it2 != end2 ) {
-	return false;
-      }
-      break;
-    }
-  }
-
-  return true;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス McHead
-//////////////////////////////////////////////////////////////////////
-
-// @brief 行方向で挿入する位置を探す．
-// @param[in] cell 挿入する要素
-// @retval true 追加が成功した．
-// @retval false 同じ要素がすでに存在した．
-//
-// 結果は cell の mLeftLink, mRightLink に設定される．
-bool
-McHead::row_search(McCell* cell)
-{
-  int col_pos = cell->col_pos();
-  McCell* pcell;
-  McCell* ncell;
-  if ( num() == 0 || row_back()->col_pos() < col_pos ) {
-    // 末尾への追加
-    ncell = &mDummy;
-    pcell = ncell->mLeftLink;
-  }
-  else {
-    // 追加位置を探索
-    // この時点で back->col_pos() >= col_pos が成り立っている．
-    for ( pcell = &mDummy; ; pcell = ncell ) {
-      ncell = pcell->mRightLink;
-      if ( ncell->col_pos() == col_pos ) {
-	// 列番号が重複しているので無視する．
-	return false;
-      }
-      if ( ncell->col_pos() > col_pos ) {
-	// pcell と ncell の間に cell を挿入する．
-	break;
-      }
-      ASSERT_COND( ncell != &mDummy );
-    }
-  }
-  cell->mLeftLink = pcell;
-  cell->mRightLink = ncell;
-
-  return true;
-}
-
-// @brief 列方向で挿入する位置を探す．
-// @param[in] cell 挿入する要素
-// @retval true 追加が成功した．
-// @retval false 同じ要素がすでに存在した．
-//
-// 結果は cell の mUpLink, mDownLink に設定される．
-bool
-McHead::col_search(McCell* cell)
-{
-  int row_pos = cell->row_pos();
-  McCell* pcell;
-  McCell* ncell;
-  if ( num() == 0 || col_back()->row_pos() < row_pos ) {
-    // 末尾への追加
-    ncell = &mDummy;
-    pcell = ncell->mUpLink;
-  }
-  else {
-    // 追加位置を探索
-    // この時点で back->row_pos() >= row_pos が成り立っている．
-    for ( pcell = &mDummy; ; pcell = ncell ) {
-      ncell = pcell->mDownLink;
-      if ( ncell->row_pos() == row_pos ) {
-	// 列番号が重複しているので無視する．
-	return false;
-      }
-      if ( ncell->row_pos() > row_pos ) {
-	// pcell と ncell の間に cell を挿入する．
-	break;
-      }
-      ASSERT_COND( ncell != &mDummy );
-    }
-  }
-  cell->mUpLink = pcell;
-  cell->mDownLink = ncell;
-
-  return true;
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス McMatrix
@@ -274,8 +36,7 @@ McMatrix::McMatrix(int row_size,
   mColSize(0),
   mRowArray(nullptr),
   mColArray(nullptr),
-  mCostArray(cost_array),
-  mDelStack(nullptr)
+  mCostArray(cost_array)
 {
   resize(row_size, col_size);
 
@@ -291,8 +52,7 @@ McMatrix::McMatrix(const McMatrix& src) :
   mRowSize(0),
   mColSize(0),
   mRowArray(nullptr),
-  mColArray(nullptr),
-  mDelStack(nullptr)
+  mColArray(nullptr)
 {
   resize(src.row_size(), src.col_size());
   copy(src);
@@ -309,28 +69,27 @@ McMatrix::McMatrix(McMatrix& src,
   mRowSize(0),
   mColSize(0),
   mRowArray(nullptr),
-  mColArray(nullptr),
-  mDelStack(nullptr)
+  mColArray(nullptr)
 {
   resize(src.row_size(), src.col_size());
 
   vector<McHead*> row_list;
   row_list.reserve(row_pos_list.size());
   for ( auto row_pos: row_pos_list ) {
-    auto row1 = src.row(row_pos);
-    mRowArray[row_pos] = row1;
-    row_list.push_back(row1);
+    auto row_head = src.row_head(row_pos);
+    mRowArray[row_pos] = row_head;
+    row_list.push_back(row_head);
   }
-  mRowList.set(row_list);
+  //mRowList.set(row_list);
 
   vector<McHead*> col_list;
   col_list.reserve(col_pos_list.size());
   for ( auto col_pos: col_pos_list ) {
-    auto col1 = src.col(col_pos);
-    mColArray[col_pos] = col1;
-    col_list.push_back(col1);
+    auto col_head = src.col_head(col_pos);
+    mColArray[col_pos] = col_head;
+    col_list.push_back(col_head);
   }
-  mColList.set(col_list);
+  //mColList.set(col_list);
 
   mCostArray = src.mCostArray;
 }
@@ -359,7 +118,6 @@ McMatrix::~McMatrix()
   }
   delete [] mRowArray;
   delete [] mColArray;
-  delete [] mDelStack;
 }
 
 // @brief 内容をクリアする．
@@ -379,17 +137,9 @@ McMatrix::clear()
 
   delete [] mRowArray;
   delete [] mColArray;
-  delete [] mDelStack;
 
   mRowArray = nullptr;
   mColArray = nullptr;
-
-
-  mRowList.clear();
-  mColList.clear();
-
-  mDelStack = nullptr;
-  mStackTop = 0;
 }
 
 // @brief サイズを変更する．
@@ -413,12 +163,11 @@ McMatrix::resize(int row_size,
       mColArray[i] = nullptr;
     }
 
-    mRowList.clear();
-    mColList.clear();
-
+#if 0
     delete [] mDelStack;
     mDelStack = new int[row_size + col_size];
     mStackTop = 0;
+#endif
   }
 }
 
@@ -429,13 +178,15 @@ McMatrix::copy(const McMatrix& src)
   ASSERT_COND(row_size() == src.row_size() );
   ASSERT_COND(col_size() == src.col_size() );
 
-  for ( auto src_row: src.row_list() ) {
-    int row_pos = src_row->pos();
-    for ( auto src_cell: src_row->row_list() ) {
+#if 0
+  for ( auto src_row_head: src.row_head_list() ) {
+    int row_pos = src_row_head->pos();
+    for ( auto src_cell: src_row_head->row_list() ) {
       int col_pos = src_cell->col_pos();
       insert_elem(row_pos, col_pos);
     }
   }
+#endif
 
   mCostArray = src.mCostArray;
 }
@@ -445,8 +196,10 @@ void
 McMatrix::merge(McMatrix& matrix1,
 		McMatrix& matrix2)
 {
+#if 0
   mRowList.merge(matrix1.row_list(), matrix2.row_list());
   mColList.merge(matrix1.col_list(), matrix2.col_list());
+#endif
 }
 
 // @brief 列集合のコストを返す．
@@ -474,6 +227,7 @@ McMatrix::block_partition(vector<int>& row_list1,
 			  vector<int>& col_list1,
 			  vector<int>& col_list2) const
 {
+#if 0
   // マークを消す．
   for ( auto row1: row_list() ) {
     row1->mWork = 0U;
@@ -523,10 +277,12 @@ McMatrix::block_partition(vector<int>& row_list1,
       col_list2.push_back(col1->pos());
     }
   }
+#endif
 
   return true;
 }
 
+#if 0
 // @brief col に接続している行をマークする．
 // @param[in] col 対象の列
 // @return マークされた列数を返す．
@@ -563,6 +319,7 @@ McMatrix::mark_cols(const McHead* row) const
   }
   return nc;
 }
+#endif
 
 // @brief 列集合がカバーになっているか検証する．
 // @param[in] col_list 列のリスト
@@ -571,19 +328,19 @@ McMatrix::mark_cols(const McHead* row) const
 bool
 McMatrix::verify(const vector<int>& col_list) const
 {
-  for ( auto row1: row_list() ) {
-    row1->mWork = 0U;
+  for ( int row_pos: Range(row_size()) ) {
+    row_head(row_pos)->mWork = 0U;
   }
   for ( auto col_pos: col_list ) {
-    auto col1 = col(col_pos);
-    for ( auto cell: col1->col_list() ) {
+    auto col_head1 = col_head(col_pos);
+    for ( auto cell: col_head1->col_list() ) {
       int row_pos = cell->row_pos();
-      row(row_pos)->mWork = 1U;
+      row_head(row_pos)->mWork = 1U;
     }
   }
   bool status = true;
-  for ( auto row1: row_list() ) {
-    if ( row1->mWork == 0U ) {
+  for ( int row_pos: Range(row_size()) ) {
+    if ( row_head(row_pos)->mWork == 0U ) {
       status = false;
     }
   }
@@ -600,7 +357,7 @@ McMatrix::insert_elem(int row_pos,
 {
   auto cell = alloc_cell(row_pos, col_pos);
 
-  auto row1 = row(row_pos);
+  auto row1 = row_head(row_pos);
   bool stat1 = row1->row_search(cell);
   if ( !stat1 ) {
     // 列番号が重複しているので無視する．
@@ -609,22 +366,27 @@ McMatrix::insert_elem(int row_pos,
   }
 
   McCell::row_insert(cell);
+#if 0
   if ( row1->inc_num() == 1 ) {
     mRowList.insert(row1);
   }
+#endif
 
-  auto col1 = col(col_pos);
+  auto col1 = col_head(col_pos);
   bool stat2 = col1->col_search(cell);
   ASSERT_COND( stat2 );
 
   McCell::col_insert(cell);
+#if 0
   if ( col1->inc_num() == 1 ) {
     mColList.insert(col1);
   }
+#endif
 
   return cell;
 }
 
+#if 0
 // @brief 列を選択し，被覆される行を削除する．
 void
 McMatrix::select_col(int col_pos)
@@ -987,6 +749,7 @@ McMatrix::essential_col(vector<int>& selected_cols)
 
   return size > old_size;
 }
+#endif
 
 // @brief セルの生成
 McCell*
@@ -1009,14 +772,14 @@ McMatrix::free_cell(McCell* cell)
 void
 McMatrix::print(ostream& s) const
 {
-  for ( int i = 0; i < col_size(); ++ i ) {
-    if ( col_cost(i) != 1 ) {
-      s << "Col#" << i << ": " << col_cost(i) << endl;
+  for ( auto col_pos: Range(col_size()) ) {
+    if ( col_cost(col_pos) != 1 ) {
+      s << "Col#" << col_pos << ": " << col_cost(col_pos) << endl;
     }
   }
-  for ( auto row: row_list() ) {
-    s << "Row#" << row->pos() << ":";
-    for ( auto cell: row->row_list() ) {
+  for ( auto row_pos: Range(row_size()) ) {
+    s << "Row#" << row_pos << ":";
+    for ( auto cell: row_head(row_pos)->row_list() ) {
       s << " " << cell->col_pos();
     }
     s << endl;

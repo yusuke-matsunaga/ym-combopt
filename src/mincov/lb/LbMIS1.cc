@@ -8,7 +8,7 @@
 
 
 #include "LbMIS1.h"
-#include "McMatrix.h"
+#include "mincov/McBlock.h"
 #include "ym/SimpleAlloc.h"
 
 
@@ -57,9 +57,9 @@ struct Lt
 // @param[in] matrix 対象の行列
 // @return 下限値
 int
-LbMIS1::operator()(const McMatrix& matrix)
+LbMIS1::operator()(const McBlock& block)
 {
-  if ( matrix.row_num() == 0 ) {
+  if ( block.row_num() == 0 ) {
     return 0;
   }
 
@@ -69,8 +69,8 @@ LbMIS1::operator()(const McMatrix& matrix)
   // ndoe_array[row_pos] に row_pos の行の Node が入る．
   // top から Node::mNext を使ってリンクトリストを作る．
   SimpleAlloc alloc;
-  int rs = matrix.row_size();
-  int rn = matrix.row_num();
+  int rs = block.row_size();
+  int rn = block.row_num();
   void* p = alloc.get_memory(sizeof(Node*) * rs);
   Node** node_array = new (p) Node*[rs];
   for ( int i = 0; i < rs; ++ i ) {
@@ -81,8 +81,8 @@ LbMIS1::operator()(const McMatrix& matrix)
   Node* top = nullptr;
   Node* last = nullptr;
   int idx = 0;
-  for ( auto row1: matrix.row_list() ) {
-    int row_pos = row1->pos();
+  for ( auto row_head: block.row_head_list() ) {
+    int row_pos = row_head->pos();
     Node* node = &node_chunk[idx];
     ++ idx;
     node->set(row_pos);
@@ -102,25 +102,25 @@ LbMIS1::operator()(const McMatrix& matrix)
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
   int* row_list = alloc.get_array<int>(rn);
-  for ( auto row1: matrix.row_list() ) {
+  for ( auto row_head: block.row_head_list() ) {
     // マークを消す．
     // 結構めんどくさいけど効率はいい
-    for ( auto cell1: row1->row_list() ) {
-      auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2: col1->col_list() ) {
+    for ( auto cell1: row_head->row_list() ) {
+      auto col_head = block.col_head(cell1->col_pos());
+      for ( auto cell2: col_head->col_list() ) {
 	int row_pos = cell2->row_pos();
-	matrix.row(row_pos)->mWork = 0;
+	block.row_head(row_pos)->mWork = 0;
       }
     }
     // マークを用いて隣接関係を作る．
-    int row_pos1 = row1->pos();
+    int row_pos1 = row_head->pos();
     int row_list_idx = 0;
-    for ( auto cell1: row1->row_list() ) {
-      auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2: col1->col_list() ) {
+    for ( auto cell1: row_head->row_list() ) {
+      auto col_head = block.col_head(cell1->col_pos());
+      for ( auto cell2: col_head->col_list() ) {
 	int row_pos2 = cell2->row_pos();
-	if ( matrix.row(row_pos2)->mWork == 0 ) {
-	  matrix.row(row_pos2)->mWork = 1;
+	if ( block.row_head(row_pos2)->mWork == 0 ) {
+	  block.row_head(row_pos2)->mWork = 1;
 	  row_list[row_list_idx] = row_pos2;
 	  ++ row_list_idx;
 	}
@@ -167,11 +167,11 @@ LbMIS1::operator()(const McMatrix& matrix)
 
     // best_node に対応する行を被覆する列の最小コストを求める．
     int min_cost = UINT_MAX;
-    auto row = matrix.row(best_node->mRowPos);
-    for ( auto cell: row->row_list() ) {
+    auto row_head = block.row_head(best_node->mRowPos);
+    for ( auto cell: row_head->row_list() ) {
       int cpos = cell->col_pos();
-      if ( min_cost > matrix.col_cost(cpos) ) {
-	min_cost = matrix.col_cost(cpos);
+      if ( min_cost > block.col_cost(cpos) ) {
+	min_cost = block.col_cost(cpos);
       }
     }
     cost += min_cost;

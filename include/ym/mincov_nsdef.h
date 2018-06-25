@@ -34,11 +34,12 @@ BEGIN_NAMESPACE_YM_MINCOV
 class MinCov;
 class LbCalc;
 class Selector;
-class McSolver;
-class McSolverImpl;
 class McCell;
-class McRowHead;
-class McColHead;
+class McHead;
+class McHeadList;
+class McRowList;
+class McColList;
+class McBlock;
 class McMatrix;
 
 END_NAMESPACE_YM_MINCOV

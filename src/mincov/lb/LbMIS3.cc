@@ -8,7 +8,7 @@
 
 
 #include "LbMIS3.h"
-#include "McMatrix.h"
+#include "mincov/McBlock.h"
 #include "ym/UdGraph.h"
 #include "ym/SimpleAlloc.h"
 
@@ -23,9 +23,9 @@ BEGIN_NAMESPACE_YM_MINCOV
 // @param[in] matrix 対象の行列
 // @return 下限値
 int
-LbMIS3::operator()(const McMatrix& matrix)
+LbMIS3::operator()(const McBlock& block)
 {
-  if ( matrix.row_num() == 0 ) {
+  if ( block.row_num() == 0 ) {
     return 0;
   }
 
@@ -34,8 +34,8 @@ LbMIS3::operator()(const McMatrix& matrix)
   // ndoe_array[row_pos] に row_pos の行の Node が入る．
   // top から Node::mNext を使ってリンクとリストを作る．
   SimpleAlloc alloc;
-  int rs = matrix.row_size();
-  int rn = matrix.row_num();
+  int rs = block.row_size();
+  int rn = block.row_num();
 
   UdGraph graph(rs);
 
@@ -45,8 +45,8 @@ LbMIS3::operator()(const McMatrix& matrix)
   }
 
   int idx = 0;
-  for ( auto row1: matrix.row_list() ) {
-    int row_pos = row1->pos();
+  for ( auto row_head: block.row_head_list() ) {
+    int row_pos = row_head->pos();
     row_map[row_pos] = idx;
     ++ idx;
   }
@@ -55,26 +55,26 @@ LbMIS3::operator()(const McMatrix& matrix)
   // node1 と列を共有する行の Node が node1->mAdjLink[0:node1->mAdjNum -1]
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
-  for ( auto row1: matrix.row_list() ) {
+  for ( auto row_head: block.row_head_list() ) {
     // マークを消す．
     // 結構めんどくさいけど効率はいい
-    for ( auto cell1: row1->row_list() ) {
-      auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2: col1->col_list() ) {
+    for ( auto cell1: row_head->row_list() ) {
+      auto col_head = block.col_head(cell1->col_pos());
+      for ( auto cell2: col_head->col_list() ) {
 	int row_pos = cell2->row_pos();
-	matrix.row(row_pos)->mWork = 0;
+	block.row_head(row_pos)->mWork = 0;
       }
     }
     // マークを用いて隣接関係を作る．
-    int row_pos1 = row1->pos();
+    int row_pos1 = row_head->pos();
     int id1 = row_map[row_pos1];
     int row_list_idx = 0;
-    for ( auto cell1: row1->row_list() ) {
-      auto col1 = matrix.col(cell1->col_pos());
-      for ( auto cell2: col1->col_list() ) {
+    for ( auto cell1: row_head->row_list() ) {
+      auto col_head = block.col_head(cell1->col_pos());
+      for ( auto cell2: col_head->col_list() ) {
 	int row_pos2 = cell2->row_pos();
-	if ( matrix.row(row_pos2)->mWork == 0 ) {
-	  matrix.row(row_pos2)->mWork = 1;
+	if ( block.row_head(row_pos2)->mWork == 0 ) {
+	  block.row_head(row_pos2)->mWork = 1;
 	  int id2 = row_map[row_pos2];
 	  graph.connect(id1, id2);
 	}
@@ -83,14 +83,14 @@ LbMIS3::operator()(const McMatrix& matrix)
   }
 
   // 各行を被覆する列の最小コストを求める．
-  for ( auto row1: matrix.row_list() ) {
-    int row_pos = row1->pos();
+  for ( auto row_head: block.row_head_list() ) {
+    int row_pos = row_head->pos();
     int id = row_map[row_pos];
     int min_cost = UINT_MAX;
-    for ( auto cell: row1->row_list() ) {
+    for ( auto cell: row_head->row_list() ) {
       int cpos = cell->col_pos();
-      if ( min_cost > matrix.col_cost(cpos) ) {
-	min_cost = matrix.col_cost(cpos);
+      if ( min_cost > block.col_cost(cpos) ) {
+	min_cost = block.col_cost(cpos);
       }
     }
   }

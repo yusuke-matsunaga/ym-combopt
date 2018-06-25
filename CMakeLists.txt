@@ -51,20 +51,21 @@ add_subdirectory ( python )
 set ( mincov_SOURCES
   src/mincov/Greedy.cc
   src/mincov/Exact.cc
-  src/mincov/LbCS.cc
-  src/mincov/LbMAX.cc
-  src/mincov/LbMIS1.cc
-  src/mincov/LbMIS2.cc
-  src/mincov/LbMIS3.cc
+  src/mincov/lb/LbCS.cc
+  src/mincov/lb/LbMIS1.cc
+  src/mincov/lb/LbMIS2.cc
+  src/mincov/lb/LbMIS3.cc
+  src/mincov/lb/MisNodeHeap.cc
   src/mincov/MaxClique.cc
-  src/mincov/McColList.cc
-  src/mincov/McRowList.cc
-  src/mincov/McMatrix.cc
+  src/mincov/matrix/McHead.cc
+  src/mincov/matrix/McHeadList.cc
+  src/mincov/matrix/McColList.cc
+  src/mincov/matrix/McRowList.cc
+  src/mincov/matrix/McMatrix.cc
   src/mincov/MinCov.cc
-  src/mincov/MisNodeHeap.cc
-  src/mincov/SelCS.cc
-  src/mincov/SelNaive.cc
-  src/mincov/SelSimple.cc
+  src/mincov/sel/SelCS.cc
+  src/mincov/sel/SelNaive.cc
+  src/mincov/sel/SelSimple.cc
   )
 
 set ( udgraph_SOURCES

@@ -8,7 +8,7 @@
 
 
 #include "SelSimple.h"
-#include "McMatrix.h"
+#include "mincov/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -18,26 +18,26 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 次の列を選ぶ．
-// @param[in] matrix 対象の行列
+// @param[in] block 対象の行列
 // @return 選ばれた列番号を返す．
 int
-SelSimple::operator()(const McMatrix& matrix)
+SelSimple::operator()(const McBlock& block)
 {
   // 各行にカバーしている列数に応じた重みをつけ，
   // その重みの和が最大となる列を選ぶ．
   double max_weight = 0.0;
   int max_col = 0;
-  for ( auto col: matrix.col_list() ) {
+  for ( auto col_head: block.col_head_list() ) {
     double weight = 0.0;
-    for ( auto cell: col->col_list() ) {
-      auto row = matrix.row(cell->row_pos());
-      weight += (1.0 / (row->num() - 1.0));
+    for ( auto cell: col_head->col_list() ) {
+      auto row_head = block.row_head(cell->row_pos());
+      weight += (1.0 / (row_head->num() - 1.0));
     }
-    weight /= matrix.col_cost(col->pos());
+    weight /= block.col_cost(col_head->pos());
 
     if ( max_weight < weight ) {
       max_weight = weight;
-      max_col = col->pos();
+      max_col = col_head->pos();
     }
   }
   return max_col;

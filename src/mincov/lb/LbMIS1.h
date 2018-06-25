@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "LbCalc.h"
+#include "mincov/LbCalc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -30,7 +30,7 @@ public:
 
   /// @brief 下界の計算をする
   int
-  operator()(const McMatrix& matrix) override;
+  operator()(const McBlock& block) override;
 
 };
 

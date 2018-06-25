@@ -8,7 +8,7 @@
 
 
 #include "LbCS.h"
-#include "McMatrix.h"
+#include "mincov/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -18,17 +18,17 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 下限を求める．
-// @param[in] matrix 対象の行列
+// @param[in] block 対象のブロック
 // @return 下限値
 int
-LbCS::operator()(const McMatrix& matrix)
+LbCS::operator()(const McBlock& block)
 {
   double cost = 0.0;
-  for ( auto row: matrix.row_list() ) {
+  for ( auto row_head: block.row_head_list() ) {
     double min_cost = DBL_MAX;
-    for ( auto cell: row->row_list() ) {
-      auto col = matrix.col(cell->col_pos());
-      double col_cost = static_cast<double>(matrix.col_cost(col->pos())) / col->num();
+    for ( auto cell: row_head->row_list() ) {
+      auto col_head = block.col_head(cell->col_pos());
+      double col_cost = static_cast<double>(block.col_cost(col_head->pos())) / col_head->num();
       if ( min_cost > col_cost ) {
 	min_cost = col_cost;
       }

@@ -10,13 +10,13 @@
 #include "ym/MinCov.h"
 #include "Greedy.h"
 #include "Exact.h"
-#include "LbMIS1.h"
-#include "LbMIS2.h"
-#include "LbMIS3.h"
-#include "LbCS.h"
-#include "SelSimple.h"
-#include "SelNaive.h"
-#include "SelCS.h"
+#include "lb/LbMIS1.h"
+#include "lb/LbMIS2.h"
+#include "lb/LbMIS3.h"
+#include "lb/LbCS.h"
+#include "sel/SelSimple.h"
+#include "sel/SelNaive.h"
+#include "sel/SelCS.h"
 #include "ym/Range.h"
 
 
@@ -207,7 +207,7 @@ BEGIN_NONAMESPACE
 // @param[out] solution 解
 // @return 解のコスト
 void
-greedy(const McMatrix& matrix,
+greedy(const McBlock& block,
        const string& option,
        vector<int>& solution)
 {
@@ -258,7 +258,7 @@ greedy(const McMatrix& matrix,
     selector = &sel_simple;
   }
 
-  Greedy::solve(matrix, *selector, solution);
+  Greedy::solve(block, *selector, solution);
 }
 
 END_NONAMESPACE
@@ -274,17 +274,17 @@ MinCov::heuristic(vector<int>& solution,
 		  const string& option)
 {
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-
-  matrix.reduce(solution);
-  if ( matrix.row_num() > 0 ) {
+  McBlock block(matrix);
+  block.reduce(solution);
+  if ( block.row_num() > 0 ) {
     vector<int> solution1;
     if ( algorithm == string("greedy") ) {
-      greedy(matrix, option, solution1);
+      greedy(block, option, solution1);
     }
     else if ( algorithm == string("random") ) {
     }
     else {
-      greedy(matrix, string(), solution1);
+      greedy(block, string(), solution1);
     }
     solution.insert(solution.end(), solution1.begin(), solution1.end());
   }

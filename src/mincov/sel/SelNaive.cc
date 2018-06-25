@@ -8,7 +8,7 @@
 
 
 #include "SelNaive.h"
-#include "McMatrix.h"
+#include "mincov/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -18,18 +18,18 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 次の列を選ぶ．
-// @param[in] matrix 対象の行列
+// @param[in] block 対象の行列
 // @return 選ばれた列番号を返す．
 int
-SelNaive::operator()(const McMatrix& matrix)
+SelNaive::operator()(const McBlock& block)
 {
   // 最もカバーしている行の多い列を選ぶ
   int max_num = 0;
   int max_col = 0;
-  for ( auto col: matrix.col_list() ) {
-    if ( max_num < col->num() ) {
-      max_num = col->num();
-      max_col = col->pos();
+  for ( auto col_head: block.col_head_list() ) {
+    if ( max_num < col_head->num() ) {
+      max_num = col_head->num();
+      max_col = col_head->pos();
     }
   }
   return max_col;

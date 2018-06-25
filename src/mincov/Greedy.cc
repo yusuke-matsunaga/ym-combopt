@@ -8,8 +8,8 @@
 
 
 #include "Greedy.h"
-#include "McMatrix.h"
-#include "Selector.h"
+#include "mincov/McBlock.h"
+#include "mincov/Selector.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 // @param[in] selector 列を選ぶ関数オブジェクト
 // @param[out] solution 選ばれた列集合
 void
-Greedy::solve(const McMatrix& matrix,
+Greedy::solve(const McBlock& matrix,
 	      Selector& selector,
 	      vector<int>& solution)
 {
@@ -32,14 +32,14 @@ Greedy::solve(const McMatrix& matrix,
   }
 
   // 作業用に行列のコピーを作る．
-  McMatrix cur_matrix(matrix);
+  McBlock cur_block(matrix);
 
-  while ( cur_matrix.row_num() > 0 ) {
+  while ( cur_block.row_num() > 0 ) {
     // 次の分岐のための列をとってくる．
-    int col = selector(cur_matrix);
+    int col = selector(cur_block);
 
     // その列を選択する．
-    cur_matrix.select_col(col);
+    cur_block.select_col(col);
     solution.push_back(col);
 
     if ( mDebug ) {
@@ -47,7 +47,7 @@ Greedy::solve(const McMatrix& matrix,
     }
 
     // 行列を縮約する．
-    cur_matrix.reduce(solution);
+    cur_block.reduce(solution);
   }
 }
 

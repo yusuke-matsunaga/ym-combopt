@@ -1,26 +1,26 @@
-﻿#ifndef LBMIS3_H
-#define LBMIS3_H
+﻿#ifndef LBMIS2_H
+#define LBMIS2_H
 
-/// @file LbMIS3.h
-/// @brief LbMIS3 のヘッダファイル
+/// @file LbMIS2.h
+/// @brief LbMIS2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014, 2015 Yusuke Matsunaga
+/// Copyright (C) 2014 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "LbCalc.h"
+#include "mincov/LbCalc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class LbMIS3 LbMIS3.h "LbMIS3.h"
+/// @class LbMIS2 LbMIS2.h "LbMIS2.h"
 /// @brief MIS(maximum independent set) を用いた下界の計算クラス
 ///
-/// get_mis() 関数を使う
+/// ヒープを使って最小要素を取り出す．
 //////////////////////////////////////////////////////////////////////
-class LbMIS3 :
+class LbMIS2 :
   public LbCalc
 {
 public:
@@ -30,10 +30,10 @@ public:
 
   /// @brief 下界の計算をする
   int
-  operator()(const McMatrix& matrix) override;
+  operator()(const McBlock& block) override;
 
 };
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // LBMIS3_H
+#endif // LBMIS_H

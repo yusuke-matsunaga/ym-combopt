@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "Selector.h"
+#include "mincov/Selector.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -30,10 +30,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の列を選ぶ．
-  /// @param[in] matrix 対象の行列
+  /// @param[in] block 対象の行列
   /// @return 選ばれた列番号を返す．
   int
-  operator()(const McMatrix& matrix) override;
+  operator()(const McBlock& block) override;
 
 };
 

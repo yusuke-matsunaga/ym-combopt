@@ -8,7 +8,7 @@
 
 
 #include "SelCS.h"
-#include "McMatrix.h"
+#include "mincov/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -18,21 +18,22 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 次の列を選ぶ．
-// @param[in] matrix 対象の行列
+// @param[in] block 対象の行列
 // @return 選ばれた列番号を返す．
 int
-SelCS::operator()(const McMatrix& matrix)
+SelCS::operator()(const McBlock& block)
 {
   // 各行にカバーしている列数に応じた重みをつけ，
   // その重みの和が最大となる列を選ぶ．
-  int nr = matrix.row_size();
+  int nr = block.row_size();
   vector<double> row_weights(nr);
-  for ( auto row: matrix.row_list() ) {
-    int row_pos = row->pos();
+  for ( auto row_head: block.row_head_list() ) {
+    int row_pos = row_head->pos();
     double min_cost = DBL_MAX;
-    for ( auto cell: row->row_list() ) {
-      auto col = matrix.col(cell->col_pos());
-      double col_cost = static_cast<double>(matrix.col_cost(col->pos())) / col->num();
+    for ( auto cell: row_head->row_list() ) {
+      int col_pos = cell->col_pos();
+      auto col_head = block.col_head(col_pos);
+      double col_cost = static_cast<double>(block.col_cost(col_pos)) / col_head->num();
       if ( min_cost > col_cost ) {
 	min_cost = col_cost;
       }
@@ -43,16 +44,16 @@ SelCS::operator()(const McMatrix& matrix)
   double min_delta = DBL_MAX;
   int min_col = 0;
 
-  for ( auto col: matrix.col_list() ) {
-    int col_pos = col->pos();
-    double col_cost = matrix.col_cost(col_pos);
+  for ( auto col_head: block.col_head_list() ) {
+    int col_pos = col_head->pos();
+    double col_cost = block.col_cost(col_pos);
 
-    vector<int> col_delta(matrix.col_size(), 0);
+    vector<int> col_delta(block.col_size(), 0);
     vector<int> col_list;
-    for ( auto cell: col->col_list() ) {
+    for ( auto cell: col_head->col_list() ) {
       int row_pos = cell->row_pos();
-      auto row = matrix.row(row_pos);
-      for ( auto cell1: row->row_list() ) {
+      auto row_head = block.row_head(row_pos);
+      for ( auto cell1: row_head->row_list() ) {
 	int col_pos = cell1->col_pos();
 	if ( col_delta[col_pos] == 0 ) {
 	  col_list.push_back(col_pos);
@@ -61,13 +62,13 @@ SelCS::operator()(const McMatrix& matrix)
       }
     }
 
-    vector<bool> row_mark(matrix.row_size(), false);
+    vector<bool> row_mark(block.row_size(), false);
     vector<int> row_list;
     for ( auto col_pos: col_list ) {
-      auto col1 = matrix.col(col_pos);
-      double cost1 = matrix.col_cost(col_pos);
-      cost1 /= col1->num();
-      for ( auto cell: col1->col_list() ) {
+      auto col_head = block.col_head(col_pos);
+      double cost1 = block.col_cost(col_pos);
+      cost1 /= col_head->num();
+      for ( auto cell: col_head->col_list() ) {
 	int row_pos = cell->row_pos();
 	if ( row_weights[row_pos] < cost1 ) {
 	  continue;
@@ -82,12 +83,12 @@ SelCS::operator()(const McMatrix& matrix)
 
     double delta_sum = 0.0;
     for ( auto row_pos: row_list ) {
-      auto row = matrix.row(row_pos);
+      auto row_head = block.row_head(row_pos);
       double min_weight = DBL_MAX;
-      for ( auto cell: row->row_list() ) {
+      for ( auto cell: row_head->row_list() ) {
 	int col_pos1 = cell->col_pos();
-	double n = matrix.col(col_pos1)->num() - col_delta[col_pos1];
-	double cost1 = matrix.col_cost(col_pos1) / n;
+	double n = block.col_head(col_pos1)->num() - col_delta[col_pos1];
+	double cost1 = block.col_cost(col_pos1) / n;
 	if ( min_weight > cost1 ) {
 	  min_weight = cost1;
 	}

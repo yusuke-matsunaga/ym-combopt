@@ -1,38 +1,46 @@
-﻿#ifndef LBCS_H
-#define LBCS_H
+﻿#ifndef LBCALC_H
+#define LBCALC_H
 
-/// @file LbCS.h
-/// @brief LbCS のヘッダファイル
+/// @file LbCalc.h
+/// @brief LbCalc のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2014 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "LbCalc.h"
+#include "ym/mincov_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class LbCS LbCS.h "LbCS.h"
-/// @brief column splitting を用いた下界の計算クラス
+/// @class LbCalc LbCalc.h "LbCalc.h"
+/// @brief 下界の計算クラス
 //////////////////////////////////////////////////////////////////////
-class LbCS :
-  public LbCalc
+class LbCalc
 {
+public:
+
+  /// @brief デストラクタ
+  virtual
+  ~LbCalc() { }
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 下界の計算をする
+  /// @param[in] block 対象のブロック
+  virtual
   int
-  operator()(const McMatrix& matrix) override;
+  operator()(const McBlock& block) = 0;
 
 };
 
 END_NAMESPACE_YM_MINCOV
 
 
-#endif // LBCS_H
+#endif // LBMIS_H

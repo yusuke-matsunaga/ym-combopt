@@ -1,8 +1,8 @@
-﻿#ifndef LBCALC_H
-#define LBCALC_H
+﻿#ifndef SELECTOR_H
+#define SELECTOR_H
 
-/// @file LbCalc.h
-/// @brief LbCalc のヘッダファイル
+/// @file Selector.h
+/// @brief Selector のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2014 Yusuke Matsunaga
@@ -15,16 +15,16 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class LbCalc LbCalc.h "LbCalc.h"
-/// @brief 下界の計算クラス
+/// @class Selector Selector.h "Selector.h"
+/// @brief 列を選ぶファンクタ
 //////////////////////////////////////////////////////////////////////
-class LbCalc
+class Selector
 {
 public:
 
   /// @brief デストラクタ
   virtual
-  ~LbCalc() { }
+  ~Selector() { }
 
 
 public:
@@ -32,14 +32,16 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 下界の計算をする
+  /// @brief 次の列を選ぶ．
+  /// @param[in] block 対象のブロック
+  /// @return 選ばれた列番号を返す．
   virtual
   int
-  operator()(const McMatrix& matrix) = 0;
+  operator()(const McBlock& block) = 0;
 
 };
 
 END_NAMESPACE_YM_MINCOV
 
 
-#endif // LBMIS_H
+#endif // SELECTOR_H

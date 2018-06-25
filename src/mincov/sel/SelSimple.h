@@ -1,26 +1,27 @@
-﻿#ifndef SELNAIVE_H
-#define SELNAIVE_H
+﻿#ifndef SELSIMPLE_H
+#define SELSIMPLE_H
 
-/// @file SelNaive.h
-/// @brief SelNaive のヘッダファイル
+/// @file Selector.h
+/// @brief Selector のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2014 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "Selector.h"
+#include "mincov/Selector.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class SelNaive SelNaive.h "SelNaive.h"
-/// @brief 単純な Selector
+/// @class SelSimple SelSimple.h "SelSimple.h"
+/// @brief 列を選ぶファンクタ
 ///
-/// 最もカバーしている行の多い列を選ぶ
+/// 各行にカバーしている列数に応じた重みをつけ，
+/// その重みの和が最大となる列を選ぶ．
 //////////////////////////////////////////////////////////////////////
-class SelNaive :
+class SelSimple :
   public Selector
 {
 public:
@@ -29,14 +30,14 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の列を選ぶ．
-  /// @param[in] matrix 対象の行列
+  /// @param[in] block 対象の行列
   /// @return 選ばれた列番号を返す．
   int
-  operator()(const McMatrix& matrix) override;
+  operator()(const McBlock& block) override;
 
 };
 
 END_NAMESPACE_YM_MINCOV
 
 
-#endif // SELECTOR_H
+#endif // SELSIMPLE_H
