@@ -95,6 +95,8 @@ int
 MinCov::exact(vector<int>& solution,
 	      const string& option)
 {
+  sanity_check();
+
   // ここの仕事はオプション文字列を解析して
   // Exact を呼ぶこと．
   vector<pair<string, string> > opt_list;
@@ -200,22 +202,12 @@ MinCov::exact(vector<int>& solution,
   int cost = solver.solve(solution);
 
   { // 結果が正しいか検証しておく．
-    McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-    vector<bool> row_mark(row_size(), false);
-    for ( auto col: solution ) {
-      for ( auto cell: matrix.col_head(col)->col_list() ) {
-	row_mark[cell->row_pos()] = true;
-      }
-    }
-    bool error = false;
-    for ( auto row: Range(row_size()) ) {
-      if ( !row_mark[row] ) {
+    vector<int> uncov_row_list;
+    bool stat = verify_solution(solution, uncov_row_list);
+    if ( !stat ) {
+      for ( auto row: uncov_row_list ) {
 	cout << "Error: Row#" << row << " is not covered" << endl;
-	error = true;
       }
-    }
-    if ( error ) {
-      matrix.print(cout);
     }
   }
 
@@ -295,18 +287,8 @@ MinCov::heuristic(vector<int>& solution,
 		  const string& algorithm,
 		  const string& option)
 {
-  {
-    vector<bool> row_mark(row_size(), false);
-    for ( auto p: mElemList ) {
-      int row_pos = p.first;
-      row_mark[row_pos] = true;
-    }
-    for ( auto row_pos: Range(row_size()) ) {
-      if ( !row_mark[row_pos] ) {
-	cout << "Warning: Row#" << row_pos << " has no elem" << endl;
-      }
-    }
-  }
+  sanity_check();
+
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
   McBlock block(matrix);
 
@@ -327,26 +309,58 @@ MinCov::heuristic(vector<int>& solution,
   }
 
   { // 結果が正しいか検証しておく．
-    McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-    vector<bool> row_mark(row_size(), false);
-    for ( auto col: solution ) {
-      for ( auto cell: matrix.col_head(col)->col_list() ) {
-	row_mark[cell->row_pos()] = true;
-      }
-    }
-    bool error = false;
-    for ( auto row: Range(row_size()) ) {
-      if ( matrix.row_head(row)->num() > 0 && !row_mark[row] ) {
+    vector<int> uncov_row_list;
+    bool stat = verify_solution(solution, uncov_row_list);
+    if ( !stat ) {
+      for ( auto row: uncov_row_list ) {
 	cout << "Error: Row#" << row << " is not covered" << endl;
-	error = true;
       }
-    }
-    if ( error ) {
-      matrix.print(cout);
     }
   }
 
   return matrix.cost(solution);
+}
+
+// @brief mElemList をチェックする．
+//
+// 要素を持たない行があったら警告する．
+void
+MinCov::sanity_check()
+{
+  vector<bool> row_mark(row_size(), false);
+  for ( auto p: mElemList ) {
+    int row_pos = p.first;
+    row_mark[row_pos] = true;
+  }
+  for ( auto row_pos: Range(row_size()) ) {
+    if ( !row_mark[row_pos] ) {
+      cout << "Warning: Row#" << row_pos << " has no elem" << endl;
+    }
+  }
+}
+
+// @brief 解を検証する．
+// @param[out] uncov_row_list 被覆されていない行のリスト
+// @retval true 正しい解だった．
+// @retval false 被覆されていない行があった．
+bool
+MinCov::verify_solution(const vector<int>& solution,
+			vector<int>& uncov_row_list)
+{
+  McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+  vector<bool> row_mark(row_size(), false);
+  for ( auto col: solution ) {
+    for ( auto cell: matrix.col_head(col)->col_list() ) {
+      row_mark[cell->row_pos()] = true;
+    }
+  }
+  uncov_row_list.clear();
+  for ( auto row: Range(row_size()) ) {
+    if ( matrix.row_head(row)->num() > 0 && !row_mark[row] ) {
+      uncov_row_list.push_back(row);
+    }
+  }
+  return uncov_row_list.empty();
 }
 
 END_NAMESPACE_YM_MINCOV

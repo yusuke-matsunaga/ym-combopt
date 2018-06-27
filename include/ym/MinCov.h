@@ -166,6 +166,20 @@ private:
   void
   init_cost_array(const vector<int>& col_cost_array);
 
+  /// @brief mElemList をチェックする．
+  ///
+  /// 要素を持たない行があったら警告する．
+  void
+  sanity_check();
+
+  /// @brief 解を検証する．
+  /// @param[out] uncov_row_list 被覆されていない行のリスト
+  /// @retval true 正しい解だった．
+  /// @retval false 被覆されていない行があった．
+  bool
+  verify_solution(const vector<int>& solution,
+		  vector<int>& uncov_row_list);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
