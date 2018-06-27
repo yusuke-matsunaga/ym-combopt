@@ -156,11 +156,11 @@ McBlock::select_col(int col_pos)
   ASSERT_COND( !col_head1->mDeleted );
 
   for ( auto cell: col_head1->col_list() ) {
-    queue_row(cell->row_pos());
-    //delete_row(cell->row_pos());
+    delete_row(cell->row_pos());
   }
 
-  do_delete();
+  ASSERT_COND( col_head1->num() == 0 );
+  delete_col(col_pos);
 }
 
 // @brief 行を削除する．
@@ -180,10 +180,7 @@ McBlock::delete_row(int row_pos)
     McCell::col_delete(cell);
     auto col_pos = cell->col_pos();
     auto col_head1 = col_head(col_pos);
-    if ( col_head1->dec_num() == 0 ) {
-      queue_col(col_pos);
-      //delete_col(col_pos);
-    }
+    col_head1->dec_num();
   }
 }
 
@@ -222,10 +219,7 @@ McBlock::delete_col(int col_pos)
     McCell::row_delete(cell);
     auto row_pos = cell->row_pos();
     auto row_head1 = row_head(row_pos);
-    if ( row_head1->dec_num() == 0 ) {
-      queue_row(row_pos);
-      //delete_row(row_pos);
-    }
+    row_head1->dec_num();
   }
 }
 
@@ -353,7 +347,6 @@ McBlock::row_dominance()
       // row1 が row2 を支配している．
       if ( check_containment(row_head2->row_list(), row_head1->row_list()) ) {
 	delete_row(row_head2->pos());
-	do_delete();
 	row_head2->mWork = 1;
 	change = true;
 	if ( mcblock_debug > 1 ) {
@@ -372,6 +365,13 @@ bool
 McBlock::col_dominance()
 {
   bool change = false;
+
+  // 要素を持たない列を削除する．
+  for ( auto col_head1: col_head_list() ) {
+    if ( col_head1->num() == 0 ) {
+      delete_col(col_head1->pos());
+    }
+  }
 
   for ( auto col_head1: col_head_list() ) {
     // col1 の列に要素を持つ行で要素数が最小のものを求める．
@@ -407,7 +407,6 @@ McBlock::col_dominance()
       // col_head2 は col_head1 を支配している．
       if ( check_containment(col_head2->col_list(), col_head1->col_list() ) ) {
 	delete_col(col_head1->pos());
-	do_delete();
 	if ( mcblock_debug > 1 ) {
 	  cout << "Col#" << col_head1->pos() << " is dominated by Col#"
 	       << col_head2->pos() << endl;
@@ -456,38 +455,6 @@ McBlock::essential_col(vector<int>& selected_cols)
   }
 
   return size > old_size;
-}
-
-// @brief 行の削除をスケジュールする．
-// @param[in] row_pos 削除する行番号
-void
-McBlock::queue_row(int row_pos)
-{
-  mMatrix.queue_write(row_pos << 1);
-}
-
-// @brief 列の削除をスケジュールする．
-// @param[in] col_pos 削除する列番号
-void
-McBlock::queue_col(int col_pos)
-{
-  mMatrix.queue_write((col_pos << 1) | 1);
-}
-
-// @brief 他の削除から引き起こされた削除を行う．
-void
-McBlock::do_delete()
-{
-  while ( !mMatrix.queue_empty() ) {
-    int val = mMatrix.queue_read();
-    int pos = val >> 1;
-    if ( val & 1 ) {
-      delete_col(pos);
-    }
-    else {
-      delete_row(pos);
-    }
-  }
 }
 
 // @brief 削除スタックにマーカーを書き込む．

@@ -181,20 +181,6 @@ private:
   void
   delete_col(int col_pos);
 
-  /// @brief 行の削除をスケジュールする．
-  /// @param[in] row_pos 削除する行番号
-  void
-  queue_row(int row_pos);
-
-  /// @brief 列の削除をスケジュールする．
-  /// @param[in] col_pos 削除する列番号
-  void
-  queue_col(int col_pos);
-
-  /// @brief 他の削除から引き起こされた削除を行う．
-  void
-  do_delete();
-
   /// @brief 行を復元する．
   void
   restore_row(int row_pos);
@@ -341,7 +327,6 @@ void
 McBlock::deselect_col(int col_pos)
 {
   delete_col(col_pos);
-  do_delete();
 }
 
 END_NAMESPACE_YM_MINCOV

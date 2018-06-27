@@ -295,6 +295,18 @@ MinCov::heuristic(vector<int>& solution,
 		  const string& algorithm,
 		  const string& option)
 {
+  {
+    vector<bool> row_mark(row_size(), false);
+    for ( auto p: mElemList ) {
+      int row_pos = p.first;
+      row_mark[row_pos] = true;
+    }
+    for ( auto row_pos: Range(row_size()) ) {
+      if ( !row_mark[row_pos] ) {
+	cout << "Warning: Row#" << row_pos << " has no elem" << endl;
+      }
+    }
+  }
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
   McBlock block(matrix);
 
@@ -324,7 +336,7 @@ MinCov::heuristic(vector<int>& solution,
     }
     bool error = false;
     for ( auto row: Range(row_size()) ) {
-      if ( !row_mark[row] ) {
+      if ( matrix.row_head(row)->num() > 0 && !row_mark[row] ) {
 	cout << "Error: Row#" << row << " is not covered" << endl;
 	error = true;
       }

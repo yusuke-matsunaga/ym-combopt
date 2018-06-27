@@ -129,32 +129,6 @@ public:
   insert_elem(int row_pos,
 	      int col_pos);
 
-  /// @brief 削除スタックにマーカーを書き込む．
-  void
-  save();
-
-  /// @brief 直前のマーカーまで処理を戻す．
-  void
-  restore();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 削除用のキューを操作する関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief キューが空の時 true を返す．
-  bool
-  queue_empty();
-
-  /// @brief キューに値を書き込む．
-  void
-  queue_write(int val);
-
-  /// @brief キューから値を取り出す．
-  int
-  queue_read();
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -239,15 +213,6 @@ private:
   // コストの配列
   // サイズは mColSize;
   const int* mCostArray;
-
-  // 行と列の削除を行うためのキュー
-  int* mDelQueue;
-
-  // mDelQueue の読み出し位置
-  int mQueueTop;
-
-  // mDelQueue の書き込み位置
-  int mQueueEnd;
 
   // 削除の履歴を覚えておくスタック
   int* mDelStack;
@@ -337,40 +302,6 @@ const int*
 McMatrix::col_cost_array() const
 {
   return mCostArray;
-}
-
-// @brief キューが空の時 true を返す．
-inline
-bool
-McMatrix::queue_empty()
-{
-  if ( mQueueEnd == mQueueTop ) {
-    mQueueTop = 0;
-    mQueueEnd = 0;
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
-// @brief キューに値を書き込む．
-inline
-void
-McMatrix::queue_write(int val)
-{
-  mDelQueue[mQueueEnd] = val;
-  ++ mQueueEnd;
-}
-
-// @brief キューから値を取り出す．
-inline
-int
-McMatrix::queue_read()
-{
-  int val = mDelQueue[mQueueTop];
-  ++ mQueueTop;
-  return val;
 }
 
 // @brief スタックが空の時 true を返す．
