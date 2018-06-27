@@ -32,11 +32,10 @@ public:
   /// @param[in] cost_array コストの配列
   /// @param[in] elem_list 要素のリスト
   ///
-  /// * cost_array の所有権は McMatrix にはない
   /// * elem_list は (row_pos, col_pos) の pair のリスト
   McMatrix(int row_size,
 	   int col_size,
-	   const int* cost_array,
+	   const vector<int>& cost_array,
 	   const vector<pair<int, int> >& elem_list);
 
   /// @brief コピーコンストラクタ
@@ -139,20 +138,12 @@ public:
   bool
   stack_empty();
 
-  /// @brief スタックに境界マーカーを書き込む．
+  /// @brief スタックに削除した行/列のヘッダと積む．
   void
-  push_marker();
-
-  /// @brief スタックに行削除の印を書き込む．
-  void
-  push_row(int row_pos);
-
-  /// @brief スタックに列削除の印を書き込む．
-  void
-  push_col(int col_pos);
+  push(McHead* head);
 
   /// @brief スタックから取り出す．
-  int
+  McHead*
   pop();
 
 
@@ -185,10 +176,6 @@ private:
   void
   free_cell(McCell* cell);
 
-  /// @brief スタックに値を積む．
-  void
-  push(int val);
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -212,10 +199,10 @@ private:
 
   // コストの配列
   // サイズは mColSize;
-  const int* mCostArray;
+  int* mCostArray;
 
   // 削除の履歴を覚えておくスタック
-  int* mDelStack;
+  McHead** mDelStack;
 
   // mDelStack のポインタ
   int mStackTop;
@@ -312,42 +299,18 @@ McMatrix::stack_empty()
   return mStackTop == 0;
 }
 
-// @brief スタックに境界マーカーを書き込む．
+// @brief スタックに削除した行/列のヘッダを積む．
 inline
 void
-McMatrix::push_marker()
+McMatrix::push(McHead* head)
 {
-  push(0U);
-}
-
-// @brief スタックに行削除の印を書き込む．
-inline
-void
-McMatrix::push_row(int row_pos)
-{
-  push((row_pos << 2) | 1U);
-}
-
-// @brief スタックに列削除の印を書き込む．
-inline
-void
-McMatrix::push_col(int col_pos)
-{
-  push((col_pos << 2) | 3U);
-}
-
-// @brief スタックに値を積む．
-inline
-void
-McMatrix::push(int val)
-{
-  mDelStack[mStackTop] = val;
+  mDelStack[mStackTop] = head;
   ++ mStackTop;
 }
 
 // @brief スタックから取り出す．
 inline
-int
+McHead*
 McMatrix::pop()
 {
   -- mStackTop;

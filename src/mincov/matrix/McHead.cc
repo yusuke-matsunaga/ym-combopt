@@ -16,15 +16,15 @@ BEGIN_NAMESPACE_YM_MINCOV
 // クラス McHead
 //////////////////////////////////////////////////////////////////////
 
-// @brief 行方向で挿入する位置を探す．
+// @brief 行方向のリストに挿入する．
 // @param[in] cell 挿入する要素
 // @retval true 追加が成功した．
 // @retval false 同じ要素がすでに存在した．
-//
-// 結果は cell の mLeftLink, mRightLink に設定される．
 bool
-McHead::row_search(McCell* cell)
+McHead::row_insert(McCell* cell)
 {
+  ASSERT_COND( is_row() );
+
   int col_pos = cell->col_pos();
   McCell* pcell;
   McCell* ncell;
@@ -52,18 +52,20 @@ McHead::row_search(McCell* cell)
   cell->mLeftLink = pcell;
   cell->mRightLink = ncell;
 
+  row_restore(cell);
+
   return true;
 }
 
-// @brief 列方向で挿入する位置を探す．
+// @brief 列方向のリストに挿入する．
 // @param[in] cell 挿入する要素
 // @retval true 追加が成功した．
 // @retval false 同じ要素がすでに存在した．
-//
-// 結果は cell の mUpLink, mDownLink に設定される．
 bool
-McHead::col_search(McCell* cell)
+McHead::col_insert(McCell* cell)
 {
+  ASSERT_COND( is_col() );
+
   int row_pos = cell->row_pos();
   McCell* pcell;
   McCell* ncell;
@@ -90,6 +92,8 @@ McHead::col_search(McCell* cell)
   }
   cell->mUpLink = pcell;
   cell->mDownLink = ncell;
+
+  col_restore(cell);
 
   return true;
 }

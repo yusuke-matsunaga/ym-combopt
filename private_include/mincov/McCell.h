@@ -57,16 +57,6 @@ public:
   const McCell*
   row_next() const;
 
-  /// @brief 行方向に cell を挿入する．
-  void
-  static
-  row_insert(McCell* cell);
-
-  /// @brief 行方向に cell を削除する．
-  static
-  void
-  row_delete(McCell* cell);
-
   /// @brief 同じ列の直前の要素を返す．
   const McCell*
   col_prev() const;
@@ -74,16 +64,6 @@ public:
   /// @brief 同じ列の直後の要素を返す．
   const McCell*
   col_next() const;
-
-  /// @brief 列方向に cell を挿入する．
-  static
-  void
-  col_insert(McCell* cell);
-
-  /// @brief 列方向に cell を削除する．
-  static
-  void
-  col_delete(McCell* cell);
 
 
 private:
@@ -165,28 +145,6 @@ McCell::row_next() const
   return mRightLink;
 }
 
-// @brief 行方向に cell を挿入する．
-inline
-void
-McCell::row_insert(McCell* cell)
-{
-  McCell* prev = cell->mLeftLink;
-  McCell* next = cell->mRightLink;
-  prev->mRightLink = cell;
-  next->mLeftLink = cell;
-}
-
-// @brief 行方向に cell を削除する．
-inline
-void
-McCell::row_delete(McCell* cell)
-{
-  McCell* prev = cell->mLeftLink;
-  McCell* next = cell->mRightLink;
-  prev->mRightLink = next;
-  next->mLeftLink = prev;
-}
-
 // @brief 同じ列の直前の要素を返す．
 inline
 const McCell*
@@ -201,28 +159,6 @@ const McCell*
 McCell::col_next() const
 {
   return mDownLink;
-}
-
-// @brief 列方向に cell を挿入する．
-inline
-void
-McCell::col_insert(McCell* cell)
-{
-  McCell* prev = cell->mUpLink;
-  McCell* next = cell->mDownLink;
-  prev->mDownLink = cell;
-  next->mUpLink = cell;
-}
-
-// @brief 列方向に cell を削除する．
-inline
-void
-McCell::col_delete(McCell* cell)
-{
-  McCell* prev = cell->mUpLink;
-  McCell* next = cell->mDownLink;
-  prev->mDownLink = next;
-  next->mUpLink = prev;
 }
 
 END_NAMESPACE_YM_MINCOV

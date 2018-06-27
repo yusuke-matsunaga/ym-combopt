@@ -43,8 +43,18 @@ public:
 
   /// @brief 初期化する．
   /// @param[in] pos 位置番号
+  /// @param[in] col_flag 列の時に true とするフラグ
   void
-  init(int pos);
+  init(int pos,
+       bool col_flag);
+
+  /// @brief 行ヘッダの時に true を返す．
+  bool
+  is_row() const;
+
+  /// @brief 列ヘッダの時に true を返す．
+  bool
+  is_col() const;
 
   /// @brief 位置番号を返す．
   int
@@ -53,16 +63,6 @@ public:
   /// @brief 要素数を返す．
   int
   num() const;
-
-  /// @brief 要素数を増やす．
-  /// @return 増加後の要素数を返す．
-  int
-  inc_num();
-
-  /// @brief 要素数を減らす．
-  /// @return 減少後の要素数を返す．
-  int
-  dec_num();
 
   /// @brief 行の先頭の要素を返す．
   McCell*
@@ -76,14 +76,24 @@ public:
   McRowList
   row_list() const;
 
-  /// @brief 行方向で挿入する位置を探す．
+  /// @brief 行方向のリストに挿入する．
   /// @param[in] cell 挿入する要素
   /// @retval true 追加が成功した．
   /// @retval false 同じ要素がすでに存在した．
-  ///
-  /// 結果は cell の mLeftLink, mRightLink に設定される．
   bool
-  row_search(McCell* cell);
+  row_insert(McCell* cell);
+
+  /// @brief 行方向のリストから削除する．
+  /// @param[in] cell 削除する要素
+  void
+  row_delete(McCell* cell);
+
+  /// @brief row_delete() で削除したセルを元の位置に戻す．
+  /// @param[in] cell 削除する要素
+  ///
+  /// cell->row_prev(), cell->row_next() に正しい値が入っている
+  void
+  row_restore(McCell* cell);
 
   /// @brief 列の先頭の要素を返す．
   McCell*
@@ -97,14 +107,24 @@ public:
   McColList
   col_list() const;
 
-  /// @brief 列方向で挿入する位置を探す．
+  /// @brief 列方向のリストに挿入する.
   /// @param[in] cell 挿入する要素
   /// @retval true 追加が成功した．
   /// @retval false 同じ要素がすでに存在した．
-  ///
-  /// 結果は cell の mUpLink, mDownLink に設定される．
   bool
-  col_search(McCell* cell);
+  col_insert(McCell* cell);
+
+  /// @brief 列方向のリストから削除する．
+  /// @param[in] cell 削除する要素
+  void
+  col_delete(McCell* cell);
+
+  /// @brief col_delete() で削除したセルを元の位置に戻す．
+  /// @param[in] cell 削除する要素
+  ///
+  /// cell->col_prev(), cell->col_next() に正しい値が入っている
+  void
+  col_restore(McCell* cell);
 
   /// @brief 直前のヘッダを返す．
   const McHead*
@@ -133,13 +153,24 @@ private:
   void
   clear();
 
+  /// @brief 要素数を増やす．
+  /// @return 増加後の要素数を返す．
+  int
+  inc_num();
+
+  /// @brief 要素数を減らす．
+  /// @return 減少後の要素数を返す．
+  int
+  dec_num();
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 位置番号
+  // 位置番号 + 行/列フラグ
+  // 最下位ビットが 0:行, 1:列 を表す．
   int mPos;
 
   // 要素数
@@ -167,6 +198,7 @@ private:
 // @brief コンストラクタ
 inline
 McHead::McHead() :
+  mPos(0),
   mDummy(-1, -1),
   mPrev(nullptr),
   mNext(nullptr),
@@ -183,11 +215,29 @@ McHead::~McHead()
 
 // @brief 初期化する．
 // @param[in] pos 位置番号
+// @param[in] col_flag 列の時に true とするフラグ
 inline
 void
-McHead::init(int pos)
+McHead::init(int pos,
+	     bool col_flag)
 {
-  mPos = pos;
+  mPos = (pos << 1) | static_cast<int>(col_flag);
+}
+
+// @brief 行ヘッダの時に true を返す．
+inline
+bool
+McHead::is_row() const
+{
+  return !is_col();
+}
+
+// @brief 列ヘッダの時に true を返す．
+inline
+bool
+McHead::is_col() const
+{
+  return static_cast<bool>(mPos & 1);
 }
 
 // @brief 位置番号を返す．
@@ -195,7 +245,7 @@ inline
 int
 McHead::pos() const
 {
-  return mPos;
+  return mPos >> 1;
 }
 
 // @brief 要素数を返す．
@@ -246,6 +296,48 @@ McHead::row_list() const
   return McRowList(row_front(), &mDummy);
 }
 
+// @brief 行方向のリストから削除する．
+// @param[in] cell 削除する要素
+inline
+void
+McHead::row_delete(McCell* cell)
+{
+  ASSERT_COND( is_row() );
+
+  McCell* prev = cell->mLeftLink;
+  McCell* next = cell->mRightLink;
+
+  ASSERT_COND( prev->mRightLink == cell );
+  ASSERT_COND( next->mLeftLink == cell );
+
+  prev->mRightLink = next;
+  next->mLeftLink = prev;
+
+  dec_num();
+}
+
+// @brief row_delete() で削除したセルを元の位置に戻す．
+// @param[in] cell 削除する要素
+//
+// cell->row_prev(), cell->row_next() に正しい値が入っている
+inline
+void
+McHead::row_restore(McCell* cell)
+{
+  ASSERT_COND( is_row() );
+
+  McCell* prev = cell->mLeftLink;
+  McCell* next = cell->mRightLink;
+
+  ASSERT_COND( prev->mRightLink == next );
+  ASSERT_COND( next->mLeftLink == prev );
+
+  prev->mRightLink = cell;
+  next->mLeftLink = cell;
+
+  inc_num();
+}
+
 // @brief 列の先頭の要素を返す．
 inline
 McCell*
@@ -268,6 +360,48 @@ McColList
 McHead::col_list() const
 {
   return McColList(col_front(), &mDummy);
+}
+
+// @brief 列方向のリストから削除する．
+// @param[in] cell 削除する要素
+inline
+void
+McHead::col_delete(McCell* cell)
+{
+  ASSERT_COND( is_col() );
+
+  McCell* prev = cell->mUpLink;
+  McCell* next = cell->mDownLink;
+
+  ASSERT_COND( prev->mDownLink == cell );
+  ASSERT_COND( next->mUpLink == cell );
+
+  prev->mDownLink = next;
+  next->mUpLink = prev;
+
+  dec_num();
+}
+
+// @brief col_delete() で削除したセルを元の位置に戻す．
+// @param[in] cell 削除する要素
+//
+// cell->col_prev(), cell->col_next() に正しい値が入っている
+inline
+void
+McHead::col_restore(McCell* cell)
+{
+  ASSERT_COND( is_col() );
+
+  McCell* prev = cell->mUpLink;
+  McCell* next = cell->mDownLink;
+
+  ASSERT_COND( prev->mDownLink == next );
+  ASSERT_COND( next->mUpLink == prev );
+
+  prev->mDownLink = cell;
+  next->mUpLink = cell;
+
+  inc_num();
 }
 
 // @brief 直前のヘッダを返す．

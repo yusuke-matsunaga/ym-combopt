@@ -124,6 +124,10 @@ public:
   int
   col_cost(int col_pos) const;
 
+  /// @brief 列のコスト配列を得る．
+  const vector<int>&
+  col_cost_array() const;
+
   /// @brief 要素のリストを得る．
   const vector<pair<int, int>>&
   elem_list() const;
@@ -158,14 +162,6 @@ private:
   // 内部で用いられる下請け関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief コスト配列を初期化する．
-  void
-  init_cost_array();
-
-  /// @brief コスト配列を初期化する．
-  void
-  init_cost_array(const vector<int>& col_cost_array);
-
   /// @brief mElemList をチェックする．
   ///
   /// 要素を持たない行があったら警告する．
@@ -194,7 +190,7 @@ private:
 
   // 列のコスト配列
   // サイズは mColSize
-  int* mColCostArray;
+  vector<int> mColCostArray;
 
   // 要素のリスト
   // (row_pos, col_pos) のペアのリスト
@@ -213,7 +209,6 @@ MinCov::MinCov()
 {
   mRowSize = 0;
   mColSize = 0;
-  mColCostArray = nullptr;
 }
 
 // @brief コンストラクタ
@@ -223,9 +218,9 @@ inline
 MinCov::MinCov(int row_size,
 	       int col_size) :
   mRowSize(row_size),
-  mColSize(col_size)
+  mColSize(col_size),
+  mColCostArray(col_size, 1)
 {
-  init_cost_array();
 }
 
 // @brief コンストラクタ
@@ -235,16 +230,15 @@ inline
 MinCov::MinCov(int row_size,
 	       const vector<int>& col_cost_array) :
   mRowSize(row_size),
-  mColSize(col_cost_array.size())
+  mColSize(col_cost_array.size()),
+  mColCostArray(col_cost_array)
 {
-  init_cost_array(col_cost_array);
 }
 
 // @brief デストラクタ
 inline
 MinCov::~MinCov()
 {
-  delete [] mColCostArray;
 }
 
 // @brief 問題のサイズを設定する．
@@ -257,8 +251,8 @@ MinCov::resize(int row_size,
 {
   mRowSize = row_size;
   mColSize = col_size;
-  delete [] mColCostArray;
-  init_cost_array();
+  mColCostArray.clear();
+  mColCostArray.resize(col_size);
   mElemList.clear();
 }
 
@@ -272,8 +266,7 @@ MinCov::resize(int row_size,
 {
   mRowSize = row_size;
   mColSize = col_cost_array.size();
-  delete [] mColCostArray;
-  init_cost_array(col_cost_array);
+  mColCostArray = col_cost_array;
   mElemList.clear();
 }
 
@@ -326,6 +319,14 @@ MinCov::col_cost(int col_pos) const
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 
   return mColCostArray[col_pos];
+}
+
+// @brief 列のコスト配列を得る．
+inline
+const vector<int>&
+MinCov::col_cost_array() const
+{
+  return mColCostArray;
 }
 
 // @brief 要素のリストを得る．

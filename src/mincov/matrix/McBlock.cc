@@ -169,36 +169,31 @@ void
 McBlock::delete_row(int row_pos)
 {
   auto row_head1 = row_head(row_pos);
-  if ( row_head1->mDeleted ) {
-    return;
-  }
+  ASSERT_COND( !row_head1->mDeleted );
   mRowHeadList.exclude(row_head1);
 
-  mMatrix.push_row(row_pos);
+  mMatrix.push(row_head1);
   for ( auto cell = row_head1->mDummy.mRightLink;
 	cell != &row_head1->mDummy; cell = cell->mRightLink ) {
-    McCell::col_delete(cell);
     auto col_pos = cell->col_pos();
     auto col_head1 = col_head(col_pos);
-    col_head1->dec_num();
+    col_head1->col_delete(cell);
   }
 }
 
 // @brief 行を復元する．
 void
-McBlock::restore_row(int row_pos)
+McBlock::restore_row(McHead* row_head1)
 {
-  auto row_head1 = row_head(row_pos);
   ASSERT_COND( row_head1->mDeleted );
 
   mRowHeadList.restore(row_head1);
 
   for ( auto cell = row_head1->mDummy.mRightLink;
 	cell != &row_head1->mDummy; cell = cell->mRightLink ) {
-    McCell::col_insert(cell);
     auto col_pos = cell->col_pos();
     auto col_head1 = col_head(col_pos);
-    col_head1->inc_num();
+    col_head1->col_restore(cell);
   }
 }
 
@@ -208,36 +203,31 @@ void
 McBlock::delete_col(int col_pos)
 {
   auto col_head1 = col_head(col_pos);
-  if ( col_head1->mDeleted ) {
-    return;
-  }
+  ASSERT_COND( !col_head1->mDeleted );
   mColHeadList.exclude(col_head1);
 
-  mMatrix.push_col(col_pos);
+  mMatrix.push(col_head1);
   for ( auto cell = col_head1->mDummy.mDownLink;
 	cell != &col_head1->mDummy; cell = cell->mDownLink ) {
-    McCell::row_delete(cell);
     auto row_pos = cell->row_pos();
     auto row_head1 = row_head(row_pos);
-    row_head1->dec_num();
+    row_head1->row_delete(cell);
   }
 }
 
 // @brief 列を復元する．
 void
-McBlock::restore_col(int col_pos)
+McBlock::restore_col(McHead* col_head1)
 {
-  auto col_head1 = col_head(col_pos);
   ASSERT_COND( col_head1->mDeleted );
 
   mColHeadList.restore(col_head1);
 
   for ( auto cell = col_head1->mDummy.mDownLink;
 	cell != &col_head1->mDummy; cell = cell->mDownLink ) {
-    McCell::row_insert(cell);
     auto row_pos = cell->row_pos();
     auto row_head1 = row_head(row_pos);
-    row_head1->inc_num();
+    row_head1->row_restore(cell);
   }
 }
 
@@ -461,7 +451,7 @@ McBlock::essential_col(vector<int>& selected_cols)
 void
 McBlock::save()
 {
-  mMatrix.push_marker();
+  mMatrix.push(nullptr);
 }
 
 // @brief 直前のマーカーまで処理を戻す．
@@ -469,19 +459,15 @@ void
 McBlock::restore()
 {
   while ( !mMatrix.stack_empty() ) {
-    int tmp = mMatrix.pop();
-    if ( tmp == 0U ) {
+    McHead* head = mMatrix.pop();
+    if ( head == nullptr ) {
       break;
     }
-    if ( tmp & 2U ) {
-      int col_pos = tmp >> 2;
-      // col_pos の列を元に戻す．
-      restore_col(col_pos);
+    if ( head->is_row() ) {
+      restore_row(head);
     }
     else {
-      int row_pos = tmp >> 2;
-      // row_pos の行を元に戻す．
-      restore_row(row_pos);
+      restore_col(head);
     }
   }
 }

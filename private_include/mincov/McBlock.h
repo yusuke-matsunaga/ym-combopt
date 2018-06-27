@@ -183,11 +183,11 @@ private:
 
   /// @brief 行を復元する．
   void
-  restore_row(int row_pos);
+  restore_row(McHead* row_head);
 
   /// @brief 列を復元する．
   void
-  restore_col(int col_pos);
+  restore_col(McHead* col_head);
 
 
 private:

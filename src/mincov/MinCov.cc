@@ -65,28 +65,6 @@ END_NONAMESPACE
 // クラス MinCov
 //////////////////////////////////////////////////////////////////////
 
-// @brief コスト配列を初期化する．
-void
-MinCov::init_cost_array()
-{
-  mColCostArray = new int[mColSize];
-  for ( int i: Range(mColSize) ) {
-    mColCostArray[i] = 1;
-  }
-}
-
-// @brief コスト配列を初期化する．
-void
-MinCov::init_cost_array(const vector<int>& col_cost_array)
-{
-  ASSERT_COND( col_cost_array.size() == mColSize );
-
-  mColCostArray = new int[mColSize];
-  for ( int i: Range(mColSize) ) {
-    mColCostArray[i] = col_cost_array[i];
-  }
-}
-
 // @brief 最小被覆問題を解く．
 // @param[out] solution 選ばれた列集合
 // @param[in] option オプション文字列

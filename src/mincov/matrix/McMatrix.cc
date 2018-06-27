@@ -29,14 +29,14 @@ int mcmatrix_debug = 0;
 // @param[in] elem_list 要素のリスト
 McMatrix::McMatrix(int row_size,
 		   int col_size,
-		   const int* cost_array,
+		   const vector<int>& cost_array,
 		   const vector<pair<int, int>>& elem_list) :
   mCellAlloc(sizeof(McCell), 1024),
   mRowSize(0),
   mColSize(0),
   mRowArray(nullptr),
   mColArray(nullptr),
-  mCostArray(cost_array),
+  mCostArray(nullptr),
   mDelStack(nullptr)
 {
   resize(row_size, col_size);
@@ -54,50 +54,12 @@ McMatrix::McMatrix(const McMatrix& src) :
   mColSize(0),
   mRowArray(nullptr),
   mColArray(nullptr),
+  mCostArray(nullptr),
   mDelStack(nullptr)
 {
   resize(src.row_size(), src.col_size());
-
   copy(src);
 }
-
-#if 0
-// @brief 部分的なコピーコンストラクタ
-// @param[in] src コピー元のオブジェクト
-// @param[in] rowid_list コピーする行番号のリスト
-// @param[in] colid_list コピーする列番号のリスト
-McMatrix::McMatrix(McMatrix& src,
-		   const vector<int>& row_pos_list,
-		   const vector<int>& col_pos_list) :
-  mCellAlloc(sizeof(McCell), 1024),
-  mRowSize(0),
-  mColSize(0),
-  mRowArray(nullptr),
-  mColArray(nullptr)
-{
-  resize(src.row_size(), src.col_size());
-
-  vector<McHead*> row_list;
-  row_list.reserve(row_pos_list.size());
-  for ( auto row_pos: row_pos_list ) {
-    auto row_head = src.row_head(row_pos);
-    mRowArray[row_pos] = row_head;
-    row_list.push_back(row_head);
-  }
-  //mRowList.set(row_list);
-
-  vector<McHead*> col_list;
-  col_list.reserve(col_pos_list.size());
-  for ( auto col_pos: col_pos_list ) {
-    auto col_head = src.col_head(col_pos);
-    mColArray[col_pos] = col_head;
-    col_list.push_back(col_head);
-  }
-  //mColList.set(col_list);
-
-  mCostArray = src.mCostArray;
-}
-#endif
 
 // @brief 代入演算子
 // @param[in] src コピー元のオブジェクト
@@ -117,6 +79,7 @@ McMatrix::~McMatrix()
 {
   delete [] mRowArray;
   delete [] mColArray;
+  delete [] mCostArray;
   delete [] mDelStack;
 }
 
@@ -128,10 +91,12 @@ McMatrix::clear()
 
   delete [] mRowArray;
   delete [] mColArray;
+  delete [] mCostArray;
   delete [] mDelStack;
 
   mRowArray = nullptr;
   mColArray = nullptr;
+  mCostArray = nullptr;
   mDelStack = nullptr;
 }
 
@@ -150,16 +115,17 @@ McMatrix::resize(int row_size,
 
     mRowArray = new McHead[mRowSize];
     for ( auto row_pos: Range(mRowSize) ) {
-      mRowArray[row_pos].init(row_pos);
+      mRowArray[row_pos].init(row_pos, false);
     }
 
     mColArray = new McHead[mColSize];
+    mCostArray = new int[mColSize];
     for ( auto col_pos: Range(mColSize) ) {
-      mColArray[col_pos].init(col_pos);
+      mColArray[col_pos].init(col_pos, true);
+      mCostArray[col_pos] = 1;
     }
 
-    delete [] mDelStack;
-    mDelStack = new int[row_size + col_size];
+    mDelStack = new McHead*[row_size + col_size];
     mStackTop = 0;
   }
 }
@@ -178,21 +144,10 @@ McMatrix::copy(const McMatrix& src)
     }
   }
 
-  mCostArray = src.mCostArray;
+  for ( auto col_pos: Range(mColSize) ) {
+    mCostArray[col_pos] = src.mCostArray[col_pos];
+  }
 }
-
-#if 0
-// @brief 分割した行列をもとに戻す．
-void
-McMatrix::merge(McMatrix& matrix1,
-		McMatrix& matrix2)
-{
-#if 0
-  mRowList.merge(matrix1.row_list(), matrix2.row_list());
-  mColList.merge(matrix1.col_list(), matrix2.col_list());
-#endif
-}
-#endif
 
 // @brief 列集合のコストを返す．
 // @param[in] col_list 列のリスト
@@ -351,23 +306,17 @@ McMatrix::insert_elem(int row_pos,
 {
   auto cell = alloc_cell(row_pos, col_pos);
 
-  auto row1 = row_head(row_pos);
-  bool stat1 = row1->row_search(cell);
+  auto row_head1 = row_head(row_pos);
+  bool stat1 = row_head1->row_insert(cell);
   if ( !stat1 ) {
     // 列番号が重複しているので無視する．
     free_cell(cell);
     return;
   }
 
-  McCell::row_insert(cell);
-  row1->inc_num();
-
-  auto col1 = col_head(col_pos);
-  bool stat2 = col1->col_search(cell);
+  auto col_head1 = col_head(col_pos);
+  bool stat2 = col_head1->col_insert(cell);
   ASSERT_COND( stat2 );
-
-  McCell::col_insert(cell);
-  col1->inc_num();
 }
 
 // @brief セルの生成
