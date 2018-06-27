@@ -30,7 +30,7 @@ public:
   /// @param[in] matrix 問題の行列
   /// @param[in] lb_list 下界の計算クラスのリスト
   /// @param[in] selector 列を選択するクラス
-  Exact(const McMatrix& matrix,
+  Exact(McMatrix& matrix,
 	const vector<LbCalc*>& lb_list,
 	Selector& selector);
 
@@ -102,9 +102,6 @@ private:
 
   // 列を選択するクラス
   Selector& mSelector;
-
-  // 対象の行列
-  McMatrix mMatrix;
 
   // 対象のブロック
   McBlock mBlock;

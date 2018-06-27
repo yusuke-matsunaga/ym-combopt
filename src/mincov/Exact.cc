@@ -57,11 +57,10 @@ verify_block(McBlock& a,
 // @param[in] matrix 問題の行列
 // @param[in] lb_calc_list 下界の計算クラスのリスト
 // @param[in] selector 列を選択するクラス
-Exact::Exact(const McMatrix& matrix,
+Exact::Exact(McMatrix& matrix,
 	     const vector<LbCalc*>& lb_calc_list,
 	     Selector& selector) :
-  mMatrix(matrix),
-  mBlock(mMatrix),
+  mBlock(matrix),
   mLbCalcList(lb_calc_list),
   mSelector(selector)
 {
@@ -78,8 +77,7 @@ Exact::Exact(McMatrix& matrix,
 	     const vector<int>& col_list,
 	     const vector<LbCalc*>& lb_calc_list,
 	     Selector& selector) :
-  mMatrix(matrix),
-  mBlock(mMatrix, row_list, col_list),
+  mBlock(matrix, row_list, col_list),
   mLbCalcList(lb_calc_list),
   mSelector(selector)
 {
@@ -96,15 +94,12 @@ Exact::~Exact()
 int
 Exact::solve(vector<int>& solution)
 {
-  // 検証用にもとのブロックをコピーしておく．
-  McBlock orig_block(mBlock);
-
   // こちらは McMatrix 自身が持つ復元機能
   mBlock.save();
 
   solve_id = 0;
 
-  mBest = UINT_MAX;
+  mBest = INT_MAX;
   mCurSolution.clear();
   bool stat = _solve(0, 0);
   ASSERT_COND( stat );
@@ -113,7 +108,6 @@ Exact::solve(vector<int>& solution)
 
   // 復元が正しいかチェックする．
   mBlock.restore();
-  verify_block(mBlock, orig_block);
 
   // solution がカバーになっているかチェックする．
   ASSERT_COND( mBlock.verify(solution) );
@@ -138,7 +132,7 @@ Exact::_solve(int lb,
   int tmp_cost = mBlock.cost(mCurSolution);
 
   for ( auto lb_calc_p: mLbCalcList ) {
-    int tmp_lb = (*lb_calc_p)(mMatrix) + tmp_cost;
+    int tmp_lb = (*lb_calc_p)(mBlock) + tmp_cost;
     if ( lb < tmp_lb ) {
       lb = tmp_lb;
     }
@@ -154,7 +148,8 @@ Exact::_solve(int lb,
     int nc = mBlock.col_num();
     cout << "[" << depth << "] " << nr << "x" << nc
 	 << " sel=" << tmp_cost << " bnd=" << mBest
-	 << " lb=" << lb;
+	 << " lb=" << lb
+	 << endl;
   }
 
   if ( lb >= mBest ) {
@@ -248,7 +243,7 @@ Exact::_solve(int lb,
   mCurSolution.push_back(col);
 
   if ( cur_debug ) {
-    cout << " select column#" << col << endl;
+    cout << "[" << depth << "]A select column#" << col << endl;
   }
 
   bool stat1 = _solve(lb, depth + 1);
@@ -266,14 +261,17 @@ Exact::_solve(int lb,
 
   // 今得た最良解が下界と等しかったら探索を続ける必要はない．
   if ( lb >= mBest ) {
+    if ( cur_debug ) {
+      cout << "[" << depth << "]C bounded" << endl;
+    }
     return true;
   }
 
   // その列を選択しなかったときの最良解を求める．
-  mBlock.delete_col(col);
+  mBlock.deselect_col(col);
 
   if ( cur_debug ) {
-    cout << "delete column#" << col << endl;
+    cout << "[" << depth << "]B deselect column#" << col << endl;
   }
 
   bool stat2 = _solve(lb, depth + 1);

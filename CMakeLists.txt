@@ -61,6 +61,7 @@ set ( mincov_SOURCES
   src/mincov/matrix/McHeadList.cc
   src/mincov/matrix/McColList.cc
   src/mincov/matrix/McRowList.cc
+  src/mincov/matrix/McBlock.cc
   src/mincov/matrix/McMatrix.cc
   src/mincov/MinCov.cc
   src/mincov/sel/SelCS.cc

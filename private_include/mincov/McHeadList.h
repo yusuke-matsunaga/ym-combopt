@@ -137,7 +137,6 @@ operator!=(const McHeadList& list1,
 // @brief コンストラクタ
 inline
 McHeadList::McHeadList() :
-  mDummy(-1),
   mNum(0)
 {
 }

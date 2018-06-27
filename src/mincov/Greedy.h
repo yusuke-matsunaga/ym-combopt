@@ -33,7 +33,7 @@ public:
   /// @param[out] solution 選ばれた列集合
   static
   void
-  solve(const McBlock& matrix,
+  solve(McBlock& matrix,
 	Selector& selector,
 	vector<int>& solution);
 

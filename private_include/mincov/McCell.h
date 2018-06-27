@@ -22,10 +22,9 @@ BEGIN_NAMESPACE_YM_MINCOV
 class McCell
 {
   friend class McHead;
-  friend class McColHead;
-  friend class McMatrix;
+  friend class McBlock;
 
-private:
+public:
 
   /// @brief コンストラクタ
   /// @param[in] row_pos 行番号

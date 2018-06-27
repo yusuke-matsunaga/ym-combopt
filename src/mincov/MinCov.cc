@@ -197,7 +197,29 @@ MinCov::exact(vector<int>& solution,
 
   Exact solver(matrix, lb_list, *selector);
 
-  return solver.solve(solution);
+  int cost = solver.solve(solution);
+
+  { // 結果が正しいか検証しておく．
+    McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+    vector<bool> row_mark(row_size(), false);
+    for ( auto col: solution ) {
+      for ( auto cell: matrix.col_head(col)->col_list() ) {
+	row_mark[cell->row_pos()] = true;
+      }
+    }
+    bool error = false;
+    for ( auto row: Range(row_size()) ) {
+      if ( !row_mark[row] ) {
+	cout << "Error: Row#" << row << " is not covered" << endl;
+	error = true;
+      }
+    }
+    if ( error ) {
+      matrix.print(cout);
+    }
+  }
+
+  return cost;
 }
 
 BEGIN_NONAMESPACE
@@ -207,7 +229,7 @@ BEGIN_NONAMESPACE
 // @param[out] solution 解
 // @return 解のコスト
 void
-greedy(const McBlock& block,
+greedy(McBlock& block,
        const string& option,
        vector<int>& solution)
 {
@@ -253,7 +275,7 @@ greedy(const McBlock& block,
     selector = &sel_cs;
   }
   else {
-    cerr << "Error in MinCov::exact(): illegal value for 'selector': "
+    cerr << "Error in MinCov::greedy(): illegal value for 'selector': "
 	 << sel_str << ", 'SelSimple' is used." << endl;
     selector = &sel_simple;
   }
@@ -275,7 +297,10 @@ MinCov::heuristic(vector<int>& solution,
 {
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
   McBlock block(matrix);
+
+  // 最初に縮約を行う．
   block.reduce(solution);
+  // この時点で解けていたらヒューリスティックは必要ない．
   if ( block.row_num() > 0 ) {
     vector<int> solution1;
     if ( algorithm == string("greedy") ) {
@@ -284,14 +309,29 @@ MinCov::heuristic(vector<int>& solution,
     else if ( algorithm == string("random") ) {
     }
     else {
-      greedy(block, string(), solution1);
+      greedy(block, option, solution1);
     }
     solution.insert(solution.end(), solution1.begin(), solution1.end());
   }
 
-  {
+  { // 結果が正しいか検証しておく．
     McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-    ASSERT_COND( matrix.verify(solution) );
+    vector<bool> row_mark(row_size(), false);
+    for ( auto col: solution ) {
+      for ( auto cell: matrix.col_head(col)->col_list() ) {
+	row_mark[cell->row_pos()] = true;
+      }
+    }
+    bool error = false;
+    for ( auto row: Range(row_size()) ) {
+      if ( !row_mark[row] ) {
+	cout << "Error: Row#" << row << " is not covered" << endl;
+	error = true;
+      }
+    }
+    if ( error ) {
+      matrix.print(cout);
+    }
   }
 
   return matrix.cost(solution);

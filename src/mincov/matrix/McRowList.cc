@@ -64,10 +64,10 @@ check_containment(const McRowList& list1,
       // list1 になくて list2 にある要素がある．
       return false;
     }
-    if ( cell1->col_pos() < cell2->col_pos() ) {
-      ++ it1;
+    if ( cell1->col_pos() == cell2->col_pos() ) {
+      ++ it2;
     }
-    ++ it2;
+    ++ it1;
   }
   if ( it1 == end1 ) {
     if ( it2 == end2 ) {

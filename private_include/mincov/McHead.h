@@ -24,14 +24,13 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 class McHead
 {
-  friend class McMatrix;
+  friend class McBlock;
   friend class McHeadList;
 
-private:
+public:
 
   /// @brief コンストラクタ
-  /// @param[in] pos 位置番号
-  McHead(int pos);
+  McHead();
 
   /// @brief デストラクタ
   ~McHead();
@@ -41,6 +40,11 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 初期化する．
+  /// @param[in] pos 位置番号
+  void
+  init(int pos);
 
   /// @brief 位置番号を返す．
   int
@@ -161,10 +165,8 @@ private:
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] pos 行番号
 inline
-McHead::McHead(int pos) :
-  mPos(pos),
+McHead::McHead() :
   mDummy(-1, -1),
   mPrev(nullptr),
   mNext(nullptr),
@@ -177,6 +179,15 @@ McHead::McHead(int pos) :
 inline
 McHead::~McHead()
 {
+}
+
+// @brief 初期化する．
+// @param[in] pos 位置番号
+inline
+void
+McHead::init(int pos)
+{
+  mPos = pos;
 }
 
 // @brief 位置番号を返す．

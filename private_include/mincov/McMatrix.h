@@ -43,14 +43,6 @@ public:
   /// @param[in] src コピー元のオブジェクト
   McMatrix(const McMatrix& src);
 
-  /// @brief 部分的なムーブコンストラクタ
-  /// @param[in] src コピー元のオブジェクト
-  /// @param[in] row_list コピーする行番号のリスト
-  /// @param[in] col_list コピーする列番号のリスト
-  McMatrix(McMatrix& src,
-	   const vector<int>& row_list,
-	   const vector<int>& col_list);
-
   /// @brief 代入演算子
   /// @param[in] src コピー元のオブジェクト
   const McMatrix&
@@ -79,20 +71,6 @@ public:
   McHead*
   row_head(int row_pos);
 
-#if 0
-  /// @brief 行の先頭のリストを返す．
-  const McHeadList&
-  row_list() const;
-
-  /// @brief 行のリストを返す．
-  McHeadList&
-  row_list();
-
-  /// @brief 実効的な行数を返す．
-  int
-  row_num() const;
-#endif
-
   /// @brief 列数を返す．
   int
   col_size() const;
@@ -107,20 +85,6 @@ public:
   McHead*
   col_head(int col_pos);
 
-#if 0
-  /// @brief 列のリストを返す．
-  const McHeadList&
-  col_list() const;
-
-  /// @brief 列のリストを返す．
-  McHeadList&
-  col_list();
-
-  /// @brief 実効的な列数を返す．
-  int
-  col_num() const;
-#endif
-
   /// @brief 列のコストを取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
   int
@@ -134,19 +98,6 @@ public:
   /// @param[in] col_list 列のリスト
   int
   cost(const vector<int>& col_list) const;
-
-  /// @brief ブロック分割を行う．
-  /// @param[in] row_list1 1つめのブロックの行番号のリスト
-  /// @param[in] row_list2 2つめのブロックの行番号のリスト
-  /// @param[in] col_list1 1つめのブロックの列番号のリスト
-  /// @param[in] col_list2 2つめのブロックの列番号のリスト
-  /// @retval true ブロック分割が行われた．
-  /// @retval false ブロック分割が行えなかった．
-  bool
-  block_partition(vector<int>& row_list1,
-		  vector<int>& row_list2,
-		  vector<int>& col_list1,
-		  vector<int>& col_list2) const;
 
   /// @brief 列集合がカバーになっているか検証する．
   /// @param[in] col_list 列のリスト
@@ -171,41 +122,12 @@ public:
   void
   clear();
 
-  /// @brief 分割した行列をもとに戻す．
-  /// @param[in] matrix1, matrix2 分割した行列
-  ///
-  /// matrix1 と matrix2 の内容は破棄される．
-  void
-  merge(McMatrix& matrix1,
-	McMatrix& matrix2);
-
   /// @brief 要素を追加する．
   /// @param[in] row_pos 追加する要素の行番号
   /// @param[in] col_pos 追加する要素の列番号
-  /// @return 追加された要素を返す．
-  McCell*
+  void
   insert_elem(int row_pos,
 	      int col_pos);
-
-  /// @brief 列を選択し，被覆される行を削除する．
-  /// @param[in] col_pos 選択した列
-  void
-  select_col(int col_pos);
-
-  /// @brief 行を削除する．
-  /// @param[in] row_pos 削除する行番号
-  void
-  delete_row(int row_pos);
-
-  /// @brief 列を削除する．
-  /// @param[in] col_pos 削除する列番号
-  void
-  delete_col(int col_pos);
-
-  /// @brief 簡単化を行う．
-  /// @param[out] selected_cols 簡単化中で選択された列の集合を追加する配列
-  void
-  reduce(vector<int>& selected_cols);
 
   /// @brief 削除スタックにマーカーを書き込む．
   void
@@ -216,72 +138,29 @@ public:
   restore();
 
 
-private:
+public:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
+  // 削除用のキューを操作する関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief サイズを変更する．
-  /// @param[in] row_size 行数
-  /// @param[in] col_size 列数
-  ///
-  /// 内容はクリアされる．
-  void
-  resize(int row_size,
-	 int col_size);
+  /// @brief キューが空の時 true を返す．
+  bool
+  queue_empty();
 
-  /// @brief col に接続している行をマークする．
-  /// @param[in] col 対象の列
-  /// @return マークされた列数を返す．
+  /// @brief キューに値を書き込む．
+  void
+  queue_write(int val);
+
+  /// @brief キューから値を取り出す．
   int
-  mark_rows(const McHead* col) const;
+  queue_read();
 
-  /// @brief row に接続している列をマークする．
-  /// @param[in] row 対象の行
-  /// @return マークされた列数を返す．
-  int
-  mark_cols(const McHead* row) const;
 
-  /// @brief 内容をコピーする．
-  void
-  copy(const McMatrix& src);
+public:
+  //////////////////////////////////////////////////////////////////////
+  // restore 用のスタックを操作する関数
+  //////////////////////////////////////////////////////////////////////
 
-  /// @brief 行支配を探し，行を削除する．
-  /// @return 削除された行があったら true を返す．
-  bool
-  row_dominance();
-
-  /// @brief 列支配を探し，列を削除する．
-  /// @return 削除された列があったら true を返す．
-  bool
-  col_dominance();
-
-  /// @brief 必須列を探し，列を選択する．
-  /// @param[out] selected_cols 選択された列を追加する列集合
-  /// @return 選択された列があったら true を返す．
-  bool
-  essential_col(vector<int>& selected_cols);
-
-  /// @brief 行を復元する．
-  void
-  restore_row(int row_pos);
-
-  /// @brief 列を復元する．
-  void
-  restore_col(int col_pos);
-
-  /// @brief セルの生成
-  /// @param[in] row_pos 行番号
-  /// @param[in] col_pos 列番号
-  McCell*
-  alloc_cell(int row_pos,
-	     int col_pos);
-
-  /// @brief セルの解放
-  void
-  free_cell(McCell* cell);
-
-#if 0
   /// @brief スタックが空の時 true を返す．
   bool
   stack_empty();
@@ -298,14 +177,43 @@ private:
   void
   push_col(int col_pos);
 
-  /// @brief スタックに値を積む．
-  void
-  push(int val);
-
   /// @brief スタックから取り出す．
   int
   pop();
-#endif
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief サイズを変更する．
+  /// @param[in] row_size 行数
+  /// @param[in] col_size 列数
+  ///
+  /// 内容はクリアされる．
+  void
+  resize(int row_size,
+	 int col_size);
+
+  /// @brief 内容をコピーする．
+  void
+  copy(const McMatrix& src);
+
+  /// @brief セルの生成
+  /// @param[in] row_pos 行番号
+  /// @param[in] col_pos 列番号
+  McCell*
+  alloc_cell(int row_pos,
+	     int col_pos);
+
+  /// @brief セルの解放
+  void
+  free_cell(McCell* cell);
+
+  /// @brief スタックに値を積む．
+  void
+  push(int val);
 
 
 private:
@@ -323,32 +231,29 @@ private:
   int mColSize;
 
   // 行の先頭の配列
-  McHead** mRowArray;
-
-#if 0
-  // 有効な行のリスト
-  McHeadList mRowList;
-#endif
+  McHead* mRowArray;
 
   // 列の先頭の配列
-  McHead** mColArray;
-
-#if 0
-  // 有効な列のリスト
-  McHeadList mColList;
-#endif
+  McHead* mColArray;
 
   // コストの配列
   // サイズは mColSize;
   const int* mCostArray;
 
-#if 0
+  // 行と列の削除を行うためのキュー
+  int* mDelQueue;
+
+  // mDelQueue の読み出し位置
+  int mQueueTop;
+
+  // mDelQueue の書き込み位置
+  int mQueueEnd;
+
   // 削除の履歴を覚えておくスタック
   int* mDelStack;
 
   // mDelStack のポインタ
   int mStackTop;
-#endif
 
 };
 
@@ -371,10 +276,9 @@ inline
 const McHead*
 McMatrix::row_head(int row_pos) const
 {
-  if ( mRowArray[row_pos] == nullptr ) {
-    mRowArray[row_pos] = new McHead(row_pos);
-  }
-  return mRowArray[row_pos];
+  ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
+
+  return &mRowArray[row_pos];
 }
 
 // @brief 行の先頭を取り出す．
@@ -383,37 +287,10 @@ inline
 McHead*
 McMatrix::row_head(int row_pos)
 {
-  if ( mRowArray[row_pos] == nullptr ) {
-    mRowArray[row_pos] = new McHead(row_pos);
-  }
-  return mRowArray[row_pos];
-}
+  ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
 
-#if 0
-// @brief 行のリストを返す．
-inline
-const McHeadList&
-McMatrix::row_list() const
-{
-  return mRowList;
+  return &mRowArray[row_pos];
 }
-
-// @brief 行のリストを返す．
-inline
-McHeadList&
-McMatrix::row_list()
-{
-  return mRowList;
-}
-
-// @brief 実効的な行数を返す．
-inline
-int
-McMatrix::row_num() const
-{
-  return mRowList.num();
-}
-#endif
 
 // @brief 列数を返す．
 inline
@@ -429,10 +306,9 @@ inline
 const McHead*
 McMatrix::col_head(int col_pos) const
 {
-  if ( mColArray[col_pos] == nullptr ) {
-    mColArray[col_pos] = new McHead(col_pos);
-  }
-  return mColArray[col_pos];
+  ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
+
+  return &mColArray[col_pos];
 }
 
 // @brief 列の先頭を取り出す．
@@ -441,37 +317,10 @@ inline
 McHead*
 McMatrix::col_head(int col_pos)
 {
-  if ( mColArray[col_pos] == nullptr ) {
-    mColArray[col_pos] = new McHead(col_pos);
-  }
-  return mColArray[col_pos];
-}
+  ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 
-#if 0
-/// @brief 列のリストを返す．
-inline
-const McHeadList&
-McMatrix::col_list() const
-{
-  return mColList;
+  return &mColArray[col_pos];
 }
-
-// @brief 列のリストを返す．
-inline
-McHeadList&
-McMatrix::col_list()
-{
-  return mColList;
-}
-
-// @brief 実効的な列数を返す．
-inline
-int
-McMatrix::col_num() const
-{
-  return mColList.num();
-}
-#endif
 
 // @brief 列のコストを取り出す．
 // @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
@@ -490,7 +339,40 @@ McMatrix::col_cost_array() const
   return mCostArray;
 }
 
-#if 0
+// @brief キューが空の時 true を返す．
+inline
+bool
+McMatrix::queue_empty()
+{
+  if ( mQueueEnd == mQueueTop ) {
+    mQueueTop = 0;
+    mQueueEnd = 0;
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+// @brief キューに値を書き込む．
+inline
+void
+McMatrix::queue_write(int val)
+{
+  mDelQueue[mQueueEnd] = val;
+  ++ mQueueEnd;
+}
+
+// @brief キューから値を取り出す．
+inline
+int
+McMatrix::queue_read()
+{
+  int val = mDelQueue[mQueueTop];
+  ++ mQueueTop;
+  return val;
+}
+
 // @brief スタックが空の時 true を返す．
 inline
 bool
@@ -540,7 +422,6 @@ McMatrix::pop()
   -- mStackTop;
   return mDelStack[mStackTop];
 }
-#endif
 
 END_NAMESPACE_YM_MINCOV
 

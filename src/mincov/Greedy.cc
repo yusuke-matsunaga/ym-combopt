@@ -19,27 +19,28 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @grief greedy アルゴリズムで解を求める．
-// @param[in] matrix 対象の行列
+// @param[in] block 対象の行列
 // @param[in] selector 列を選ぶ関数オブジェクト
 // @param[out] solution 選ばれた列集合
 void
-Greedy::solve(const McBlock& matrix,
+Greedy::solve(McBlock& block,
 	      Selector& selector,
 	      vector<int>& solution)
 {
   if ( mDebug ) {
     cout << "Greedy::solve() start" << endl;
+    block.print(cout);
   }
 
-  // 作業用に行列のコピーを作る．
-  McBlock cur_block(matrix);
-
-  while ( cur_block.row_num() > 0 ) {
+  while ( block.row_num() > 0 ) {
     // 次の分岐のための列をとってくる．
-    int col = selector(cur_block);
+    int col = selector(block);
+    if ( mDebug ) {
+      cout << " selecting Col#" << col << endl;
+    }
 
     // その列を選択する．
-    cur_block.select_col(col);
+    block.select_col(col);
     solution.push_back(col);
 
     if ( mDebug ) {
@@ -47,7 +48,12 @@ Greedy::solve(const McBlock& matrix,
     }
 
     // 行列を縮約する．
-    cur_block.reduce(solution);
+    block.reduce(solution);
+
+    if ( mDebug ) {
+      cout << "After reduction" << endl;
+      block.print(cout);
+    }
   }
 }
 
