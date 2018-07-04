@@ -126,7 +126,7 @@ Isx2::coloring(int limit,
 
     // 選ばれた独立集合に基づいて彩色を行う．
     for ( auto i: max_iset ) {
-      color_nodes(mIndepSetList[i]);
+      set_color(mIndepSetList[i], new_color());
       remain_num -= mIndepSetList[i].size();
     }
   }
@@ -372,20 +372,6 @@ Isx2::update_cand_list(int node_id)
   }
   if ( wpos < n ) {
     mCandList.erase(mCandList.begin() + wpos, mCandList.end());
-  }
-}
-
-// @brief ノード集合に新しい色を割り当てる．
-// @param[in] node_set ノード集合
-void
-Isx2::color_nodes(const vector<int>& node_set)
-{
-  int num = node_set.size();
-  ASSERT_COND( num > 0 );
-
-  int cur_col = new_color();
-  for ( auto node_id: node_set ) {
-    set_color(node_id, cur_col);
   }
 }
 

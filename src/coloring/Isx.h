@@ -77,11 +77,6 @@ private:
   void
   update_cand_list(int node_id);
 
-  /// @brief ノード集合に新しい色を割り当てる．
-  /// @param[in] node_set ノード集合
-  void
-  color_nodes(const vector<int>& node_set);
-
   /// @brief ランダムに選ぶ．
   int
   random_select(const vector<int>& cand_list);

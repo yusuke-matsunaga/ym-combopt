@@ -49,7 +49,7 @@ Isx::coloring(int limit,
     get_indep_set();
 
     // mIndepSet の各ノードに新しい色を割り当てる．
-    color_nodes(mIndepSet);
+    set_color(mIndepSet, new_color());
 
     remain_num -= mIndepSet.size();
   }
@@ -78,7 +78,7 @@ Isx::get_indep_set()
 
     node_id = select_node();
   }
-  sort(mIndepSet.begin(), mIndepSet.end());
+  //sort(mIndepSet.begin(), mIndepSet.end());
 }
 
 // @brief mCandList, mCandMark を初期化する．
@@ -128,7 +128,7 @@ Isx::select_node()
 	mTmpList.clear();
       }
       mTmpList.push_back(node_id);
-      }
+    }
   }
   if ( wpos < mCandList.size() ) {
     mCandList.erase(mCandList.begin() + wpos, mCandList.end());
@@ -162,20 +162,6 @@ Isx::update_cand_list(int node_id)
 #endif
       }
     }
-  }
-}
-
-// @brief ノード集合に新しい色を割り当てる．
-// @param[in] node_set ノード集合
-void
-Isx::color_nodes(const vector<int>& node_set)
-{
-  int num = node_set.size();
-  ASSERT_COND( num > 0 );
-
-  int cur_col = new_color();
-  for ( auto node_id: node_set ) {
-    set_color(node_id, cur_col);
   }
 }
 

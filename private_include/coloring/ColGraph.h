@@ -81,6 +81,13 @@ public:
   set_color(int node_id,
 	    int color);
 
+  /// @brief ノードに色を割り当てる．
+  /// @param[in] node_id_list ノード番号のリスト
+  /// @param[in] color 色 ( 1 <= color <= color_num() )
+  void
+  set_color(const vector<int>& node_id_list,
+	    int color);
+
   /// @brief 彩色結果を得る．
   /// @param[out] color_map 彩色結果を納めるベクタ
   /// @return 彩色数(= color_num())を返す．
@@ -244,6 +251,19 @@ ColGraph::set_color(int node_id,
   ASSERT_COND( color >= 1 && color <= color_num() );
 
   mColorMap[node_id] = color;
+}
+
+// @brief ノードに色を割り当てる．
+// @param[in] node_id_list ノード番号のリスト
+// @param[in] color 色 ( 1 <= color <= color_num() )
+inline
+void
+ColGraph::set_color(const vector<int>& node_id_list,
+		    int color)
+{
+  for ( auto node_id: node_id_list ) {
+    set_color(node_id, color);
+  }
 }
 
 inline
