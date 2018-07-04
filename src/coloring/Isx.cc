@@ -111,16 +111,7 @@ Isx::select_node()
 
   mTmpList.clear();
   int min_num = node_num();
-  int rpos = 0;
-  int wpos = 0;
-  for ( ; rpos < mCandList.size(); ++ rpos ) {
-    auto node_id =  mCandList[rpos];
-    if ( !mCandMark[node_id] ) {
-      continue;
-    }
-    mCandList[wpos] = node_id;
-    ++ wpos;
-
+  for ( auto node_id: mCandList ) {
     int c = mAdjCount[node_id];
     if ( min_num >= c ) {
       if ( min_num > c ) {
@@ -129,9 +120,6 @@ Isx::select_node()
       }
       mTmpList.push_back(node_id);
     }
-  }
-  if ( wpos < mCandList.size() ) {
-    mCandList.erase(mCandList.begin() + wpos, mCandList.end());
   }
 
   int n = mTmpList.size();
@@ -154,14 +142,28 @@ Isx::update_cand_list(int node_id)
       mCandMark[node1_id] = false;
       for ( auto node2_id: adj_list(node1_id) ) {
 	-- mAdjCount[node2_id];
-#if 0
-	if ( mCandMark[node2_id] && mAdjCount[node2_id] == 0 ) {
-	  mCandMark[node2_id] = false;
-	  mIndepSet.push_back(node2_id);
-	}
-#endif
       }
     }
+  }
+
+  int rpos = 0;
+  int wpos = 0;
+  int n = mCandList.size();
+  for ( ; rpos < n; ++ rpos ) {
+    auto node1_id = mCandList[rpos];
+    if ( mCandMark[node1_id] ) {
+      if ( mAdjCount[node1_id] == 0 ) {
+	mCandMark[node1_id] = false;
+	mIndepSet.push_back(node1_id);
+      }
+      else {
+	mCandList[wpos] = node1_id;
+	++ wpos;
+      }
+    }
+  }
+  if ( wpos < n ) {
+    mCandList.erase(mCandList.begin() + wpos, mCandList.end());
   }
 }
 
