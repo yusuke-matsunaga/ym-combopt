@@ -69,18 +69,17 @@ public:
   int
   color(int node_id) const;
 
+  /// @brief 新しい色を割り当てる．
+  /// @return 割り当てた新しい色を返す．
+  int
+  new_color();
+
   /// @brief ノードに色を割り当てる．
   /// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
   /// @param[in] color 色 ( 1 <= color <= color_num() )
   void
   set_color(int node_id,
 	    int color);
-
-  /// @brief ノードに新しい色を割り当てる．
-  /// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
-  /// @return 割り当てた新しい色を返す．
-  int
-  set_new_color(int node_id);
 
   /// @brief 彩色結果を得る．
   /// @param[out] color_map 彩色結果を納めるベクタ
@@ -223,6 +222,16 @@ ColGraph::color(int node_id) const
   return mColorMap[node_id];
 }
 
+// @brief 新しい色を割り当てる．
+// @return 割り当てた新しい色を返す．
+inline
+int
+ColGraph::new_color()
+{
+  ++ mColNum;
+  return mColNum;
+}
+
 // @brief ノードに色を割り当てる．
 // @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
 // @param[in] color 色 ( 1 <= color <= color_num() )
@@ -235,17 +244,6 @@ ColGraph::set_color(int node_id,
   ASSERT_COND( color >= 1 && color <= color_num() );
 
   mColorMap[node_id] = color;
-}
-
-// @brief ノードに新しい色を割り当てる．
-// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
-inline
-int
-ColGraph::set_new_color(int node_id)
-{
-  ++ mColNum;
-  set_color(node_id, mColNum);
-  return mColNum;
 }
 
 inline

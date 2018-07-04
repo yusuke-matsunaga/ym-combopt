@@ -154,7 +154,7 @@ Dsatur::coloring(vector<int>& color_map)
   // 1: 隣接するノード数が最大のノードを選び彩色する．
   //    ソートしているので先頭のノードを選べば良い．
   DsatNode* max_node = node_heap.get_min();
-  set_new_color(max_node->id());
+  set_color(max_node->id(), new_color());
   update_sat_degree(max_node, *this, mNodeArray, node_heap);
 
   // 2: saturation degree が最大の未彩色ノードを選び最小の色番号で彩色する．
@@ -178,7 +178,7 @@ Dsatur::coloring(vector<int>& color_map)
       }
     }
     if ( color_list.empty() ) {
-      set_new_color(max_node->id());
+      set_color(max_node->id(), new_color());
     }
     else {
       int min_count = free_list.size() + 1;

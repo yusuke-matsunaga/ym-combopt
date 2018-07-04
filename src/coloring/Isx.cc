@@ -154,7 +154,7 @@ Isx::update_cand_list(int node_id)
       mCandMark[node1_id] = false;
       for ( auto node2_id: adj_list(node1_id) ) {
 	-- mAdjCount[node2_id];
-#if 1
+#if 0
 	if ( mCandMark[node2_id] && mAdjCount[node2_id] == 0 ) {
 	  mCandMark[node2_id] = false;
 	  mIndepSet.push_back(node2_id);
@@ -173,10 +173,8 @@ Isx::color_nodes(const vector<int>& node_set)
   int num = node_set.size();
   ASSERT_COND( num > 0 );
 
-  int node_id = node_set[0];
-  int cur_col = set_new_color(node_id);
-  for ( auto i: Range(1, num) ) {
-    int node_id = node_set[i];
+  int cur_col = new_color();
+  for ( auto node_id: node_set ) {
     set_color(node_id, cur_col);
   }
 }

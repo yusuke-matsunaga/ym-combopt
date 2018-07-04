@@ -59,12 +59,9 @@ IsCov::covering(int limit,
     int cur_col = 0;
     for ( auto node_id: iset ) {
       if ( cur_col == 0 ) {
-	mGraph.set_new_color(node_id);
-	cur_col = mGraph.color_num();
+	cur_col = mGraph.new_color();
       }
-      else {
-	mGraph.set_color(node_id, cur_col);
-      }
+      mGraph.set_color(node_id, cur_col);
     }
     remain_num -= num;
   }
