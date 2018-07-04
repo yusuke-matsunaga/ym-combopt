@@ -10,7 +10,6 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 from CXX_UdGraph cimport UdEdge as CXX_UdEdge, UdGraph as CXX_UdGraph
 from CXX_UdGraph cimport read_dimacs as c_read_dimacs, write_dimacs as c_write_dimacs
-from CXX_UdGraph cimport coloring as c_coloring
 
 
 ### @brief UdGraph の Python バージョン
@@ -68,15 +67,14 @@ cdef class UdGraph :
         cdef string c_str = filename.encode('UTF-8')
         c_write_dimacs(c_str, self._this)
 
-
-### @brief 彩色問題を解く
-def coloring(UdGraph graph, *args) :
-    cdef vector[int] c_color_map
-    cdef string c_algorithm
-    cdef int nc
-    if len(args) == 1 and type(args[0]) == str :
-        c_algorithm = args[0].encode('UTF-8')
-        nc = c_coloring(graph._this, c_algorithm, c_color_map)
-    else :
-        nc = c_coloring(graph._this, c_color_map)
-    return nc, [ c_color_map[i] for i in range(graph.node_num) ]
+    ### @brief 彩色問題を解く
+    def coloring(self, *args) :
+        cdef vector[int] c_color_map
+        cdef string c_algorithm
+        cdef int nc
+        if len(args) == 1 and type(args[0]) == str :
+            c_algorithm = args[0].encode('UTF-8')
+            nc = self._this.coloring(c_algorithm, c_color_map)
+        else :
+            nc = self._this.coloring(c_color_map)
+        return nc, [ c_color_map[i] for i in range(self.node_num) ]

@@ -69,19 +69,14 @@ Isx::get_indep_set()
 
   // ノードを一つづつ選択し mIndepSet に入れる．
   mIndepSet.clear();
-  {
-    int r = mRandGen.int32() % mCandList.size();
-    int node0 = mCandList[r];
-    mIndepSet.push_back(node0);
-  }
-  while ( !mCandList.empty() ) {
-    int node_id = select_node();
-    ASSERT_COND( node_id != -1 );
-
+  int node_id = random_select(mCandList);
+  while ( node_id != -1 ) {
     mIndepSet.push_back(node_id);
 
     // cand_list を更新する．
     update_cand_list(node_id);
+
+    node_id = select_node();
   }
   sort(mIndepSet.begin(), mIndepSet.end());
 }
@@ -94,12 +89,10 @@ Isx::init_cand_list()
     if ( color(node_id) == 0 ) {
       mCandList.push_back(node_id);
       mCandMark[node_id] = true;
+      mAdjCount[node_id] = 0;
     }
   }
 
-  for ( auto node_id: mCandList ) {
-    mAdjCount[node_id] = 0;
-  }
   for ( auto node_id: mCandList ) {
     for ( auto node1_id: adj_list(node_id) ) {
       ++ mAdjCount[node1_id];
@@ -118,7 +111,16 @@ Isx::select_node()
 
   mTmpList.clear();
   int min_num = node_num();
-  for ( auto node_id: mCandList ) {
+  int rpos = 0;
+  int wpos = 0;
+  for ( ; rpos < mCandList.size(); ++ rpos ) {
+    auto node_id =  mCandList[rpos];
+    if ( !mCandMark[node_id] ) {
+      continue;
+    }
+    mCandList[wpos] = node_id;
+    ++ wpos;
+
     int c = mAdjCount[node_id];
     if ( min_num >= c ) {
       if ( min_num > c ) {
@@ -128,12 +130,16 @@ Isx::select_node()
       mTmpList.push_back(node_id);
       }
   }
+  if ( wpos < mCandList.size() ) {
+    mCandList.erase(mCandList.begin() + wpos, mCandList.end());
+  }
+
   int n = mTmpList.size();
+  if ( n == 0 ) {
+    return -1;
+  }
 
-  ASSERT_COND( n > 0 );
-
-  int r = mRandGen.int32() % n;
-  return mTmpList[r];
+  return random_select(mTmpList);
 }
 
 // @brief 候補リストを更新する．
@@ -148,23 +154,14 @@ Isx::update_cand_list(int node_id)
       mCandMark[node1_id] = false;
       for ( auto node2_id: adj_list(node1_id) ) {
 	-- mAdjCount[node2_id];
+#if 1
+	if ( mCandMark[node2_id] && mAdjCount[node2_id] == 0 ) {
+	  mCandMark[node2_id] = false;
+	  mIndepSet.push_back(node2_id);
+	}
+#endif
       }
     }
-  }
-
-  // cand_mark に従って cand_list を更新する．
-  int n = mCandList.size();
-  int rpos = 0;
-  int wpos = 0;
-  for ( rpos = 0; rpos < n; ++ rpos ) {
-    int node1_id = mCandList[rpos];
-    if ( mCandMark[node1_id] ) {
-      mCandList[wpos] = node1_id;
-      ++ wpos;
-    }
-  }
-  if ( wpos < n ) {
-    mCandList.erase(mCandList.begin() + wpos, mCandList.end());
   }
 }
 
@@ -182,6 +179,17 @@ Isx::color_nodes(const vector<int>& node_set)
     int node_id = node_set[i];
     set_color(node_id, cur_col);
   }
+}
+
+// @brief ランダムに選ぶ．
+int
+Isx::random_select(const vector<int>& cand_list)
+{
+  int n = cand_list.size();
+  ASSERT_COND( n > 0 );
+
+  int r = mRandGen.int32() % n;
+  return cand_list[r];
 }
 
 END_NAMESPACE_YM_UDGRAPH

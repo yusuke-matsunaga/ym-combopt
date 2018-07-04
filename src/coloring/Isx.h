@@ -82,6 +82,10 @@ private:
   void
   color_nodes(const vector<int>& node_set);
 
+  /// @brief ランダムに選ぶ．
+  int
+  random_select(const vector<int>& cand_list);
+
 
 private:
   //////////////////////////////////////////////////////////////////////

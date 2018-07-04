@@ -31,11 +31,11 @@ cdef extern from "ym/UdGraph.h" namespace "nsYm" :
         bool is_reflective()
         UdEdge& edge(int)
         vector[UdEdge]& edge_list()
+        int coloring(vector[int]& color_map)
+        int coloring(const string&, vector[int]& color_map)
 
     bool read_dimacs(const string&, UdGraph&)
     void write_dimacs(const string&, UdGraph&)
-    int coloring(UdGraph&, vector[int]& color_map)
-    int coloring(UdGraph&, const string&, vector[int]& color_map)
     int independent_set(UdGraph&, vector[int]& node_set)
     int independent_set(UdGraph&, const string&, vector[int]& node_set)
     int max_clique(UdGraph&, vector[int]& node_set)

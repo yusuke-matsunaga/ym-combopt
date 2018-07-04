@@ -49,6 +49,13 @@ UdGraph::connect(int id1,
   ASSERT_COND( id1 >= 0 && id1 < node_num() );
   ASSERT_COND( id2 >= 0 && id2 < node_num() );
 
+  // 正規化する
+  if ( id1 > id2 ) {
+    int tmp = id1;
+    id1 = id2;
+    id2 = tmp;
+  }
+
   mEdgeList.push_back(UdEdge(id1, id2));
 }
 

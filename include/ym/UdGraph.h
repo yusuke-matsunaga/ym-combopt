@@ -60,7 +60,9 @@ public:
   /// @brief 2つのノードを接続する．
   /// @param[in] id1, id2 2つのノードの番号 ( 0 <= id1, id2 < node_num() )
   ///
-  /// id1 == id2 も許す(反射)
+  /// - 無向グラフなので id1 <= id2 になるように正規化する．
+  /// - id1 == id2 も許す(反射)
+  /// - 多重辺は許さない．
   void
   connect(int id1,
 	  int id2);
@@ -99,6 +101,28 @@ public:
   /// @param[in] s 出力先のストリーム
   void
   dump(ostream& s) const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // グラフアルゴリズム
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 彩色問題を解く
+  /// @param[in] algorithm アルゴリズム名
+  /// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
+  /// @return 彩色数を返す．
+  int
+  coloring(const string& algorithm,
+	   vector<int>& color_map) const;
+
+  /// @brief 彩色問題を解く
+  /// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
+  /// @return 彩色数を返す．
+  ///
+  /// デフォルトのヒューリスティックを用いる．
+  int
+  coloring(vector<int>& color_map) const;
 
 
 private:
@@ -157,30 +181,6 @@ extern
 void
 write_dimacs(ostream& s,
 	     const UdGraph& graph);
-
-/// @relates UdGraph
-/// @brief 彩色問題を解く
-/// @param[in] graph 対象のグラフ
-/// @param[in] algorithm アルゴリズム名
-/// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
-/// @return 彩色数を返す．
-extern
-int
-coloring(const UdGraph& graph,
-	 const string& algorithm,
-	 vector<int>& color_map);
-
-/// @relates UdGraph
-/// @brief 彩色問題を解く
-/// @param[in] graph 対象のグラフ
-/// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
-/// @return 彩色数を返す．
-///
-/// デフォルトのヒューリスティックを用いる．
-extern
-int
-coloring(const UdGraph& graph,
-	 vector<int>& color_map);
 
 /// @relates UdGraph
 /// @brief (最大)独立集合を求める．
