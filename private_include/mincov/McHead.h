@@ -24,7 +24,6 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 class McHead
 {
-  friend class McBlock;
   friend class McHeadList;
 
 public:
@@ -63,6 +62,10 @@ public:
   /// @brief 要素数を返す．
   int
   num() const;
+
+  /// @brief 削除フラグを返す．
+  bool
+  is_deleted() const;
 
   /// @brief 行の先頭の要素を返す．
   McCell*
@@ -133,15 +136,6 @@ public:
   /// @brief 直後のヘッダを返す．
   const McHead*
   next() const;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // public かつ mutable という異例のデータメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  mutable
-  int mWork;
 
 
 private:
@@ -256,6 +250,14 @@ McHead::num() const
   return mNum;
 }
 
+// @brief 削除フラグを返す．
+inline
+bool
+McHead::is_deleted() const
+{
+  return mDeleted;
+}
+
 // @brief 要素数を増やす．
 inline
 int
@@ -293,7 +295,7 @@ inline
 McRowList
 McHead::row_list() const
 {
-  return McRowList(row_front(), &mDummy);
+  return McRowList(row_front(), const_cast<McCell*>(&mDummy));
 }
 
 // @brief 行方向のリストから削除する．
@@ -359,7 +361,7 @@ inline
 McColList
 McHead::col_list() const
 {
-  return McColList(col_front(), &mDummy);
+  return McColList(col_front(), const_cast<McCell*>(&mDummy));
 }
 
 // @brief 列方向のリストから削除する．

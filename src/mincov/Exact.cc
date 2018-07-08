@@ -8,7 +8,7 @@
 
 
 #include "Exact.h"
-#include "mincov/McMatrix.h"
+//#include "mincov/McMatrix.h"
 #include "mincov/McBlock.h"
 #include "mincov/McHead.h"
 #include "mincov/McCell.h"
@@ -48,30 +48,13 @@ verify_block(McBlock& a,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] matrix 問題の行列
+// @param[in] block 問題の行列
 // @param[in] lb_calc_list 下界の計算クラスのリスト
 // @param[in] selector 列を選択するクラス
-Exact::Exact(McMatrix& matrix,
+Exact::Exact(McBlock& block,
 	     const vector<LbCalc*>& lb_calc_list,
 	     Selector& selector) :
-  mBlock(matrix),
-  mLbCalcList(lb_calc_list),
-  mSelector(selector)
-{
-}
-
-// @brief コンストラクタ
-// @param[in] matrix 問題の行列
-// @param[in] row_list 注目する行番号のリスト
-// @param[in] col_list 注目する列番号のリスト
-// @param[in] lb_calc_list 下界の計算クラスのリスト
-// @param[in] selector 列を選択するクラス
-Exact::Exact(McMatrix& matrix,
-	     const vector<int>& row_list,
-	     const vector<int>& col_list,
-	     const vector<LbCalc*>& lb_calc_list,
-	     Selector& selector) :
-  mBlock(matrix, row_list, col_list),
+  mBlock(block),
   mLbCalcList(lb_calc_list),
   mSelector(selector)
 {
@@ -147,6 +130,7 @@ Exact::_solve(int lb,
   }
 
   if ( lb >= mBest ) {
+    // 下界を用いた枝刈り
     if ( cur_debug ) {
       cout << " bounded" << endl;
     }
@@ -154,6 +138,7 @@ Exact::_solve(int lb,
   }
 
   if ( mBlock.row_num() == 0 ) {
+    // 自明な解
     mBest = tmp_cost;
     mBestSolution = mCurSolution;
     if ( cur_debug ) {
@@ -163,28 +148,26 @@ Exact::_solve(int lb,
   }
 
 #if 0
-  vector<int> row_list1;
-  vector<int> row_list2;
-  vector<int> col_list1;
-  vector<int> col_list2;
-  if ( mDoPartition && mBlock.block_partition(row_list1, row_list2, col_list1, col_list2) ) {
+  McBlock block1(mBlock.matrix());
+  if ( mDoPartition && mBlock.partition(block1) ) {
     // ブロック分割を行う．
-    Exact solver1(mBlock, row_list1, col_list1, mLbCalcList, mSelector);
-    Exact solver2(mBlock, row_list2, col_list2, mLbCalcList, mSelector);
+    Exact solver1(block1, mLbCalcList, mSelector);
+    Exact solver2(block2, mLbCalcList, mSelector);
     if ( cur_debug ) {
       cout << endl
 	   << "BLOCK PARTITION" << endl;
       cout << "Matrix#1" << endl;
-      solver1.matrix().print(cout);
+      solver1.block().print(cout);
       cout << "Matrix#2" << endl;
-      solver2.matrix().print(cout);
+      solver2.block().print(cout);
     }
-    solver1.mBlock.save();
-    solver2.mBlock.save();
+
+    block1.save();
+    block2.save();
     int cost_so_far = mBlock.cost(mCurSolution);
     int lb_rest = 0;
     for ( auto lb_calc_p: mLbCalcList ) {
-      int tmp_lb = (*lb_calc_p)(solver2.matrix());
+      int tmp_lb = (*lb_calc_p)(solver1.block());
       if ( lb_rest < tmp_lb ) {
 	lb_rest = tmp_lb;
       }
@@ -205,9 +188,9 @@ Exact::_solve(int lb,
 	cost_so_far += solver2.mBest;
       }
     }
-    solver1.mBlock.restore();
-    solver2.mBlock.restore();
-    mBlock.merge(solver1.mBlock, solver2.mBlock);
+    block1.restore();
+    block2.restore();
+    mBlock.merge(block1, block2);
 
     if ( stat1 ) {
       ASSERT_COND( mBlock.verify(mCurSolution) );

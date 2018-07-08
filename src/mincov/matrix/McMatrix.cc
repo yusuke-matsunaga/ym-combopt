@@ -39,12 +39,15 @@ McMatrix::McMatrix(int row_size,
   mCostArray(nullptr),
   mDelStack(nullptr)
 {
+  // サイズを設定する．
   resize(row_size, col_size);
 
+  // コストを設定する．
   for ( auto col: Range(col_size) ) {
     mCostArray[col] = cost_array[col];
   }
 
+  // 要素を設定する．
   for ( auto row_col: elem_list ) {
     insert_elem(row_col.first, row_col.second);
   }
@@ -61,7 +64,10 @@ McMatrix::McMatrix(const McMatrix& src) :
   mCostArray(nullptr),
   mDelStack(nullptr)
 {
+  // サイズを設定する．
   resize(src.row_size(), src.col_size());
+
+  // 内容をコピーする．
   copy(src);
 }
 
@@ -161,115 +167,6 @@ McMatrix::cost(const vector<int>& col_list) const
   }
   return cur_cost;
 }
-
-#if 0
-// @brief ブロック分割を行う．
-// @param[in] row_list1 1つめのブロックの行番号のリスト
-// @param[in] row_list2 2つめのブロックの行番号のリスト
-// @param[in] col_list1 1つめのブロックの列番号のリスト
-// @param[in] col_list2 2つめのブロックの列番号のリスト
-// @retval true ブロック分割が行われた．
-// @retval false ブロック分割が行えなかった．
-bool
-McMatrix::block_partition(vector<int>& row_list1,
-			  vector<int>& row_list2,
-			  vector<int>& col_list1,
-			  vector<int>& col_list2) const
-{
-#if 0
-  // マークを消す．
-  for ( auto row1: row_list() ) {
-    row1->mWork = 0U;
-  }
-  for ( auto col1: col_list() ) {
-    col1->mWork = 0U;
-  }
-
-  // 最初の行から到達可能な行と列にマークをつける．
-  auto row0 = row_list().front();
-  int nc1 = mark_cols(row0);
-
-  int nr = row_num();
-  int nc = col_num();
-
-  if ( nc == nc1 ) {
-    return false;
-  }
-
-  ymuint bitmask = 0U;
-  if ( nc1 > nc - nc1 ) {
-    bitmask = 1U;
-  }
-
-  row_list1.clear();
-  row_list1.reserve(nr);
-  row_list2.clear();
-  row_list2.reserve(nr);
-  for ( auto row1: row_list() ) {
-    if ( row1->mWork ^ bitmask ) {
-      row_list1.push_back(row1->pos());
-    }
-    else {
-      row_list2.push_back(row1->pos());
-    }
-  }
-
-  col_list1.clear();
-  col_list1.reserve(nc);
-  col_list2.clear();
-  col_list2.reserve(nc);
-  for ( auto col1: col_list() ) {
-    if ( col1->mWork ^ bitmask ) {
-      col_list1.push_back(col1->pos());
-    }
-    else {
-      col_list2.push_back(col1->pos());
-    }
-  }
-#endif
-
-  return true;
-}
-#endif
-
-#if 0
-// @brief col に接続している行をマークする．
-// @param[in] col 対象の列
-// @return マークされた列数を返す．
-int
-McMatrix::mark_rows(const McHead* col) const
-{
-  int nc = 0;
-  for ( auto cell: col->col_list() ) {
-    int row_pos = cell->row_pos();
-    auto row1 = row(row_pos);
-    if ( row1->mWork == 0U ) {
-      row1->mWork = 1U;
-      nc += mark_cols(row1);
-    }
-  }
-  return nc;
-}
-
-// @brief row に接続している列をマークする．
-// @param[in] row 対象の行
-// @return マークされた列数を返す．
-int
-McMatrix::mark_cols(const McHead* row) const
-{
-  int nc = 0;
-  for ( auto cell: row->row_list() ) {
-    int col_pos = cell->col_pos();
-    auto col1 = col(col_pos);
-    if ( col1->mWork == 0U ) {
-      col1->mWork = 1U;
-      ++ nc;
-      nc += mark_rows(col1);
-    }
-  }
-  return nc;
-}
-#endif
 
 // @brief 列集合がカバーになっているか検証する．
 // @param[in] col_list 列のリスト

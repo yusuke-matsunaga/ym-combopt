@@ -137,6 +137,13 @@ public:
   void
   reduce(vector<int>& selected_cols);
 
+  /// @brief ブロック分割する．
+  /// @param[out] remainder 分割された他方のブロックを入れる変数
+  /// @retval true 分割できた．
+  /// @retval false 分割できなかった．
+  bool
+  partition(McBlock& remainder);
+
   /// @brief 削除スタックにマーカーを書き込む．
   void
   save();
@@ -170,6 +177,26 @@ private:
   /// @return 選択された列があったら true を返す．
   bool
   essential_col(vector<int>& selected_cols);
+
+  /// @brief 列に接続している行に印をつける．
+  /// @param[in] col_pos 開始する列番号
+  /// @param[inout] row_mark 行の印
+  /// @param[inout] col_mark 列の印
+  /// @return 印の付けられた列数を返す．
+  int
+  mark_rows(int col_pos,
+	    vector<bool>& row_mark,
+	    vector<bool>& col_mark);
+
+  /// @brief 行に接続している列に印をつける．
+  /// @param[in] row_pos 開始する行番号
+  /// @param[inout] row_mark 行の印
+  /// @param[inout] col_mark 列の印
+  /// @return 印の付けられた列数を返す．
+  int
+  mark_cols(int row_pos,
+	    vector<bool>& row_mark,
+	    vector<bool>& col_mark);
 
   /// @brief 行を削除する．
   /// @param[in] row_pos 削除する行番号

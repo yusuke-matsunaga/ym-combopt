@@ -25,7 +25,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] cell 対象の McCell
-  McRowIterator(const McCell* cell = nullptr);
+  McRowIterator(McCell* cell = nullptr);
 
   /// @brief デストラクタ
   ~McRowIterator();
@@ -37,7 +37,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @breif dereference 演算子
-  const McCell*
+  McCell*
   operator*() const;
 
   /// @brief インクリメント演算子
@@ -65,7 +65,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 現在のセル
-  const McCell* mCurCell;
+  McCell* mCurCell;
 
 };
 
@@ -82,7 +82,7 @@ operator!=(const McRowIterator& left,
 // @brief コンストラクタ
 // @param[in] cell 対象の McCell
 inline
-McRowIterator::McRowIterator(const McCell* cell) :
+McRowIterator::McRowIterator(McCell* cell) :
   mCurCell(cell)
 {
 }
@@ -95,7 +95,7 @@ McRowIterator::~McRowIterator()
 
 // @breif dereference 演算子
 inline
-const McCell*
+McCell*
 McRowIterator::operator*() const
 {
   return mCurCell;

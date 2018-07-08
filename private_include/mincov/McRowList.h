@@ -32,8 +32,8 @@ public:
   /// @brief コンストラクタ
   /// @param[in] begin_cell 先頭の要素
   /// @param[in] end_cell 末尾の要素
-  McRowList(const McCell* begin_cell,
-	    const McCell* end_cell);
+  McRowList(McCell* begin_cell,
+	    McCell* end_cell);
 
   /// @brief デストラクタ
   ~McRowList();
@@ -70,10 +70,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 先頭の要素
-  const McCell* mBegin;
+  McCell* mBegin;
 
   // 末尾の要素
-  const McCell* mEnd;
+  McCell* mEnd;
 
 };
 
@@ -110,8 +110,8 @@ check_containment(const McRowList& list1,
 // @param[in] begin_cell 先頭の要素
 // @param[in] end_cell 末尾の要素
 inline
-McRowList::McRowList(const McCell* begin_cell,
-		     const McCell* end_cell) :
+McRowList::McRowList(McCell* begin_cell,
+		     McCell* end_cell) :
   mBegin(begin_cell),
   mEnd(end_cell)
 {

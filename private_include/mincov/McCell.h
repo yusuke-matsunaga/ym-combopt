@@ -22,7 +22,6 @@ BEGIN_NAMESPACE_YM_MINCOV
 class McCell
 {
   friend class McHead;
-  friend class McBlock;
 
 public:
 
@@ -50,19 +49,19 @@ public:
   col_pos() const;
 
   /// @brief 同じ行の直前の要素を返す．
-  const McCell*
+  McCell*
   row_prev() const;
 
   /// @brief 同じ行の直後の要素を返す．
-  const McCell*
+  McCell*
   row_next() const;
 
   /// @brief 同じ列の直前の要素を返す．
-  const McCell*
+  McCell*
   col_prev() const;
 
   /// @brief 同じ列の直後の要素を返す．
-  const McCell*
+  McCell*
   col_next() const;
 
 
@@ -131,7 +130,7 @@ McCell::col_pos() const
 
 // @brief 同じ行の直前の要素を返す．
 inline
-const McCell*
+McCell*
 McCell::row_prev() const
 {
   return mLeftLink;
@@ -139,7 +138,7 @@ McCell::row_prev() const
 
 // @brief 同じ行の直後の要素を返す．
 inline
-const McCell*
+McCell*
 McCell::row_next() const
 {
   return mRightLink;
@@ -147,7 +146,7 @@ McCell::row_next() const
 
 // @brief 同じ列の直前の要素を返す．
 inline
-const McCell*
+McCell*
 McCell::col_prev() const
 {
   return mUpLink;
@@ -155,7 +154,7 @@ McCell::col_prev() const
 
 // @brief 同じ列の直後の要素を返す．
 inline
-const McCell*
+McCell*
 McCell::col_next() const
 {
   return mDownLink;

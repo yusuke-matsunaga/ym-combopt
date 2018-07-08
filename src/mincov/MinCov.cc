@@ -77,7 +77,7 @@ MinCov::exact(vector<int>& solution,
 
   // ここの仕事はオプション文字列を解析して
   // Exact を呼ぶこと．
-  vector<pair<string, string> > opt_list;
+  vector<pair<string, string>> opt_list;
   parse_option(option, opt_list);
 
   vector<string> lb_str_list;
@@ -174,9 +174,8 @@ MinCov::exact(vector<int>& solution,
   }
 
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-
-  Exact solver(matrix, lb_list, *selector);
-
+  McBlock block(matrix);
+  Exact solver(block, lb_list, *selector);
   int cost = solver.solve(solution);
 
   { // 結果が正しいか検証しておく．
@@ -205,7 +204,7 @@ greedy(McBlock& block,
 {
   // ここの仕事はオプション文字列を解析して
   // Greedy を呼ぶこと．
-  vector<pair<string, string> > opt_list;
+  vector<pair<string, string>> opt_list;
   parse_option(option, opt_list);
 
   string sel_str;
