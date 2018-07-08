@@ -55,26 +55,17 @@ LbMIS3::operator()(const McBlock& block)
   // node1 と列を共有する行の Node が node1->mAdjLink[0:node1->mAdjNum -1]
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
+  vector<bool> mark(rn, false);
   for ( auto row_head: block.row_head_list() ) {
-    // マークを消す．
-    // 結構めんどくさいけど効率はいい
-    for ( auto cell1: row_head->row_list() ) {
-      auto col_head = block.col_head(cell1->col_pos());
-      for ( auto cell2: col_head->col_list() ) {
-	int row_pos = cell2->row_pos();
-	block.row_head(row_pos)->mWork = 0;
-      }
-    }
     // マークを用いて隣接関係を作る．
     int row_pos1 = row_head->pos();
     int id1 = row_map[row_pos1];
     int row_list_idx = 0;
     for ( auto cell1: row_head->row_list() ) {
-      auto col_head = block.col_head(cell1->col_pos());
-      for ( auto cell2: col_head->col_list() ) {
+      for ( auto cell2: block.col_list(cell1->col_pos()) ) {
 	int row_pos2 = cell2->row_pos();
-	if ( block.row_head(row_pos2)->mWork == 0 ) {
-	  block.row_head(row_pos2)->mWork = 1;
+	if ( !mark[row_pos2] ) {
+	  mark[row_pos2] = true;
 	  int id2 = row_map[row_pos2];
 	  graph.connect(id1, id2);
 	}

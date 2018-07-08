@@ -194,7 +194,7 @@ private:
 
   // 要素のリスト
   // (row_pos, col_pos) のペアのリスト
-  vector<pair<int, int> > mElemList;
+  vector<pair<int, int>> mElemList;
 
 };
 
@@ -252,7 +252,7 @@ MinCov::resize(int row_size,
   mRowSize = row_size;
   mColSize = col_size;
   mColCostArray.clear();
-  mColCostArray.resize(col_size);
+  mColCostArray.resize(col_size, 1);
   mElemList.clear();
 }
 
@@ -331,7 +331,7 @@ MinCov::col_cost_array() const
 
 // @brief 要素のリストを得る．
 inline
-const vector<pair<int, int> >&
+const vector<pair<int, int>>&
 MinCov::elem_list() const
 {
   return mElemList;

@@ -57,16 +57,6 @@ public:
   int
   row_size() const;
 
-  /// @brief 行の先頭を取り出す．
-  /// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
-  const McHead*
-  row_head(int row_pos) const;
-
-  /// @brief 行の先頭を取り出す．
-  /// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
-  McHead*
-  row_head(int row_pos);
-
   /// @brief 行の先頭のリストを返す．
   const McHeadList&
   row_head_list() const;
@@ -79,19 +69,19 @@ public:
   int
   row_num() const;
 
+  /// @brief 行方向のリストを返す．
+  /// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
+  McRowList
+  row_list(int row_pos) const;
+
+  /// @brief 行の要素数を返す．
+  /// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
+  int
+  row_elem_num(int row_pos) const;
+
   /// @brief 列数を返す．
   int
   col_size() const;
-
-  /// @brief 列の先頭を取り出す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  const McHead*
-  col_head(int col_pos) const;
-
-  /// @brief 列の先頭を取り出す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  McHead*
-  col_head(int col_pos);
 
   /// @brief 列の先頭のリストを返す．
   const McHeadList&
@@ -104,6 +94,16 @@ public:
   /// @brief 実効的な列数を返す．
   int
   col_num() const;
+
+  /// @brief 列方向のリストを返す．
+  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
+  McColList
+  col_list(int col_pos) const;
+
+  /// @brief 列の要素数を返す．
+  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
+  int
+  col_elem_num(int col_pos) const;
 
   /// @brief 列のコストを取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
@@ -219,24 +219,6 @@ McBlock::row_size() const
   return mMatrix.row_size();
 }
 
-// @brief 行の先頭を取り出す．
-// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
-inline
-const McHead*
-McBlock::row_head(int row_pos) const
-{
-  return mMatrix.row_head(row_pos);
-}
-
-// @brief 行の先頭を取り出す．
-// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
-inline
-McHead*
-McBlock::row_head(int row_pos)
-{
-  return mMatrix.row_head(row_pos);
-}
-
 // @brief 行の先頭のリストを返す．
 inline
 const McHeadList&
@@ -261,30 +243,30 @@ McBlock::row_num() const
   return mRowHeadList.num();
 }
 
+// @brief 行方向のリストを返す．
+// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
+inline
+McRowList
+McBlock::row_list(int row_pos) const
+{
+  return mMatrix.row_list(row_pos);
+}
+
+// @brief 行の要素数を返す．
+// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
+inline
+int
+McBlock::row_elem_num(int row_pos) const
+{
+  return mMatrix.row_elem_num(row_pos);
+}
+
 // @brief 列数を返す．
 inline
 int
 McBlock::col_size() const
 {
   return mMatrix.col_size();
-}
-
-// @brief 列の先頭を取り出す．
-// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-inline
-const McHead*
-McBlock::col_head(int col_pos) const
-{
-  return mMatrix.col_head(col_pos);
-}
-
-// @brief 列の先頭を取り出す．
-// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-inline
-McHead*
-McBlock::col_head(int col_pos)
-{
-  return mMatrix.col_head(col_pos);
 }
 
 /// @brief 列の先頭のリストを返す．
@@ -309,6 +291,24 @@ int
 McBlock::col_num() const
 {
   return mColHeadList.num();
+}
+
+// @brief 列方向のリストを返す．
+// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
+inline
+McColList
+McBlock::col_list(int col_pos) const
+{
+  return mMatrix.col_list(col_pos);
+}
+
+// @brief 列の要素数を返す．
+// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
+inline
+int
+McBlock::col_elem_num(int col_pos) const
+{
+  return mMatrix.col_elem_num(col_pos);
 }
 
 // @brief 列のコストを取り出す．

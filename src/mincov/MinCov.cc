@@ -328,13 +328,13 @@ MinCov::verify_solution(const vector<int>& solution,
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
   vector<bool> row_mark(row_size(), false);
   for ( auto col: solution ) {
-    for ( auto cell: matrix.col_head(col)->col_list() ) {
+    for ( auto cell: matrix.col_list(col) ) {
       row_mark[cell->row_pos()] = true;
     }
   }
   uncov_row_list.clear();
   for ( auto row: Range(row_size()) ) {
-    if ( matrix.row_head(row)->num() > 0 && !row_mark[row] ) {
+    if ( matrix.row_elem_num(row) > 0 && !row_mark[row] ) {
       uncov_row_list.push_back(row);
     }
   }

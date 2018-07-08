@@ -27,8 +27,10 @@ LbCS::operator()(const McBlock& block)
   for ( auto row_head: block.row_head_list() ) {
     double min_cost = DBL_MAX;
     for ( auto cell: row_head->row_list() ) {
-      auto col_head = block.col_head(cell->col_pos());
-      double col_cost = static_cast<double>(block.col_cost(col_head->pos())) / col_head->num();
+      int col_pos = cell->col_pos();
+      double cost = block.col_cost(col_pos);
+      double col_num = block.col_elem_num(col_pos);
+      double col_cost = cost / col_num;
       if ( min_cost > col_cost ) {
 	min_cost = col_cost;
       }

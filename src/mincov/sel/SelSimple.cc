@@ -30,8 +30,8 @@ SelSimple::operator()(const McBlock& block)
   for ( auto col_head: block.col_head_list() ) {
     double weight = 0.0;
     for ( auto cell: col_head->col_list() ) {
-      auto row_head = block.row_head(cell->row_pos());
-      weight += (1.0 / (row_head->num() - 1.0));
+      double num = block.row_elem_num(cell->row_pos());
+      weight += (1.0 / (num - 1.0));
     }
     weight /= block.col_cost(col_head->pos());
 

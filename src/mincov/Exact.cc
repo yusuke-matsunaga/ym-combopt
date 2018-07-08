@@ -34,17 +34,11 @@ verify_block(McBlock& a,
   ASSERT_COND( a.col_head_list() == b.col_head_list() );
 
   for ( int row_pos: Range(a.row_size()) ) {
-    auto row_a = a.row_head(row_pos);
-    auto row_b = b.row_head(row_pos);
-
-    ASSERT_COND( row_a->row_list() == row_b->row_list() );
+    ASSERT_COND( a.row_list(row_pos) == b.row_list(row_pos) );
   }
 
   for ( int col_pos: Range(a.col_size()) ) {
-    auto col_a = a.col_head(col_pos);
-    auto col_b = b.col_head(col_pos);
-
-    ASSERT_COND( col_a->col_list() == col_b->col_list() );
+    ASSERT_COND( a.col_list(col_pos) == b.col_list(col_pos) );
   }
 }
 

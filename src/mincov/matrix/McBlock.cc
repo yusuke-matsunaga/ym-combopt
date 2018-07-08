@@ -29,7 +29,7 @@ McBlock::McBlock(McMatrix& matrix) :
   vector<McHead*> row_head_list;
   row_head_list.reserve(row_size());
   for ( auto row_pos: Range(row_size()) ) {
-    auto row_head1 = row_head(row_pos);
+    auto row_head1 = mMatrix.row_head(row_pos);
     if ( row_head1->num() > 0 ) {
       row_head_list.push_back(row_head1);
     }
@@ -39,7 +39,7 @@ McBlock::McBlock(McMatrix& matrix) :
   vector<McHead*> col_head_list;
   col_head_list.reserve(col_size());
   for ( auto col_pos: Range(col_size()) ) {
-    auto col_head1 = col_head(col_pos);
+    auto col_head1 = mMatrix.col_head(col_pos);
     if ( col_head1->num() > 0 ) {
       col_head_list.push_back(col_head1);
     }
@@ -59,7 +59,7 @@ McBlock::McBlock(McMatrix& matrix,
   vector<McHead*> row_head_list;
   row_head_list.reserve(row_list.size());
   for ( auto row_pos: row_list ) {
-    auto row_head1 = row_head(row_pos);
+    auto row_head1 = mMatrix.row_head(row_pos);
     row_head_list.push_back(row_head1);
   }
   mRowHeadList.set(row_head_list);
@@ -67,7 +67,7 @@ McBlock::McBlock(McMatrix& matrix,
   vector<McHead*> col_head_list;
   col_head_list.reserve(col_list.size());
   for ( auto col_pos: col_list ) {
-    auto col_head1 = col_head(col_pos);
+    auto col_head1 = mMatrix.col_head(col_pos);
     col_head_list.push_back(col_head1);
   }
   mColHeadList.set(col_head_list);
@@ -102,7 +102,7 @@ McBlock::verify(const vector<int>& col_list) const
 
   // col_list の列でカバーされた行に印をつける．
   for ( auto col_pos: col_list ) {
-    for ( auto cell: col_head(col_pos)->col_list() ) {
+    for ( auto cell: mMatrix.col_list(col_pos) ) {
       auto row_pos = cell->row_pos();
       row_mark[row_pos] = true;
     }
@@ -152,7 +152,7 @@ McBlock::print(ostream& s) const
 void
 McBlock::select_col(int col_pos)
 {
-  auto col_head1 = col_head(col_pos);
+  auto col_head1 = mMatrix.col_head(col_pos);
   ASSERT_COND( !col_head1->mDeleted );
 
   for ( auto cell: col_head1->col_list() ) {
@@ -168,7 +168,7 @@ McBlock::select_col(int col_pos)
 void
 McBlock::delete_row(int row_pos)
 {
-  auto row_head1 = row_head(row_pos);
+  auto row_head1 = mMatrix.row_head(row_pos);
   ASSERT_COND( !row_head1->mDeleted );
   mRowHeadList.exclude(row_head1);
 
@@ -176,7 +176,7 @@ McBlock::delete_row(int row_pos)
   for ( auto cell = row_head1->mDummy.mRightLink;
 	cell != &row_head1->mDummy; cell = cell->mRightLink ) {
     auto col_pos = cell->col_pos();
-    auto col_head1 = col_head(col_pos);
+    auto col_head1 = mMatrix.col_head(col_pos);
     col_head1->col_delete(cell);
   }
 }
@@ -192,7 +192,7 @@ McBlock::restore_row(McHead* row_head1)
   for ( auto cell = row_head1->mDummy.mRightLink;
 	cell != &row_head1->mDummy; cell = cell->mRightLink ) {
     auto col_pos = cell->col_pos();
-    auto col_head1 = col_head(col_pos);
+    auto col_head1 = mMatrix.col_head(col_pos);
     col_head1->col_restore(cell);
   }
 }
@@ -202,7 +202,7 @@ McBlock::restore_row(McHead* row_head1)
 void
 McBlock::delete_col(int col_pos)
 {
-  auto col_head1 = col_head(col_pos);
+  auto col_head1 = mMatrix.col_head(col_pos);
   ASSERT_COND( !col_head1->mDeleted );
   mColHeadList.exclude(col_head1);
 
@@ -210,7 +210,7 @@ McBlock::delete_col(int col_pos)
   for ( auto cell = col_head1->mDummy.mDownLink;
 	cell != &col_head1->mDummy; cell = cell->mDownLink ) {
     auto row_pos = cell->row_pos();
-    auto row_head1 = row_head(row_pos);
+    auto row_head1 = mMatrix.row_head(row_pos);
     row_head1->row_delete(cell);
   }
 }
@@ -226,7 +226,7 @@ McBlock::restore_col(McHead* col_head1)
   for ( auto cell = col_head1->mDummy.mDownLink;
 	cell != &col_head1->mDummy; cell = cell->mDownLink ) {
     auto row_pos = cell->row_pos();
-    auto row_head1 = row_head(row_pos);
+    auto row_head1 = mMatrix.row_head(row_pos);
     row_head1->row_restore(cell);
   }
 }
@@ -310,7 +310,7 @@ McBlock::row_dominance()
     const McHead* min_col = nullptr;
     for ( auto cell: row_head1->row_list() ) {
       int col_pos = cell->col_pos();
-      auto col_head1 = col_head(col_pos);
+      auto col_head1 = mMatrix.col_head(col_pos);
       int col_num = col_head1->num();
       if ( min_num > col_num ) {
 	min_num = col_num;
@@ -319,7 +319,7 @@ McBlock::row_dominance()
     }
     // min_col に要素を持つ行のうち row1 に支配されている行を求める．
     for ( auto cell: min_col->col_list() ) {
-      auto row_head2 = row_head(cell->row_pos());
+      auto row_head2 = mMatrix.row_head(cell->row_pos());
       if ( row_head2 == row_head1 ) {
 	// 自分自身は比較しない．
 	continue;
@@ -369,7 +369,7 @@ McBlock::col_dominance()
     const McHead* min_row = nullptr;
     for ( auto cell: col_head1->col_list() ) {
       int row_pos = cell->row_pos();
-      auto row_head1 = row_head(row_pos);
+      auto row_head1 = mMatrix.row_head(row_pos);
       int row_num = row_head1->num();
       if ( min_num > row_num ) {
 	min_num = row_num;
@@ -379,7 +379,7 @@ McBlock::col_dominance()
 
     // min_row の行に要素を持つ列を対象にして支配関係のチェックを行う．
     for ( auto cell: min_row->row_list() ) {
-      auto col_head2 = col_head(cell->col_pos());
+      auto col_head2 = mMatrix.col_head(cell->col_pos());
       if ( col_head2 == col_head1 ) {
 	// 自分自身は比較しない．
 	continue;
@@ -426,9 +426,9 @@ McBlock::essential_col(vector<int>& selected_cols)
     if ( row_head1->num() == 1 ) {
       auto cell = row_head1->row_front();
       int col_pos = cell->col_pos();
-      ASSERT_COND( !col_head(col_pos)->mDeleted );
+      auto col_head1 = mMatrix.col_head(col_pos);
+      ASSERT_COND( !col_head1->mDeleted );
 
-      auto col_head1 = col_head(col_pos);
       if ( col_head1->mWork == 0 ) {
 	col_head1->mWork = 1;
 	selected_cols.push_back(col_pos);

@@ -41,6 +41,10 @@ McMatrix::McMatrix(int row_size,
 {
   resize(row_size, col_size);
 
+  for ( auto col: Range(col_size) ) {
+    mCostArray[col] = cost_array[col];
+  }
+
   for ( auto row_col: elem_list ) {
     insert_elem(row_col.first, row_col.second);
   }
@@ -77,10 +81,7 @@ McMatrix::operator=(const McMatrix& src)
 // @brief デストラクタ
 McMatrix::~McMatrix()
 {
-  delete [] mRowArray;
-  delete [] mColArray;
-  delete [] mCostArray;
-  delete [] mDelStack;
+  clear();
 }
 
 // @brief 内容をクリアする．
