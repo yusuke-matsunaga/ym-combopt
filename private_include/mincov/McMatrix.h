@@ -130,6 +130,13 @@ public:
   insert_elem(int row_pos,
 	      int col_pos);
 
+  /// @brief 要素を追加する．
+  /// @param[in] elem_list 要素のリスト
+  ///
+  /// * 要素は (row_pos, col_pos) のペアで表す．
+  void
+  insert_elem(const vector<pair<int, int>>& elem_list);
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -170,22 +177,28 @@ private:
   /// @brief 行の先頭を取り出す．
   /// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
   const McHead*
-  row_head(int row_pos) const;
+  _row_head(int row_pos) const;
 
   /// @brief 行の先頭を取り出す．
   /// @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
   McHead*
-  row_head(int row_pos);
+  _row_head(int row_pos);
 
   /// @brief 列の先頭を取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
   const McHead*
-  col_head(int col_pos) const;
+  _col_head(int col_pos) const;
 
   /// @brief 列の先頭を取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
   McHead*
-  col_head(int col_pos);
+  _col_head(int col_pos);
+
+  /// @brief mRowMark, mColMark の sanity check
+  /// @retval true mRowMark, mColMark の内容が全て 0 だった．
+  /// @retval false mRowMark, mColMark に非0の要素が含まれていた．
+  bool
+  check_mark_sanity();
 
   /// @brief セルの生成
   /// @param[in] row_pos 行番号
@@ -210,12 +223,12 @@ private:
   // 行数
   int mRowSize;
 
-  // 列数
-  int mColSize;
-
   // 行の先頭の配列
   // サイズは mRowSize
   McHead* mRowArray;
+
+  // 列数
+  int mColSize;
 
   // 列の先頭の配列
   // サイズは mColSize
@@ -230,6 +243,16 @@ private:
 
   // mDelStack のポインタ
   int mStackTop;
+
+  // 作業用に使う行のマーク配列
+  // サイズは mRowSize
+  mutable
+  int* mRowMark;
+
+  // 作業用に使う列のマーク配列
+  // サイズは mColSize
+  mutable
+  int* mColMark;
 
 };
 
@@ -252,7 +275,7 @@ inline
 McRowList
 McMatrix::row_list(int row_pos) const
 {
-  return row_head(row_pos)->row_list();
+  return _row_head(row_pos)->row_list();
 }
 
 // @brief 行の要素数を返す．
@@ -261,14 +284,14 @@ inline
 int
 McMatrix::row_elem_num(int row_pos) const
 {
-  return row_head(row_pos)->num();
+  return _row_head(row_pos)->num();
 }
 
 // @brief 行の先頭を取り出す．
 // @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
 inline
 const McHead*
-McMatrix::row_head(int row_pos) const
+McMatrix::_row_head(int row_pos) const
 {
   ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
 
@@ -279,7 +302,7 @@ McMatrix::row_head(int row_pos) const
 // @param[in] row_pos 行位置 ( 0 <= row_pos < row_size() )
 inline
 McHead*
-McMatrix::row_head(int row_pos)
+McMatrix::_row_head(int row_pos)
 {
   ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
 
@@ -300,7 +323,7 @@ inline
 McColList
 McMatrix::col_list(int col_pos) const
 {
-  return col_head(col_pos)->col_list();
+  return _col_head(col_pos)->col_list();
 }
 
 // @brief 列の要素数を返す．
@@ -309,14 +332,14 @@ inline
 int
 McMatrix::col_elem_num(int col_pos) const
 {
-  return col_head(col_pos)->num();
+  return _col_head(col_pos)->num();
 }
 
 // @brief 列の先頭を取り出す．
 // @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
 inline
 const McHead*
-McMatrix::col_head(int col_pos) const
+McMatrix::_col_head(int col_pos) const
 {
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 
@@ -327,7 +350,7 @@ McMatrix::col_head(int col_pos) const
 // @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
 inline
 McHead*
-McMatrix::col_head(int col_pos)
+McMatrix::_col_head(int col_pos)
 {
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 

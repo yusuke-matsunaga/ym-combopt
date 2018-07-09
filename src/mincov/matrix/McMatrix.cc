@@ -37,7 +37,9 @@ McMatrix::McMatrix(int row_size,
   mRowArray(nullptr),
   mColArray(nullptr),
   mCostArray(nullptr),
-  mDelStack(nullptr)
+  mDelStack(nullptr),
+  mRowMark(nullptr),
+  mColMark(nullptr)
 {
   // サイズを設定する．
   resize(row_size, col_size);
@@ -48,9 +50,8 @@ McMatrix::McMatrix(int row_size,
   }
 
   // 要素を設定する．
-  for ( auto row_col: elem_list ) {
-    insert_elem(row_col.first, row_col.second);
-  }
+  insert_elem(elem_list);
+
 }
 
 // @brief コピーコンストラクタ
@@ -62,7 +63,9 @@ McMatrix::McMatrix(const McMatrix& src) :
   mRowArray(nullptr),
   mColArray(nullptr),
   mCostArray(nullptr),
-  mDelStack(nullptr)
+  mDelStack(nullptr),
+  mRowMark(nullptr),
+  mColMark(nullptr)
 {
   // サイズを設定する．
   resize(src.row_size(), src.col_size());
@@ -100,11 +103,49 @@ McMatrix::clear()
   delete [] mColArray;
   delete [] mCostArray;
   delete [] mDelStack;
+  delete [] mRowMark;
+  delete [] mColMark;
 
   mRowArray = nullptr;
   mColArray = nullptr;
   mCostArray = nullptr;
   mDelStack = nullptr;
+  mRowMark = nullptr;
+  mColMark = nullptr;
+}
+
+// @brief 要素を追加する．
+// @param[in] row_pos 追加する要素の行番号
+// @param[in] col_pos 追加する要素の列番号
+void
+McMatrix::insert_elem(int row_pos,
+		      int col_pos)
+{
+  auto cell = alloc_cell(row_pos, col_pos);
+
+  auto row_head1 = _row_head(row_pos);
+  bool stat1 = row_head1->row_insert(cell);
+  if ( !stat1 ) {
+    // 列番号が重複しているので無視する．
+    free_cell(cell);
+    return;
+  }
+
+  auto col_head1 = _col_head(col_pos);
+  bool stat2 = col_head1->col_insert(cell);
+  ASSERT_COND( stat2 );
+}
+
+// @brief 要素を追加する．
+// @param[in] elem_list 要素のリスト
+//
+// * 要素は (row_pos, col_pos) のペアで表す．
+void
+McMatrix::insert_elem(const vector<pair<int, int>>& elem_list)
+{
+  for ( auto row_col: elem_list ) {
+    insert_elem(row_col.first, row_col.second);
+  }
 }
 
 // @brief サイズを変更する．
@@ -121,19 +162,25 @@ McMatrix::resize(int row_size,
     mColSize = col_size;
 
     mRowArray = new McHead[mRowSize];
+    mRowMark = new int[mRowSize];
     for ( auto row_pos: Range(mRowSize) ) {
       mRowArray[row_pos].init(row_pos, false);
+      mRowMark[row_pos] = 0;
     }
 
     mColArray = new McHead[mColSize];
     mCostArray = new int[mColSize];
+    mColMark = new int[mColSize];
     for ( auto col_pos: Range(mColSize) ) {
       mColArray[col_pos].init(col_pos, true);
       mCostArray[col_pos] = 1;
+      mColMark[col_pos] = 0;
     }
 
     mDelStack = new McHead*[row_size + col_size];
     mStackTop = 0;
+
+    ASSERT_COND( check_mark_sanity() );
   }
 }
 
@@ -145,7 +192,7 @@ McMatrix::copy(const McMatrix& src)
   ASSERT_COND(col_size() == src.col_size() );
 
   for ( auto row_pos: Range(row_size()) ) {
-    for ( auto src_cell: row_head(row_pos)->row_list() ) {
+    for ( auto src_cell: _row_head(row_pos)->row_list() ) {
       auto col_pos = src_cell->col_pos();
       insert_elem(row_pos, col_pos);
     }
@@ -180,7 +227,7 @@ McMatrix::verify(const vector<int>& col_list) const
 
   // col_list の列でカバーされた行に印をつける．
   for ( auto col_pos: col_list ) {
-    for ( auto cell: col_head(col_pos)->col_list() ) {
+    for ( auto cell: _col_head(col_pos)->col_list() ) {
       auto row_pos = cell->row_pos();
       row_mark[row_pos] = true;
     }
@@ -195,26 +242,23 @@ McMatrix::verify(const vector<int>& col_list) const
   return true;
 }
 
-// @brief 要素を追加する．
-// @param[in] row_pos 追加する要素の行番号
-// @param[in] col_pos 追加する要素の列番号
-void
-McMatrix::insert_elem(int row_pos,
-		      int col_pos)
+// @brief mRowMark, mColMark の sanity check
+// @retval true mRowMark, mColMark の内容が全て 0 だった．
+// @retval false mRowMark, mColMark に非0の要素が含まれていた．
+bool
+McMatrix::check_mark_sanity()
 {
-  auto cell = alloc_cell(row_pos, col_pos);
-
-  auto row_head1 = row_head(row_pos);
-  bool stat1 = row_head1->row_insert(cell);
-  if ( !stat1 ) {
-    // 列番号が重複しているので無視する．
-    free_cell(cell);
-    return;
+  for ( auto row: Range(row_size()) ) {
+    if ( mRowMark[row] != 0 ) {
+      return false;
+    }
   }
-
-  auto col_head1 = col_head(col_pos);
-  bool stat2 = col_head1->col_insert(cell);
-  ASSERT_COND( stat2 );
+  for ( auto col: Range(col_size()) ) {
+    if ( mColMark[col] != 0 ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // @brief セルの生成
@@ -245,7 +289,7 @@ McMatrix::print(ostream& s) const
   }
   for ( auto row_pos: Range(row_size()) ) {
     s << "Row#" << row_pos << ":";
-    for ( auto cell: row_head(row_pos)->row_list() ) {
+    for ( auto cell: _row_head(row_pos)->row_list() ) {
       s << " " << cell->col_pos();
     }
     s << endl;
