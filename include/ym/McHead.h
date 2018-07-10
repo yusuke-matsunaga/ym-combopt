@@ -137,14 +137,17 @@ private:
   clear();
 
   /// @brief 要素数を増やす．
-  /// @return 増加後の要素数を返す．
-  int
+  void
   inc_num();
 
   /// @brief 要素数を減らす．
-  /// @return 減少後の要素数を返す．
-  int
+  void
   dec_num();
+
+  /// @brief 削除フラグをセットする．
+  /// @param[in] flag フラグの値
+  void
+  set_deleted(bool flag);
 
 
 private:
@@ -156,8 +159,9 @@ private:
   // 最下位ビットが 0:行, 1:列 を表す．
   int mPos;
 
-  // 要素数
-  int mNum;
+  // 要素数 + 削除フラグ
+  // 最下位ビットが削除フラグ
+  unsigned int mNum;
 
   // 二重連結リストのダミーヘッダ
   McCell mDummy;
@@ -167,9 +171,6 @@ private:
 
   // 直後のヘッダを指すリンク
   McHead* mNext;
-
-  // 削除フラグ
-  bool mDeleted;
 
 };
 
@@ -184,8 +185,7 @@ McHead::McHead() :
   mPos(0),
   mDummy(-1, -1),
   mPrev(nullptr),
-  mNext(nullptr),
-  mDeleted(false)
+  mNext(nullptr)
 {
   clear();
 }
@@ -236,7 +236,7 @@ inline
 int
 McHead::num() const
 {
-  return mNum;
+  return static_cast<int>(mNum >> 1);
 }
 
 // @brief 削除フラグを返す．
@@ -244,23 +244,37 @@ inline
 bool
 McHead::is_deleted() const
 {
-  return mDeleted;
+  return static_cast<bool>(mNum & 1);
 }
 
 // @brief 要素数を増やす．
 inline
-int
+void
 McHead::inc_num()
 {
-  return ++ mNum;
+  mNum += 2;
 }
 
 // @brief 要素数を減らす．
 inline
-int
+void
 McHead::dec_num()
 {
-  return -- mNum;
+  mNum -= 2;
+}
+
+// @brief 削除フラグをセットする．
+// @param[in] flag フラグの値
+inline
+void
+McHead::set_deleted(bool flag)
+{
+  if ( flag ) {
+    mNum |= 1U;
+  }
+  else {
+    mNum &= ~1U;
+  }
 }
 
 // @brief 行の先頭の要素を返す．

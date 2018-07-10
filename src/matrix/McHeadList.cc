@@ -69,8 +69,8 @@ McHeadList::insert(McHead* head)
 void
 McHeadList::exclude(McHead* head)
 {
-  ASSERT_COND( !head->mDeleted );
-  head->mDeleted = true;
+  ASSERT_COND( !head->is_deleted() );
+  head->set_deleted(true);
   -- mNum;
 
   McHead* prev = head->mPrev;
@@ -83,8 +83,8 @@ McHeadList::exclude(McHead* head)
 void
 McHeadList::restore(McHead* head)
 {
-  ASSERT_COND( head->mDeleted );
-  head->mDeleted = false;
+  ASSERT_COND( head->is_deleted() );
+  head->set_deleted(false);
   ++ mNum;
 
   McHead* prev = head->mPrev;
