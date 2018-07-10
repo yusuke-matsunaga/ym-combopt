@@ -8,7 +8,7 @@
 
 
 #include "LbMIS1.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 #include "ym/SimpleAlloc.h"
 
 
@@ -81,8 +81,7 @@ LbMIS1::operator()(const McBlock& block)
   Node* top = nullptr;
   Node* last = nullptr;
   int idx = 0;
-  for ( auto row_head: block.row_head_list() ) {
-    int row_pos = row_head->pos();
+  for ( auto row_pos: block.row_head_list() ) {
     Node* node = &node_chunk[idx];
     ++ idx;
     node->set(row_pos);
@@ -103,13 +102,11 @@ LbMIS1::operator()(const McBlock& block)
   // node1->mNum も node1->mAdjNum で初期化される．
   int* row_list = alloc.get_array<int>(rn);
   vector<bool> mark(rn, false);
-  for ( auto row_head: block.row_head_list() ) {
+  for ( auto row_pos: block.row_head_list() ) {
     // マークを用いて隣接関係を作る．
-    int row_pos1 = row_head->pos();
     int row_list_idx = 0;
-    for ( auto cell1: row_head->row_list() ) {
-      for ( auto cell2: block.col_list(cell1->col_pos()) ) {
-	int row_pos2 = cell2->row_pos();
+    for ( auto col_pos1: block.row_list(row_pos) ) {
+      for ( auto row_pos2: block.col_list(col_pos1) ) {
 	if ( !mark[row_pos2] ) {
 	  mark[row_pos2] = true;
 	  row_list[row_list_idx] = row_pos2;
@@ -117,7 +114,7 @@ LbMIS1::operator()(const McBlock& block)
 	}
       }
     }
-    Node* node1 = node_array[row_pos1];
+    Node* node1 = node_array[row_pos];
     void* p = alloc.get_memory(sizeof(Node*) * row_list_idx);
     node1->mAdjLink = new (p) Node*[row_list_idx];
     for ( int i = 0; i < row_list_idx; ++ i ) {
@@ -158,8 +155,7 @@ LbMIS1::operator()(const McBlock& block)
 
     // best_node に対応する行を被覆する列の最小コストを求める．
     int min_cost = UINT_MAX;
-    for ( auto cell: block.row_list(best_node->mRowPos) ) {
-      int cpos = cell->col_pos();
+    for ( auto cpos: block.row_list(best_node->mRowPos) ) {
       if ( min_cost > block.col_cost(cpos) ) {
 	min_cost = block.col_cost(cpos);
       }

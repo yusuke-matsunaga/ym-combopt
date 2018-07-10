@@ -1,7 +1,7 @@
-#ifndef MCBLOCK_H
-#define MCBLOCK_H
+#ifndef YM_MCBLOCK_H
+#define YM_MCBLOCK_H
 
-/// @file McBlock.h
+/// @file ym/McBlock.h
 /// @brief McBlock のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -9,8 +9,10 @@
 /// All rights reserved.
 
 #include "ym/mincov_nsdef.h"
-#include "mincov/McMatrix.h"
-#include "mincov/McHeadList.h"
+#include "ym/McMatrix.h"
+#include "ym/McColList.h"
+#include "ym/McRowList.h"
+#include "ym/McHeadList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV

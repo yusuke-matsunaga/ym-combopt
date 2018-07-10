@@ -327,8 +327,8 @@ MinCov::verify_solution(const vector<int>& solution,
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
   vector<bool> row_mark(row_size(), false);
   for ( auto col: solution ) {
-    for ( auto cell: matrix.col_list(col) ) {
-      row_mark[cell->row_pos()] = true;
+    for ( auto row: matrix.col_list(col) ) {
+      row_mark[row] = true;
     }
   }
   uncov_row_list.clear();

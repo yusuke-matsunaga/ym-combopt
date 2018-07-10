@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "mincov/McMatrix.h"
+#include "ym/McMatrix.h"
 #include "ym/Range.h"
 
 
@@ -192,8 +192,7 @@ McMatrix::copy(const McMatrix& src)
   ASSERT_COND(col_size() == src.col_size() );
 
   for ( auto row_pos: Range(row_size()) ) {
-    for ( auto src_cell: _row_head(row_pos)->row_list() ) {
-      auto col_pos = src_cell->col_pos();
+    for ( auto col_pos: row_list(row_pos) ) {
       insert_elem(row_pos, col_pos);
     }
   }
@@ -216,19 +215,18 @@ McMatrix::cost(const vector<int>& col_list) const
 }
 
 // @brief 列集合がカバーになっているか検証する．
-// @param[in] col_list 列のリスト
-// @retval true col_list がカバーになっている．
-// @retval false col_list でカバーされていない行がある．
+// @param[in] colpos_list 列のリスト
+// @retval true colpos_list がカバーになっている．
+// @retval false colpos_list でカバーされていない行がある．
 bool
-McMatrix::verify(const vector<int>& col_list) const
+McMatrix::verify(const vector<int>& colpos_list) const
 {
   // カバーされた行の印
   vector<bool> row_mark(row_size(), false);
 
   // col_list の列でカバーされた行に印をつける．
-  for ( auto col_pos: col_list ) {
-    for ( auto cell: _col_head(col_pos)->col_list() ) {
-      auto row_pos = cell->row_pos();
+  for ( auto col_pos: colpos_list ) {
+    for ( auto row_pos: col_list(col_pos) ) {
       row_mark[row_pos] = true;
     }
   }
@@ -289,8 +287,8 @@ McMatrix::print(ostream& s) const
   }
   for ( auto row_pos: Range(row_size()) ) {
     s << "Row#" << row_pos << ":";
-    for ( auto cell: _row_head(row_pos)->row_list() ) {
-      s << " " << cell->col_pos();
+    for ( auto col_pos: row_list(row_pos) ) {
+      s << " " << col_pos;
     }
     s << endl;
   }

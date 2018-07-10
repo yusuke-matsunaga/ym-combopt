@@ -8,7 +8,7 @@
 
 
 #include "SelNaive.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -26,10 +26,10 @@ SelNaive::operator()(const McBlock& block)
   // 最もカバーしている行の多い列を選ぶ
   int max_num = 0;
   int max_col = 0;
-  for ( auto col_head: block.col_head_list() ) {
-    if ( max_num < col_head->num() ) {
-      max_num = col_head->num();
-      max_col = col_head->pos();
+  for ( auto col_pos: block.col_head_list() ) {
+    if ( max_num < block.col_elem_num(col_pos) ) {
+      max_num = block.col_elem_num(col_pos);
+      max_col = col_pos;
     }
   }
   return max_col;

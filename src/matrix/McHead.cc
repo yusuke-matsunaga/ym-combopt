@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "mincov/McHead.h"
+#include "ym/McHead.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -28,7 +28,7 @@ McHead::row_insert(McCell* cell)
   int col_pos = cell->col_pos();
   McCell* pcell;
   McCell* ncell;
-  if ( num() == 0 || row_back()->col_pos() < col_pos ) {
+  if ( num() == 0 || row_end()->row_prev()->col_pos() < col_pos ) {
     // 末尾への追加
     ncell = &mDummy;
     pcell = ncell->mLeftLink;
@@ -69,7 +69,7 @@ McHead::col_insert(McCell* cell)
   int row_pos = cell->row_pos();
   McCell* pcell;
   McCell* ncell;
-  if ( num() == 0 || col_back()->row_pos() < row_pos ) {
+  if ( num() == 0 || col_end()->col_prev()->row_pos() < row_pos ) {
     // 末尾への追加
     ncell = &mDummy;
     pcell = ncell->mUpLink;

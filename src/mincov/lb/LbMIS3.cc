@@ -8,7 +8,7 @@
 
 
 #include "LbMIS3.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 #include "ym/UdGraph.h"
 #include "ym/SimpleAlloc.h"
 
@@ -45,8 +45,7 @@ LbMIS3::operator()(const McBlock& block)
   }
 
   int idx = 0;
-  for ( auto row_head: block.row_head_list() ) {
-    int row_pos = row_head->pos();
+  for ( auto row_pos: block.row_head_list() ) {
     row_map[row_pos] = idx;
     ++ idx;
   }
@@ -56,14 +55,12 @@ LbMIS3::operator()(const McBlock& block)
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
   vector<bool> mark(rn, false);
-  for ( auto row_head: block.row_head_list() ) {
+  for ( auto row_pos: block.row_head_list() ) {
     // マークを用いて隣接関係を作る．
-    int row_pos1 = row_head->pos();
-    int id1 = row_map[row_pos1];
+    int id1 = row_map[row_pos];
     int row_list_idx = 0;
-    for ( auto cell1: row_head->row_list() ) {
-      for ( auto cell2: block.col_list(cell1->col_pos()) ) {
-	int row_pos2 = cell2->row_pos();
+    for ( auto col_pos1: block.row_list(row_pos) ) {
+      for ( auto row_pos2: block.col_list(col_pos1) ) {
 	if ( !mark[row_pos2] ) {
 	  mark[row_pos2] = true;
 	  int id2 = row_map[row_pos2];
@@ -74,12 +71,10 @@ LbMIS3::operator()(const McBlock& block)
   }
 
   // 各行を被覆する列の最小コストを求める．
-  for ( auto row_head: block.row_head_list() ) {
-    int row_pos = row_head->pos();
+  for ( auto row_pos: block.row_head_list() ) {
     int id = row_map[row_pos];
     int min_cost = UINT_MAX;
-    for ( auto cell: row_head->row_list() ) {
-      int cpos = cell->col_pos();
+    for ( auto cpos: block.row_list(row_pos) ) {
       if ( min_cost > block.col_cost(cpos) ) {
 	min_cost = block.col_cost(cpos);
       }

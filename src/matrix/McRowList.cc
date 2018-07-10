@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "mincov/McRowList.h"
+#include "ym/McRowList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -28,9 +28,7 @@ operator==(const McRowList& list1,
   McRowIterator end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
-    auto cell1 = *it1;
-    auto cell2 = *it2;
-    if ( cell1->col_pos() != cell2->col_pos() ) {
+    if ( *it1 != *it2 ) {
       return false;
     }
     ++ it1;
@@ -58,13 +56,13 @@ check_containment(const McRowList& list1,
   McRowIterator end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
-    auto cell1 = *it1;
-    auto cell2 = *it2;
-    if ( cell1->col_pos() > cell2->col_pos() ) {
+    int cpos1 = *it1;
+    int cpos2 = *it2;
+    if ( cpos1 > cpos2 ) {
       // list1 になくて list2 にある要素がある．
       return false;
     }
-    if ( cell1->col_pos() == cell2->col_pos() ) {
+    if ( cpos1 == cpos2 ) {
       ++ it2;
     }
     ++ it1;

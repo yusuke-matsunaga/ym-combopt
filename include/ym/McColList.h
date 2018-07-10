@@ -1,7 +1,7 @@
-#ifndef MCCOLLIST_H
-#define MCCOLLIST_H
+#ifndef YM_MCCOLLIST_H
+#define YM_MCCOLLIST_H
 
-/// @file McColList.h
+/// @file ym/McColList.h
 /// @brief McColList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -10,14 +10,14 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "McColIterator.h"
+#include "ym/McColIterator.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McColList McColList.h "McColList.h"
-/// @brief McCell を列方向にたどるためのクラス
+/// @class McColList McColList.h "ym/McColList.h"
+/// @brief McMatrix の要素を列方向にたどるためのクラス
 ///
 /// このクラスは読み出し専用でリストの内容を変えることはできない．
 //////////////////////////////////////////////////////////////////////
@@ -150,4 +150,4 @@ operator!=(const McColList& list1,
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCCOLLIST_H
+#endif // YM_MCCOLLIST_H

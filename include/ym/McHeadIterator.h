@@ -1,7 +1,7 @@
-#ifndef MCHEADITERATOR_H
-#define MCHEADITERATOR_H
+#ifndef YM_MCHEADITERATOR_H
+#define YM_MCHEADITERATOR_H
 
-/// @file McHeadIterator.h
+/// @file ym/McHeadIterator.h
 /// @brief McHeadIterator のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -15,7 +15,7 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McHeadIterator McHeadIterator.h "McHeadIterator.h"
+/// @class McHeadIterator McHeadIterator.h "ym/McHeadIterator.h"
 /// @brief McHead の反復子
 //////////////////////////////////////////////////////////////////////
 class McHeadIterator
@@ -35,7 +35,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @breif dereference 演算子
-  const McHead*
+  int
   operator*() const;
 
   /// @brief インクリメント演算子
@@ -92,10 +92,10 @@ McHeadIterator::~McHeadIterator()
 
 // @breif dereference 演算子
 inline
-const McHead*
+int
 McHeadIterator::operator*() const
 {
-  return mCurHead;
+  return mCurHead->pos();
 }
 
 // @brief インクリメント演算子
@@ -143,4 +143,4 @@ operator!=(const McHeadIterator& left,
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCHEADITERATOR_H
+#endif // YM_MCHEADITERATOR_H

@@ -10,7 +10,7 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
 

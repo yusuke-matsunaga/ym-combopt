@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "mincov/McColList.h"
+#include "ym/McColList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -28,9 +28,7 @@ operator==(const McColList& list1,
   McColIterator end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
-    auto cell1 = *it1;
-    auto cell2 = *it2;
-    if ( cell1->row_pos() != cell2->row_pos() ) {
+    if ( *it1 != *it2 ) {
       return false;
     }
     ++ it1;
@@ -58,13 +56,13 @@ check_containment(const McColList& list1,
   McColIterator end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
-    auto cell1 = *it1;
-    auto cell2 = *it2;
-    if ( cell1->row_pos() > cell2->row_pos() ) {
+    int rpos1 = *it1;
+    int rpos2 = *it2;
+    if ( rpos1 > rpos2 ) {
       // list1 になくて list2 にある要素がある．
       return false;
     }
-    if ( cell1->row_pos() == cell2->row_pos() ) {
+    if ( rpos1 == rpos2 ) {
       ++ it2;
     }
     ++ it1;

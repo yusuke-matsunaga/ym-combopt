@@ -1,7 +1,7 @@
-#ifndef MCROWLIST_H
-#define MCROWLIST_H
+#ifndef YM_MCROWLIST_H
+#define YM_MCROWLIST_H
 
-/// @file McRowList.h
+/// @file ym/McRowList.h
 /// @brief McRowList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -10,14 +10,14 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "McRowIterator.h"
+#include "ym/McRowIterator.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McRowList McRowList.h "McRowList.h"
-/// @brief McCell を行方向にたどるためのクラス
+/// @class McRowList McRowList.h "ym/McRowList.h"
+/// @brief McMatrix の要素を行方向にたどるためのクラス
 ///
 /// このクラスは読み出し専用でリストの内容を変えることはできない．
 //////////////////////////////////////////////////////////////////////
@@ -43,6 +43,10 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 先頭の要素の列番号を返す．
+  int
+  front() const;
 
   /// @brief 先頭の反復子を返す．
   iterator
@@ -123,6 +127,14 @@ McRowList::~McRowList()
 {
 }
 
+// @brief 先頭の要素を返す．
+inline
+int
+McRowList::front() const
+{
+  return mBegin->col_pos();
+}
+
 // @brief 先頭の反復子を返す．
 inline
 McRowIterator
@@ -151,4 +163,4 @@ operator!=(const McRowList& list1,
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCROWLIST_H
+#endif // YM_MCROWLIST_H

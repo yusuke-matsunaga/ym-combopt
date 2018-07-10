@@ -8,7 +8,7 @@
 
 
 #include "LbCS.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -24,10 +24,9 @@ int
 LbCS::operator()(const McBlock& block)
 {
   double cost = 0.0;
-  for ( auto row_head: block.row_head_list() ) {
+  for ( auto row_pos: block.row_head_list() ) {
     double min_cost = DBL_MAX;
-    for ( auto cell: row_head->row_list() ) {
-      int col_pos = cell->col_pos();
+    for ( auto col_pos: block.row_list(row_pos) ) {
       double cost = block.col_cost(col_pos);
       double col_num = block.col_elem_num(col_pos);
       double col_cost = cost / col_num;

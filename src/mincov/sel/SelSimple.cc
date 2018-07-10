@@ -8,7 +8,7 @@
 
 
 #include "SelSimple.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -27,17 +27,17 @@ SelSimple::operator()(const McBlock& block)
   // その重みの和が最大となる列を選ぶ．
   double max_weight = 0.0;
   int max_col = 0;
-  for ( auto col_head: block.col_head_list() ) {
+  for ( auto col_pos: block.col_head_list() ) {
     double weight = 0.0;
-    for ( auto cell: col_head->col_list() ) {
-      double num = block.row_elem_num(cell->row_pos());
+    for ( auto row_pos: block.col_list(col_pos) ) {
+      double num = block.row_elem_num(row_pos);
       weight += (1.0 / (num - 1.0));
     }
-    weight /= block.col_cost(col_head->pos());
+    weight /= block.col_cost(col_pos);
 
     if ( max_weight < weight ) {
       max_weight = weight;
-      max_col = col_head->pos();
+      max_col = col_pos;
     }
   }
   return max_col;

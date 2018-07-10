@@ -8,7 +8,7 @@
 
 
 #include "Greedy.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 #include "mincov/Selector.h"
 
 

@@ -1,7 +1,7 @@
-#ifndef MCHEADLIST_H
-#define MCHEADLIST_H
+#ifndef YM_MCHEADLIST_H
+#define YM_MCHEADLIST_H
 
-/// @file McHeadList.h
+/// @file ym/McHeadList.h
 /// @brief McHeadList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 #include "ym/mincov_nsdef.h"
-#include "McHead.h"
-#include "McHeadIterator.h"
+#include "ym/McHead.h"
+#include "ym/McHeadIterator.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -201,4 +201,4 @@ operator!=(const McHeadList& list1,
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCHEADLIST_H
+#endif // YM_MCHEADLIST_H

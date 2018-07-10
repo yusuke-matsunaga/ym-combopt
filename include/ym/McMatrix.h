@@ -1,7 +1,7 @@
-﻿#ifndef MCMATRIX_H
-#define MCMATRIX_H
+﻿#ifndef YM_MCMATRIX_H
+#define YM_MCMATRIX_H
 
-/// @file McMatrix.h
+/// @file ym/McMatrix.h
 /// @brief McMatrix のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -10,17 +10,21 @@
 
 
 #include "ym/mincov_nsdef.h"
-
-#include "McHead.h"
-#include "McHeadList.h"
+#include "ym/McHead.h"
+#include "ym/McColList.h"
+#include "ym/McRowList.h"
 #include "ym/UnitAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McMatrix McMatrix.h "McMatrix.h"
+/// @class McMatrix McMatrix.h "ym/McMatrix.h"
 /// @brief mincov 用の行列を表すクラス
+///
+/// * 単純には m x n のブーリアン行列
+/// * 1 の要素のみを持つので，1の要素が相対的に少ないスパースの時に効率がよい．
+/// * 要素は行方向・列方向にそれぞれ双方向リストでつながっている．
 //////////////////////////////////////////////////////////////////////
 class McMatrix
 {
@@ -275,7 +279,8 @@ inline
 McRowList
 McMatrix::row_list(int row_pos) const
 {
-  return _row_head(row_pos)->row_list();
+  auto head = _row_head(row_pos);
+  return McRowList(head->row_begin(), head->row_end());
 }
 
 // @brief 行の要素数を返す．
@@ -323,7 +328,8 @@ inline
 McColList
 McMatrix::col_list(int col_pos) const
 {
-  return _col_head(col_pos)->col_list();
+  auto head = _col_head(col_pos);
+  return McColList(head->col_begin(), head->col_end());
 }
 
 // @brief 列の要素数を返す．
@@ -402,4 +408,4 @@ McMatrix::pop()
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCMATRIX_H
+#endif // YM_MCMATRIX_H

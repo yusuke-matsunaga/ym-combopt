@@ -9,9 +9,9 @@
 
 #include "Exact.h"
 //#include "mincov/McMatrix.h"
-#include "mincov/McBlock.h"
-#include "mincov/McHead.h"
-#include "mincov/McCell.h"
+//#include "mincov/McBlock.h"
+//#include "ym/McHead.h"
+#include "ym/McCell.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
 #include "ym/Range.h"

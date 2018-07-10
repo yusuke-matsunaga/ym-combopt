@@ -1,7 +1,7 @@
-﻿#ifndef MCHEAD_H
-#define MCHEAD_H
+﻿#ifndef YM_MCHEAD_H
+#define YM_MCHEAD_H
 
-/// @file McHead.h
+/// @file ym/McHead.h
 /// @brief McHead のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -10,10 +10,7 @@
 
 
 #include "ym/mincov_nsdef.h"
-
-#include "McRowList.h"
-#include "McColList.h"
-#include "McCell.h"
+#include "ym/McCell.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -69,15 +66,11 @@ public:
 
   /// @brief 行の先頭の要素を返す．
   McCell*
-  row_front() const;
+  row_begin() const;
 
   /// @brief 行の末尾の要素を返す．
   McCell*
-  row_back() const;
-
-  /// @brief 行方向のリストを返す．
-  McRowList
-  row_list() const;
+  row_end() const;
 
   /// @brief 行方向のリストに挿入する．
   /// @param[in] cell 挿入する要素
@@ -100,15 +93,11 @@ public:
 
   /// @brief 列の先頭の要素を返す．
   McCell*
-  col_front() const;
+  col_begin() const;
 
   /// @brief 列の末尾の要素を返す．
   McCell*
-  col_back() const;
-
-  /// @brief 列方向のリストを返す．
-  McColList
-  col_list() const;
+  col_end() const;
 
   /// @brief 列方向のリストに挿入する.
   /// @param[in] cell 挿入する要素
@@ -201,7 +190,7 @@ McHead::McHead() :
   clear();
 }
 
-/// @brief デストラクタ
+// @brief デストラクタ
 inline
 McHead::~McHead()
 {
@@ -277,7 +266,7 @@ McHead::dec_num()
 // @brief 行の先頭の要素を返す．
 inline
 McCell*
-McHead::row_front() const
+McHead::row_begin() const
 {
   return mDummy.mRightLink;
 }
@@ -285,17 +274,9 @@ McHead::row_front() const
 // @brief 行の末尾の要素を返す．
 inline
 McCell*
-McHead::row_back() const
+McHead::row_end() const
 {
-  return mDummy.mLeftLink;
-}
-
-// @brief 行方向のリストを返す．
-inline
-McRowList
-McHead::row_list() const
-{
-  return McRowList(row_front(), const_cast<McCell*>(&mDummy));
+  return const_cast<McCell*>(&mDummy);
 }
 
 // @brief 行方向のリストから削除する．
@@ -343,7 +324,7 @@ McHead::row_restore(McCell* cell)
 // @brief 列の先頭の要素を返す．
 inline
 McCell*
-McHead::col_front() const
+McHead::col_begin() const
 {
   return mDummy.mDownLink;
 }
@@ -351,17 +332,9 @@ McHead::col_front() const
 // @brief 列の末尾の要素を返す．
 inline
 McCell*
-McHead::col_back() const
+McHead::col_end() const
 {
-  return mDummy.mUpLink;
-}
-
-// @brief 列方向のリストを返す．
-inline
-McColList
-McHead::col_list() const
-{
-  return McColList(col_front(), const_cast<McCell*>(&mDummy));
+  return const_cast<McCell*>(&mDummy);
 }
 
 // @brief 列方向のリストから削除する．
@@ -436,4 +409,4 @@ McHead::clear()
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // MCHEAD_H
+#endif // YM_MCHEAD_H

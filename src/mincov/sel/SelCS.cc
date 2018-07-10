@@ -8,7 +8,7 @@
 
 
 #include "SelCS.h"
-#include "mincov/McBlock.h"
+#include "ym/McBlock.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -27,11 +27,9 @@ SelCS::operator()(const McBlock& block)
   // その重みの和が最大となる列を選ぶ．
   int nr = block.row_size();
   vector<double> row_weights(nr);
-  for ( auto row_head: block.row_head_list() ) {
-    int row_pos = row_head->pos();
+  for ( auto row_pos: block.row_head_list() ) {
     double min_cost = DBL_MAX;
-    for ( auto cell: row_head->row_list() ) {
-      int col_pos = cell->col_pos();
+    for ( auto col_pos: block.row_list(row_pos) ) {
       double col_cost = static_cast<double>(block.col_cost(col_pos)) / block.col_elem_num(col_pos);
       if ( min_cost > col_cost ) {
 	min_cost = col_cost;
@@ -43,31 +41,27 @@ SelCS::operator()(const McBlock& block)
   double min_delta = DBL_MAX;
   int min_col = 0;
 
-  for ( auto col_head: block.col_head_list() ) {
-    int col_pos = col_head->pos();
+  for ( auto col_pos: block.col_head_list() ) {
     double col_cost = block.col_cost(col_pos);
 
     vector<int> col_delta(block.col_size(), 0);
     vector<int> col_list;
-    for ( auto cell: col_head->col_list() ) {
-      int row_pos = cell->row_pos();
-      for ( auto cell1: block.row_list(row_pos) ) {
-	int col_pos = cell1->col_pos();
-	if ( col_delta[col_pos] == 0 ) {
-	  col_list.push_back(col_pos);
+    for ( auto row_pos: block.col_list(col_pos) ) {
+      for ( auto col_pos1: block.row_list(row_pos) ) {
+	if ( col_delta[col_pos1] == 0 ) {
+	  col_list.push_back(col_pos1);
 	}
-	++ col_delta[col_pos];
+	++ col_delta[col_pos1];
       }
     }
 
     vector<bool> row_mark(block.row_size(), false);
     vector<int> row_list;
-    for ( auto col_pos: col_list ) {
-      double cost1 = block.col_cost(col_pos);
-      int num = block.col_elem_num(col_pos);
+    for ( auto col_pos1: col_list ) {
+      double cost1 = block.col_cost(col_pos1);
+      int num = block.col_elem_num(col_pos1);
       cost1 /= num;
-      for ( auto cell: col_head->col_list() ) {
-	int row_pos = cell->row_pos();
+      for ( auto row_pos: block.col_list(col_pos) ) {
 	if ( row_weights[row_pos] < cost1 ) {
 	  continue;
 	}
@@ -82,8 +76,7 @@ SelCS::operator()(const McBlock& block)
     double delta_sum = 0.0;
     for ( auto row_pos: row_list ) {
       double min_weight = DBL_MAX;
-      for ( auto cell: block.row_list(row_pos) ) {
-	int col_pos1 = cell->col_pos();
+      for ( auto col_pos1: block.row_list(row_pos) ) {
 	double n = block.col_elem_num(col_pos1) - col_delta[col_pos1];
 	double cost1 = block.col_cost(col_pos1) / n;
 	if ( min_weight > cost1 ) {

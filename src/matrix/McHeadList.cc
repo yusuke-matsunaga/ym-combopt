@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "mincov/McHeadList.h"
+#include "ym/McHeadList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -144,12 +144,7 @@ operator==(const McHeadList& list1,
   McHeadIterator it2 = list2.begin();
   McHeadIterator end2 = list2.end();
   for ( ; ; ) {
-    const McHead* head1 = *it1;
-    const McHead* head2 = *it2;
-    if ( head1->pos() != head2->pos() ) {
-      return false;
-    }
-    if ( head1->num() != head2->num() ) {
+    if ( *it1 != *it2 ) {
       return false;
     }
 

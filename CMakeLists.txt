@@ -57,16 +57,19 @@ set ( mincov_SOURCES
   src/mincov/lb/LbMIS3.cc
   src/mincov/lb/MisNodeHeap.cc
   src/mincov/MaxClique.cc
-  src/mincov/matrix/McHead.cc
-  src/mincov/matrix/McHeadList.cc
-  src/mincov/matrix/McColList.cc
-  src/mincov/matrix/McRowList.cc
-  src/mincov/matrix/McBlock.cc
-  src/mincov/matrix/McMatrix.cc
   src/mincov/MinCov.cc
   src/mincov/sel/SelCS.cc
   src/mincov/sel/SelNaive.cc
   src/mincov/sel/SelSimple.cc
+  )
+
+set ( matrix_SOURCES
+  src/matrix/McHead.cc
+  src/matrix/McHeadList.cc
+  src/matrix/McColList.cc
+  src/matrix/McRowList.cc
+  src/matrix/McBlock.cc
+  src/matrix/McMatrix.cc
   )
 
 set ( udgraph_SOURCES
@@ -93,6 +96,7 @@ set ( max_clique_SOURCES
 
 set ( ym_combopt_SOURCES
   ${mincov_SOURCES}
+  ${matrix_SOURCES}
   ${udgraph_SOURCES}
   ${coloring_SOURCES}
   ${max_clique_SOURCES}
