@@ -47,6 +47,7 @@ END_NAMESPACE_YM_MINCOV
 BEGIN_NAMESPACE_YM
 
 using nsMincov::MinCov;
+using nsMincov::McMatrix;
 using nsMincov::McColList;
 using nsMincov::McRowList;
 

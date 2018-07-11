@@ -173,7 +173,7 @@ MinCov::exact(vector<int>& solution,
     selector = &sel_simple;
   }
 
-  McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+  McMatrix matrix(row_size(), mColCostArray, mElemList);
   Exact solver(matrix, lb_list, *selector);
   int cost = solver.solve(solution);
 
@@ -265,7 +265,7 @@ MinCov::heuristic(vector<int>& solution,
 {
   sanity_check();
 
-  McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+  McMatrix matrix(row_size(), mColCostArray, mElemList);
 
   // 最初に縮約を行う．
   matrix.reduce(solution);
@@ -322,7 +322,7 @@ bool
 MinCov::verify_solution(const vector<int>& solution,
 			vector<int>& uncov_row_list)
 {
-  McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
+  McMatrix matrix(row_size(), mColCostArray, mElemList);
   vector<bool> row_mark(row_size(), false);
   for ( auto col: solution ) {
     for ( auto row: matrix.col_list(col) ) {

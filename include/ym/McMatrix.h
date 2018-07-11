@@ -77,14 +77,22 @@ public:
   /// @brief コンストラクタ
   /// @param[in] row_size 行数
   /// @param[in] col_size 列数
-  /// @param[in] cost_array コストの配列
   /// @param[in] elem_list 要素のリスト
   ///
   /// * elem_list は (row_pos, col_pos) の pair のリスト
   McMatrix(int row_size,
 	   int col_size,
+	   const vector<pair<int, int>>& elem_list = vector<pair<int, int>>());
+
+  /// @brief コンストラクタ
+  /// @param[in] row_size 行数
+  /// @param[in] cost_array コストの配列
+  /// @param[in] elem_list 要素のリスト
+  ///
+  /// * elem_list は (row_pos, col_pos) の pair のリスト
+  McMatrix(int row_size,
 	   const vector<int>& cost_array,
-	   const vector<pair<int, int>>& elem_list);
+	   const vector<pair<int, int>>& elem_list = vector<pair<int, int>>());
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のオブジェクト

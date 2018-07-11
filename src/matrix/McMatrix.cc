@@ -44,11 +44,9 @@ McColComp::operator()(const McMatrix& matrix,
 // @brief コンストラクタ
 // @param[in] row_size 行数
 // @param[in] col_size 列数
-// @param[in] cost_array コストの配列
 // @param[in] elem_list 要素のリスト
 McMatrix::McMatrix(int row_size,
 		   int col_size,
-		   const vector<int>& cost_array,
 		   const vector<pair<int, int>>& elem_list) :
   mCellAlloc(sizeof(McCell), 1024),
   mRowSize(0),
@@ -68,6 +66,39 @@ McMatrix::McMatrix(int row_size,
 
   // コストを設定する．
   for ( auto col: Range(col_size) ) {
+    mCostArray[col] = 1;
+  }
+
+  // 要素を設定する．
+  insert_elem(elem_list);
+
+}
+
+// @brief コンストラクタ
+// @param[in] row_size 行数
+// @param[in] cost_array コストの配列
+// @param[in] elem_list 要素のリスト
+McMatrix::McMatrix(int row_size,
+		   const vector<int>& cost_array,
+		   const vector<pair<int, int>>& elem_list) :
+  mCellAlloc(sizeof(McCell), 1024),
+  mRowSize(0),
+  mRowHeadArray(nullptr),
+  mRowArray(nullptr),
+  mColSize(0),
+  mColHeadArray(nullptr),
+  mColArray(nullptr),
+  mCostArray(nullptr),
+  mDelStack(nullptr),
+  mRowMark(nullptr),
+  mColMark(nullptr),
+  mDelList(nullptr)
+{
+  // サイズを設定する．
+  resize(row_size, cost_array.size());
+
+  // コストを設定する．
+  for ( auto col: Range(mColSize) ) {
     mCostArray[col] = cost_array[col];
   }
 
