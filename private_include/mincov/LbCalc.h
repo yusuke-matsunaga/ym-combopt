@@ -33,10 +33,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 下界の計算をする
-  /// @param[in] block 対象のブロック
+  /// @param[in] matrix 対象の行列
   virtual
   int
-  operator()(const McBlock& block) = 0;
+  operator()(const McMatrix& matrix) = 0;
 
 };
 

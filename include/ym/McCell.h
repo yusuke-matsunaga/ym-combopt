@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 class McCell
 {
-  friend class McHead;
+  friend class McMatrix;
 
 public:
 
@@ -103,6 +103,10 @@ McCell::McCell(int row_pos,
   mRowPos(row_pos),
   mColPos(col_pos)
 {
+  mLeftLink = this;
+  mRightLink = this;
+  mUpLink = this;
+  mDownLink = this;
 }
 
 // @brief デストラクタ

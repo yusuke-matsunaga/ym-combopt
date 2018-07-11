@@ -10,7 +10,6 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "ym/McCell.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -18,6 +17,11 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 /// @class McHead McHead.h "McHead.h"
 /// @brief Mincov 用の行と列のヘッダを表すクラス
+///
+/// * 行か列かを表す1ビットのフラグ
+/// * 行番号/列番号
+/// * 削除フラグ
+/// * 行/列の要素数
 //////////////////////////////////////////////////////////////////////
 class McHead
 {
@@ -60,63 +64,22 @@ public:
   int
   num() const;
 
+  /// @brief 要素数を増やす．
+  void
+  inc_num();
+
+  /// @brief 要素数を減らす．
+  void
+  dec_num();
+
   /// @brief 削除フラグを返す．
   bool
   is_deleted() const;
 
-  /// @brief 行の先頭の要素を返す．
-  McCell*
-  row_begin() const;
-
-  /// @brief 行の末尾の要素を返す．
-  McCell*
-  row_end() const;
-
-  /// @brief 行方向のリストに挿入する．
-  /// @param[in] cell 挿入する要素
-  /// @retval true 追加が成功した．
-  /// @retval false 同じ要素がすでに存在した．
-  bool
-  row_insert(McCell* cell);
-
-  /// @brief 行方向のリストから削除する．
-  /// @param[in] cell 削除する要素
+  /// @brief 削除フラグをセットする．
+  /// @param[in] flag フラグの値
   void
-  row_delete(McCell* cell);
-
-  /// @brief row_delete() で削除したセルを元の位置に戻す．
-  /// @param[in] cell 削除する要素
-  ///
-  /// cell->row_prev(), cell->row_next() に正しい値が入っている
-  void
-  row_restore(McCell* cell);
-
-  /// @brief 列の先頭の要素を返す．
-  McCell*
-  col_begin() const;
-
-  /// @brief 列の末尾の要素を返す．
-  McCell*
-  col_end() const;
-
-  /// @brief 列方向のリストに挿入する.
-  /// @param[in] cell 挿入する要素
-  /// @retval true 追加が成功した．
-  /// @retval false 同じ要素がすでに存在した．
-  bool
-  col_insert(McCell* cell);
-
-  /// @brief 列方向のリストから削除する．
-  /// @param[in] cell 削除する要素
-  void
-  col_delete(McCell* cell);
-
-  /// @brief col_delete() で削除したセルを元の位置に戻す．
-  /// @param[in] cell 削除する要素
-  ///
-  /// cell->col_prev(), cell->col_next() に正しい値が入っている
-  void
-  col_restore(McCell* cell);
+  set_deleted(bool flag);
 
   /// @brief 直前のヘッダを返す．
   const McHead*
@@ -132,23 +95,6 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 接続している要素をクリアする．
-  void
-  clear();
-
-  /// @brief 要素数を増やす．
-  void
-  inc_num();
-
-  /// @brief 要素数を減らす．
-  void
-  dec_num();
-
-  /// @brief 削除フラグをセットする．
-  /// @param[in] flag フラグの値
-  void
-  set_deleted(bool flag);
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -162,9 +108,6 @@ private:
   // 要素数 + 削除フラグ
   // 最下位ビットが削除フラグ
   unsigned int mNum;
-
-  // 二重連結リストのダミーヘッダ
-  McCell mDummy;
 
   // 直前のヘッダを指すリンク
   McHead* mPrev;
@@ -183,11 +126,10 @@ private:
 inline
 McHead::McHead() :
   mPos(0),
-  mDummy(-1, -1),
-  mPrev(nullptr),
-  mNext(nullptr)
+  mNum(0),
+  mPrev(this),
+  mNext(this)
 {
-  clear();
 }
 
 // @brief デストラクタ
@@ -277,122 +219,6 @@ McHead::set_deleted(bool flag)
   }
 }
 
-// @brief 行の先頭の要素を返す．
-inline
-McCell*
-McHead::row_begin() const
-{
-  return mDummy.mRightLink;
-}
-
-// @brief 行の末尾の要素を返す．
-inline
-McCell*
-McHead::row_end() const
-{
-  return const_cast<McCell*>(&mDummy);
-}
-
-// @brief 行方向のリストから削除する．
-// @param[in] cell 削除する要素
-inline
-void
-McHead::row_delete(McCell* cell)
-{
-  ASSERT_COND( is_row() );
-
-  McCell* prev = cell->mLeftLink;
-  McCell* next = cell->mRightLink;
-
-  ASSERT_COND( prev->mRightLink == cell );
-  ASSERT_COND( next->mLeftLink == cell );
-
-  prev->mRightLink = next;
-  next->mLeftLink = prev;
-
-  dec_num();
-}
-
-// @brief row_delete() で削除したセルを元の位置に戻す．
-// @param[in] cell 削除する要素
-//
-// cell->row_prev(), cell->row_next() に正しい値が入っている
-inline
-void
-McHead::row_restore(McCell* cell)
-{
-  ASSERT_COND( is_row() );
-
-  McCell* prev = cell->mLeftLink;
-  McCell* next = cell->mRightLink;
-
-  ASSERT_COND( prev->mRightLink == next );
-  ASSERT_COND( next->mLeftLink == prev );
-
-  prev->mRightLink = cell;
-  next->mLeftLink = cell;
-
-  inc_num();
-}
-
-// @brief 列の先頭の要素を返す．
-inline
-McCell*
-McHead::col_begin() const
-{
-  return mDummy.mDownLink;
-}
-
-// @brief 列の末尾の要素を返す．
-inline
-McCell*
-McHead::col_end() const
-{
-  return const_cast<McCell*>(&mDummy);
-}
-
-// @brief 列方向のリストから削除する．
-// @param[in] cell 削除する要素
-inline
-void
-McHead::col_delete(McCell* cell)
-{
-  ASSERT_COND( is_col() );
-
-  McCell* prev = cell->mUpLink;
-  McCell* next = cell->mDownLink;
-
-  ASSERT_COND( prev->mDownLink == cell );
-  ASSERT_COND( next->mUpLink == cell );
-
-  prev->mDownLink = next;
-  next->mUpLink = prev;
-
-  dec_num();
-}
-
-// @brief col_delete() で削除したセルを元の位置に戻す．
-// @param[in] cell 削除する要素
-//
-// cell->col_prev(), cell->col_next() に正しい値が入っている
-inline
-void
-McHead::col_restore(McCell* cell)
-{
-  ASSERT_COND( is_col() );
-
-  McCell* prev = cell->mUpLink;
-  McCell* next = cell->mDownLink;
-
-  ASSERT_COND( prev->mDownLink == next );
-  ASSERT_COND( next->mUpLink == prev );
-
-  prev->mDownLink = cell;
-  next->mUpLink = cell;
-
-  inc_num();
-}
-
 // @brief 直前のヘッダを返す．
 inline
 const McHead*
@@ -407,18 +233,6 @@ const McHead*
 McHead::next() const
 {
   return mNext;
-}
-
-// @brief 接続している要素をクリアする．
-inline
-void
-McHead::clear()
-{
-  mDummy.mLeftLink = &mDummy;
-  mDummy.mRightLink = &mDummy;
-  mDummy.mUpLink = &mDummy;
-  mDummy.mDownLink = &mDummy;
-  mNum = 0;
 }
 
 END_NAMESPACE_YM_MINCOV

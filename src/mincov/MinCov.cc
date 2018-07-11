@@ -174,8 +174,7 @@ MinCov::exact(vector<int>& solution,
   }
 
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-  McBlock block(matrix);
-  Exact solver(block, lb_list, *selector);
+  Exact solver(matrix, lb_list, *selector);
   int cost = solver.solve(solution);
 
   { // 結果が正しいか検証しておく．
@@ -198,7 +197,7 @@ BEGIN_NONAMESPACE
 // @param[out] solution 解
 // @return 解のコスト
 void
-greedy(McBlock& block,
+greedy(McMatrix& matrix,
        const string& option,
        vector<int>& solution)
 {
@@ -249,7 +248,7 @@ greedy(McBlock& block,
     selector = &sel_simple;
   }
 
-  Greedy::solve(block, *selector, solution);
+  Greedy::solve(matrix, *selector, solution);
 }
 
 END_NONAMESPACE
@@ -267,20 +266,19 @@ MinCov::heuristic(vector<int>& solution,
   sanity_check();
 
   McMatrix matrix(row_size(), col_size(), mColCostArray, mElemList);
-  McBlock block(matrix);
 
   // 最初に縮約を行う．
-  block.reduce(solution);
+  matrix.reduce(solution);
   // この時点で解けていたらヒューリスティックは必要ない．
-  if ( block.row_num() > 0 ) {
+  if ( matrix.active_row_num() > 0 ) {
     vector<int> solution1;
     if ( algorithm == string("greedy") ) {
-      greedy(block, option, solution1);
+      greedy(matrix, option, solution1);
     }
     else if ( algorithm == string("random") ) {
     }
     else {
-      greedy(block, option, solution1);
+      greedy(matrix, option, solution1);
     }
     solution.insert(solution.end(), solution1.begin(), solution1.end());
   }

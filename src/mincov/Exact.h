@@ -10,7 +10,7 @@
 
 
 #include "ym/mincov_nsdef.h"
-#include "ym/McBlock.h"
+#include "ym/McMatrix.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
 
@@ -26,10 +26,10 @@ class Exact
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] block 問題の行列
+  /// @param[in] matrix 問題の行列
   /// @param[in] lb_list 下界の計算クラスのリスト
   /// @param[in] selector 列を選択するクラス
-  Exact(McBlock& block,
+  Exact(McMatrix& block,
 	const vector<LbCalc*>& lb_list,
 	Selector& selector);
 
@@ -48,9 +48,9 @@ public:
   int
   solve(vector<int>& solution);
 
-  /// @brief 対象のブロックを返す．
-  const McBlock&
-  block() const;
+  /// @brief 対象の行列を返す．
+  const McMatrix&
+  matrix() const;
 
   /// @brief partition フラグを設定する．
   static
@@ -90,8 +90,8 @@ private:
   // 列を選択するクラス
   Selector& mSelector;
 
-  // 対象のブロック
-  McBlock& mBlock;
+  // 対象の行列
+  McMatrix& mMatrix;
 
   // 現在のベスト
   int mBest;

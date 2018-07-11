@@ -64,11 +64,10 @@ set ( mincov_SOURCES
   )
 
 set ( matrix_SOURCES
-  src/matrix/McHead.cc
   src/matrix/McHeadList.cc
   src/matrix/McColList.cc
   src/matrix/McRowList.cc
-  src/matrix/McBlock.cc
+#  src/matrix/McBlock.cc
   src/matrix/McMatrix.cc
   )
 

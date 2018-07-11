@@ -71,16 +71,6 @@ public:
   int
   row_num() const;
 
-  /// @brief 行方向のリストを返す．
-  /// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
-  McRowList
-  row_list(int row_pos) const;
-
-  /// @brief 行の要素数を返す．
-  /// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
-  int
-  row_elem_num(int row_pos) const;
-
   /// @brief 列数を返す．
   int
   col_size() const;
@@ -96,16 +86,6 @@ public:
   /// @brief 実効的な列数を返す．
   int
   col_num() const;
-
-  /// @brief 列方向のリストを返す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  McColList
-  col_list(int col_pos) const;
-
-  /// @brief 列の要素数を返す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  int
-  col_elem_num(int col_pos) const;
 
   /// @brief 列のコストを取り出す．
   /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
@@ -145,14 +125,6 @@ public:
   /// @retval false 分割できなかった．
   bool
   partition(McBlock& remainder);
-
-  /// @brief 削除スタックにマーカーを書き込む．
-  void
-  save();
-
-  /// @brief 直前のマーカーまで処理を戻す．
-  void
-  restore();
 
   /// @brief 内容を表示する．
   void
@@ -272,24 +244,6 @@ McBlock::row_num() const
   return mRowHeadList.num();
 }
 
-// @brief 行方向のリストを返す．
-// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
-inline
-McRowList
-McBlock::row_list(int row_pos) const
-{
-  return mMatrix.row_list(row_pos);
-}
-
-// @brief 行の要素数を返す．
-// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
-inline
-int
-McBlock::row_elem_num(int row_pos) const
-{
-  return mMatrix.row_elem_num(row_pos);
-}
-
 // @brief 列数を返す．
 inline
 int
@@ -320,24 +274,6 @@ int
 McBlock::col_num() const
 {
   return mColHeadList.num();
-}
-
-// @brief 列方向のリストを返す．
-// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-inline
-McColList
-McBlock::col_list(int col_pos) const
-{
-  return mMatrix.col_list(col_pos);
-}
-
-// @brief 列の要素数を返す．
-// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-inline
-int
-McBlock::col_elem_num(int col_pos) const
-{
-  return mMatrix.col_elem_num(col_pos);
 }
 
 // @brief 列のコストを取り出す．

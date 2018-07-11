@@ -28,12 +28,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 最小被覆問題を解く．
-  /// @param[in] block 対象の行列
+  /// @param[in] matrix 対象の行列
   /// @param[in] selector 列を選ぶ関数オブジェクト
   /// @param[out] solution 選ばれた列集合
   static
   void
-  solve(McBlock& matrix,
+  solve(McMatrix& matrix,
 	Selector& selector,
 	vector<int>& solution);
 

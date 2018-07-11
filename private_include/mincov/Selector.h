@@ -33,11 +33,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の列を選ぶ．
-  /// @param[in] block 対象のブロック
+  /// @param[in] matrix 対象の行列
   /// @return 選ばれた列番号を返す．
   virtual
   int
-  operator()(const McBlock& block) = 0;
+  operator()(const McMatrix& matrix) = 0;
 
 };
 

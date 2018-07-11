@@ -30,7 +30,7 @@ public:
 
   /// @brief 下界の計算をする
   int
-  operator()(const McBlock& block) override;
+  operator()(const McMatrix& matrix) override;
 
 };
 

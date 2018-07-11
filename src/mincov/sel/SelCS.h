@@ -30,10 +30,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の列を選ぶ．
-  /// @param[in] block 対象の行列
+  /// @param[in] matrix 対象の行列
   /// @return 選ばれた列番号を返す．
   int
-  operator()(const McBlock& block) override;
+  operator()(const McMatrix& matrix) override;
 
 };
 

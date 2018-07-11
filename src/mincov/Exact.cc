@@ -8,10 +8,7 @@
 
 
 #include "Exact.h"
-//#include "mincov/McMatrix.h"
-//#include "mincov/McBlock.h"
-//#include "ym/McHead.h"
-#include "ym/McCell.h"
+#include "ym/McMatrix.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
 #include "ym/Range.h"
@@ -25,8 +22,8 @@ int solve_id = 0;
 // 2つの行列が等しいかをチェックする関数
 // 等しくなければ例外を送出する．
 void
-verify_block(McBlock& a,
-	     McBlock& b)
+verify_block(McMatrix& a,
+	     McMatrix& b)
 {
   ASSERT_COND( a.row_size() == b.row_size() );
   ASSERT_COND( a.col_size() == b.col_size() );
@@ -42,19 +39,18 @@ verify_block(McBlock& a,
   }
 }
 
-
 //////////////////////////////////////////////////////////////////////
 // クラス Exact
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] block 問題の行列
+// @param[in] matrix 問題の行列
 // @param[in] lb_calc_list 下界の計算クラスのリスト
 // @param[in] selector 列を選択するクラス
-Exact::Exact(McBlock& block,
+Exact::Exact(McMatrix& matrix,
 	     const vector<LbCalc*>& lb_calc_list,
 	     Selector& selector) :
-  mBlock(block),
+  mMatrix(matrix),
   mLbCalcList(lb_calc_list),
   mSelector(selector)
 {
@@ -71,9 +67,6 @@ Exact::~Exact()
 int
 Exact::solve(vector<int>& solution)
 {
-  // こちらは McMatrix 自身が持つ復元機能
-  mBlock.save();
-
   solve_id = 0;
 
   mBest = INT_MAX;
@@ -82,12 +75,6 @@ Exact::solve(vector<int>& solution)
   ASSERT_COND( stat );
 
   solution = mBestSolution;
-
-  // 復元が正しいかチェックする．
-  mBlock.restore();
-
-  // solution がカバーになっているかチェックする．
-  ASSERT_COND( mBlock.verify(solution) );
 
   if ( mDebug ) {
     cout << "Total branch: " << solve_id << endl;
@@ -104,12 +91,12 @@ Exact::_solve(int lb,
   int cur_id = solve_id;
   ++ solve_id;
 
-  mBlock.reduce(mCurSolution);
+  mMatrix.reduce(mCurSolution);
 
-  int tmp_cost = mBlock.cost(mCurSolution);
+  int tmp_cost = mMatrix.cost(mCurSolution);
 
   for ( auto lb_calc_p: mLbCalcList ) {
-    int tmp_lb = (*lb_calc_p)(mBlock) + tmp_cost;
+    int tmp_lb = (*lb_calc_p)(mMatrix) + tmp_cost;
     if ( lb < tmp_lb ) {
       lb = tmp_lb;
     }
@@ -121,8 +108,8 @@ Exact::_solve(int lb,
   }
 
   if ( cur_debug ) {
-    int nr = mBlock.row_num();
-    int nc = mBlock.col_num();
+    int nr = mMatrix.active_row_num();
+    int nc = mMatrix.active_col_num();
     cout << "[" << depth << "] " << nr << "x" << nc
 	 << " sel=" << tmp_cost << " bnd=" << mBest
 	 << " lb=" << lb
@@ -137,7 +124,7 @@ Exact::_solve(int lb,
     return false;
   }
 
-  if ( mBlock.row_num() == 0 ) {
+  if ( mMatrix.active_row_num() == 0 ) {
     // 自明な解
     mBest = tmp_cost;
     mBestSolution = mCurSolution;
@@ -205,18 +192,18 @@ Exact::_solve(int lb,
 #endif
 
   // 次の分岐のための列をとってくる．
-  int col = mSelector(mBlock);
+  int col = mSelector(mMatrix);
 
 #if defined(VERIFY_MINCOV)
-  McMatrix orig_matrix(mBlock);
+  McMatrix orig_matrix(mMatrix);
   vector<int> orig_solution(mCurSolution);
 #endif
 
   int cur_n = mCurSolution.size();
-  mBlock.save();
+  mMatrix.save();
 
   // その列を選択したときの最良解を求める．
-  mBlock.select_col(col);
+  mMatrix.select_col(col);
   mCurSolution.push_back(col);
 
   if ( cur_debug ) {
@@ -225,14 +212,14 @@ Exact::_solve(int lb,
 
   bool stat1 = _solve(lb, depth + 1);
 
-  mBlock.restore();
+  mMatrix.restore();
   int c = mCurSolution.size() - cur_n;
   for ( int i = 0; i < c; ++ i ) {
     mCurSolution.pop_back();
   }
 
 #if defined(VERIFYY_MINCOV)
-  verify_matrix(orig_matrix, mBlock);
+  verify_matrix(orig_matrix, mMatrix);
   ASSERT_COND( orig_solution == mCurSlution );
 #endif
 
@@ -245,7 +232,7 @@ Exact::_solve(int lb,
   }
 
   // その列を選択しなかったときの最良解を求める．
-  mBlock.deselect_col(col);
+  mMatrix.delete_col(col);
 
   if ( cur_debug ) {
     cout << "[" << depth << "]B deselect column#" << col << endl;
@@ -257,10 +244,10 @@ Exact::_solve(int lb,
 }
 
 // @brief 対象のブロックを返す．
-const McBlock&
-Exact::block() const
+const McMatrix&
+Exact::matrix() const
 {
-  return mBlock;
+  return mMatrix;
 }
 
 // @brief partition フラグを設定する．

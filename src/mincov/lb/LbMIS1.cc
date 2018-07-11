@@ -8,7 +8,7 @@
 
 
 #include "LbMIS1.h"
-#include "ym/McBlock.h"
+#include "ym/McMatrix.h"
 #include "ym/SimpleAlloc.h"
 
 
@@ -57,9 +57,9 @@ struct Lt
 // @param[in] matrix 対象の行列
 // @return 下限値
 int
-LbMIS1::operator()(const McBlock& block)
+LbMIS1::operator()(const McMatrix& matrix)
 {
-  if ( block.row_num() == 0 ) {
+  if ( matrix.active_row_num() == 0 ) {
     return 0;
   }
 
@@ -69,8 +69,8 @@ LbMIS1::operator()(const McBlock& block)
   // ndoe_array[row_pos] に row_pos の行の Node が入る．
   // top から Node::mNext を使ってリンクトリストを作る．
   SimpleAlloc alloc;
-  int rs = block.row_size();
-  int rn = block.row_num();
+  int rs = matrix.row_size();
+  int rn = matrix.active_row_num();
   void* p = alloc.get_memory(sizeof(Node*) * rs);
   Node** node_array = new (p) Node*[rs];
   for ( int i = 0; i < rs; ++ i ) {
@@ -81,7 +81,7 @@ LbMIS1::operator()(const McBlock& block)
   Node* top = nullptr;
   Node* last = nullptr;
   int idx = 0;
-  for ( auto row_pos: block.row_head_list() ) {
+  for ( auto row_pos: matrix.row_head_list() ) {
     Node* node = &node_chunk[idx];
     ++ idx;
     node->set(row_pos);
@@ -102,11 +102,11 @@ LbMIS1::operator()(const McBlock& block)
   // node1->mNum も node1->mAdjNum で初期化される．
   int* row_list = alloc.get_array<int>(rn);
   vector<bool> mark(rn, false);
-  for ( auto row_pos: block.row_head_list() ) {
+  for ( auto row_pos: matrix.row_head_list() ) {
     // マークを用いて隣接関係を作る．
     int row_list_idx = 0;
-    for ( auto col_pos1: block.row_list(row_pos) ) {
-      for ( auto row_pos2: block.col_list(col_pos1) ) {
+    for ( auto col_pos1: matrix.row_list(row_pos) ) {
+      for ( auto row_pos2: matrix.col_list(col_pos1) ) {
 	if ( !mark[row_pos2] ) {
 	  mark[row_pos2] = true;
 	  row_list[row_list_idx] = row_pos2;
@@ -155,9 +155,9 @@ LbMIS1::operator()(const McBlock& block)
 
     // best_node に対応する行を被覆する列の最小コストを求める．
     int min_cost = UINT_MAX;
-    for ( auto cpos: block.row_list(best_node->mRowPos) ) {
-      if ( min_cost > block.col_cost(cpos) ) {
-	min_cost = block.col_cost(cpos);
+    for ( auto cpos: matrix.row_list(best_node->mRowPos) ) {
+      if ( min_cost > matrix.col_cost(cpos) ) {
+	min_cost = matrix.col_cost(cpos);
       }
     }
     cost += min_cost;
