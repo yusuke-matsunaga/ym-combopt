@@ -38,12 +38,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief col1 の代わりに col2 を使っても全体のコストが上がらない時に true を返す．
-  /// @param[in] matrix 対象の行列
   /// @param[in] col1, col2 対象の列番号
   virtual
   bool
-  operator()(const McMatrix& matrix,
-	     int col1,
+  operator()(int col1,
 	     int col2) const;
 
 

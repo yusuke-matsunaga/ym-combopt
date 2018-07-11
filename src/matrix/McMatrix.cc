@@ -24,16 +24,13 @@ int mcmatrix_debug = 0;
 //////////////////////////////////////////////////////////////////////
 
 // @brief col1 の代わりに col2 を使っても全体のコストが上がらない時に true を返す．
-// @param[in] matrix 対象の行列
 // @param[in] col1, col2 対象の列番号
 bool
-McColComp::operator()(const McMatrix& matrix,
-		      int col1,
+McColComp::operator()(int col1,
 		      int col2) const
 {
-  int cost1 = matrix.col_cost(col1);
-  int cost2 = matrix.col_cost(col2);
-  return cost1 >= cost2;
+  // デフォルトでは常に true を返す．
+  return true;
 }
 
 
@@ -460,7 +457,7 @@ McMatrix::col_dominance(const McColComp& col_comp)
 	// ただし col1 よりも要素数の少ない列は調べる必要はない．
 	continue;
       }
-      if ( col_comp(*this, col_pos1, col_pos2) ) {
+      if ( col_comp(col_pos1, col_pos2) ) {
 	// col1 を col2 を置き換えてコストが上がらない．
 
 	// col_head1 に含まれる要素を col_head2 がすべて含んでいる場合
