@@ -459,12 +459,12 @@ McMatrix::col_dominance(vector<int>& deleted_cols,
 	// ただし col1 よりも要素数の少ない列は調べる必要はない．
 	continue;
       }
-      if ( col_comp(col_pos1, col_pos2) ) {
-	// col1 を col2 を置き換えてコストが上がらない．
 
-	// col_head1 に含まれる要素を col_head2 がすべて含んでいる場合
-	// col_head2 は col_head1 を支配している．
-	if ( check_containment(col_list(col_pos2), col_list(col_pos1)) ) {
+      // col1 に含まれる要素を col2 がすべて含んでいる場合
+      // col2 は col_head1 を支配している．
+      if ( check_containment(col_list(col_pos2), col_list(col_pos1)) ) {
+	if ( col_comp(col_pos1, col_pos2) ) {
+	  // col1 を col2 を置き換えてコストが上がらない場合には col1 を削除できる．
 	  mColMark[col_pos1] = 1;
 	  mDelList[del_wpos] = col_pos1;
 	  ++ del_wpos;
