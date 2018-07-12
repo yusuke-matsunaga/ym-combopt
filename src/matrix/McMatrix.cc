@@ -283,9 +283,11 @@ McMatrix::select_col(int col_pos)
 
 // @brief 簡単化を行う．
 // @param[out] selected_cols 簡単化中で選択された列の集合を追加する配列
+// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
 // @param[in] col_comp 列の比較関数オブジェクト
 void
 McMatrix::reduce(vector<int>& selected_cols,
+		 vector<int>& deleted_cols,
 		 const McColComp& col_comp)
 {
   if ( mcmatrix_debug > 0 ) {
@@ -297,7 +299,7 @@ McMatrix::reduce(vector<int>& selected_cols,
   int no_change = 0;
   for ( ; ; ) {
     // 列支配を探し，列の削除を行う．
-    if ( col_dominance(col_comp) ) {
+    if ( col_dominance(deleted_cols, col_comp) ) {
       no_change = 0;
       if ( mcmatrix_debug > 0 ) {
 	cout << " after col_dominance: "
@@ -415,23 +417,23 @@ McMatrix::row_dominance()
 }
 
 // @brief 列支配による縮約を行う．
+// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
 // @param[in] col_comp 列の比較関数オブジェクト
 // @retval true 縮約が行われた．
 // @retval false 縮約が行われなかった．
 bool
-McMatrix::col_dominance(const McColComp& col_comp)
+McMatrix::col_dominance(vector<int>& deleted_cols,
+			const McColComp& col_comp)
 {
-  bool change = false;
-
-  // 要素を持たない列を削除する．
-  for ( auto col_pos1: col_head_list() ) {
-    if ( col_elem_num(col_pos1) == 0 ) {
-      delete_col(col_pos1);
-    }
-  }
-
   int del_wpos = 0;
   for ( auto col_pos1: col_head_list() ) {
+    if ( col_elem_num(col_pos1) == 0 ) {
+      // 要素を持たない列は無条件で削除する．
+      mDelList[del_wpos] = col_pos1;
+      ++ del_wpos;
+      continue;
+    }
+
     // col1 の列に要素を持つ行で要素数が最小のものを求める．
     int min_num = col_size() + 1;
     int min_row = -1;
@@ -470,7 +472,6 @@ McMatrix::col_dominance(const McColComp& col_comp)
 	    cout << "Col#" << col_pos1 << " is dominated by Col#"
 		 << col_pos2 << endl;
 	  }
-	  change = true;
 	  break;
 	}
       }
@@ -478,15 +479,17 @@ McMatrix::col_dominance(const McColComp& col_comp)
   }
 
   // 実際に削除する．
+  deleted_cols.reserve(deleted_cols.size() + del_wpos);
   for ( auto i: Range(del_wpos) ) {
     auto col = mDelList[i];
     delete_col(col);
+    deleted_cols.push_back(col);
     mColMark[col] = 0;
   }
 
   ASSERT_COND( check_mark_sanity() );
 
-  return change;
+  return del_wpos > 0;
 }
 
 // @brief 必須列による縮約を行う．

@@ -39,6 +39,7 @@ class McHead;
 class McHeadList;
 class McRowList;
 class McColList;
+class McColComp;
 class McBlock;
 class McMatrix;
 
@@ -47,8 +48,9 @@ END_NAMESPACE_YM_MINCOV
 BEGIN_NAMESPACE_YM
 
 using nsMincov::MinCov;
-using nsMincov::McMatrix;
+using nsMincov::McColComp;
 using nsMincov::McColList;
+using nsMincov::McMatrix;
 using nsMincov::McRowList;
 
 END_NAMESPACE_YM

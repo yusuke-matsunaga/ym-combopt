@@ -91,7 +91,8 @@ Exact::_solve(int lb,
   int cur_id = solve_id;
   ++ solve_id;
 
-  mMatrix.reduce(mCurSolution);
+  vector<int> dummy;
+  mMatrix.reduce(mCurSolution, dummy);
 
   int tmp_cost = mMatrix.cost(mCurSolution);
 

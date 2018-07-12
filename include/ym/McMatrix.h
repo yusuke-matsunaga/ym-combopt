@@ -226,9 +226,14 @@ public:
 
   /// @brief 行列を縮約する．
   /// @param[out] selected_cols この縮約で選択された列を格納するベクタ
+  /// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
   /// @param[in] col_comp 列の比較関数オブジェクト
+  ///
+  /// selected_cols, deleted_cols はこの関数内で初期化されず，
+  /// 追加されるだけなので注意．
   void
   reduce(vector<int>& selected_cols,
+	 vector<int>& deleted_cols,
 	 const McColComp& col_comp = McColComp());
 
   /// @brief 行を削除する．
@@ -275,11 +280,13 @@ private:
   row_dominance();
 
   /// @brief 列支配による縮約を行う．
+  /// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
   /// @param[in] col_comp 列の比較関数オブジェクト
   /// @retval true 縮約が行われた．
   /// @retval false 縮約が行われなかった．
   bool
-  col_dominance(const McColComp& col_comp);
+  col_dominance(vector<int>& deleted_cols,
+		const McColComp& col_comp);
 
   /// @brief 必須列による縮約を行う．
   /// @param[out] selected_cols この縮約で選択された列を格納するベクタ

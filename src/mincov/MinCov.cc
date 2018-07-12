@@ -268,7 +268,8 @@ MinCov::heuristic(vector<int>& solution,
   McMatrix matrix(row_size(), mColCostArray, mElemList);
 
   // 最初に縮約を行う．
-  matrix.reduce(solution);
+  vector<int> dummy;
+  matrix.reduce(solution, dummy);
   // この時点で解けていたらヒューリスティックは必要ない．
   if ( matrix.active_row_num() > 0 ) {
     vector<int> solution1;
