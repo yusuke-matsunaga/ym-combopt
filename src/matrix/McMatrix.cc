@@ -364,6 +364,9 @@ McMatrix::row_dominance()
       continue;
     }
 
+    // row_pos1 の dirty フラグ
+    bool dirty1 = mRowHeadArray[row_pos1].is_dirty();
+
     // row1 の行に要素を持つ列で要素数が最小のものを求める．
     int min_num = row_size() + 1;
     int min_col = -1;
@@ -380,12 +383,18 @@ McMatrix::row_dominance()
 	// 自分自身は比較しない．
 	continue;
       }
+
       if ( row_elem_num(row_pos2) < row_elem_num(row_pos1) ) {
 	// 要素数が少ない行も比較しない．
 	continue;
       }
       if ( mRowMark[row_pos2] ) {
 	// 削除された行も比較しない.
+	continue;
+      }
+
+      // どちらかが dirty でなければチェックする必要はない．
+      if ( !dirty1 && !mRowHeadArray[row_pos2].is_dirty() ) {
 	continue;
       }
 
@@ -402,6 +411,10 @@ McMatrix::row_dominance()
 	}
       }
     }
+  }
+  // 全ての行の dirty フラグを降ろす．
+  for ( auto row_pos1: row_head_list() ) {
+    mRowHeadArray[row_pos1].set_dirty(false);
   }
 
   // 実際に削除する．
@@ -434,6 +447,9 @@ McMatrix::col_dominance(vector<int>& deleted_cols,
       continue;
     }
 
+    // col_pos1 の dirty フラグ
+    bool dirty1 = mColHeadArray[col_pos1].is_dirty();
+
     // col1 の列に要素を持つ行で要素数が最小のものを求める．
     int min_num = col_size() + 1;
     int min_row = -1;
@@ -460,6 +476,11 @@ McMatrix::col_dominance(vector<int>& deleted_cols,
 	continue;
       }
 
+      // どちらかが dirty でなければチェックする必要はない．
+      if ( !dirty1 && !mColHeadArray[col_pos2].is_dirty() ) {
+	continue;
+      }
+
       // col1 に含まれる要素を col2 がすべて含んでいる場合
       // col2 は col_head1 を支配している．
       if ( check_containment(col_list(col_pos2), col_list(col_pos1)) ) {
@@ -476,6 +497,10 @@ McMatrix::col_dominance(vector<int>& deleted_cols,
 	}
       }
     }
+  }
+  // すべての列の dirty フラグを降ろしておく．p
+  for ( auto col_pos1: col_head_list() ) {
+    mColHeadArray[col_pos1].set_dirty(false);
   }
 
   // 実際に削除する．

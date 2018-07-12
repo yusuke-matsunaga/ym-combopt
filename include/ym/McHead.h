@@ -81,6 +81,15 @@ public:
   void
   set_deleted(bool flag);
 
+  /// @brief dirty フラグを返す．
+  bool
+  is_dirty() const;
+
+  /// @brief dirty フラグをセットする．
+  /// @param[in] flag フラグの値
+  void
+  set_dirty(bool flag);
+
   /// @brief 直前のヘッダを返す．
   const McHead*
   prev() const;
@@ -105,8 +114,7 @@ private:
   // 最下位ビットが 0:行, 1:列 を表す．
   int mPos;
 
-  // 要素数 + 削除フラグ
-  // 最下位ビットが削除フラグ
+  // 要素数 + dirty フラグ + 削除フラグ
   unsigned int mNum;
 
   // 直前のヘッダを指すリンク
@@ -178,7 +186,7 @@ inline
 int
 McHead::num() const
 {
-  return static_cast<int>(mNum >> 1);
+  return static_cast<int>(mNum >> 2);
 }
 
 // @brief 削除フラグを返す．
@@ -186,7 +194,15 @@ inline
 bool
 McHead::is_deleted() const
 {
-  return static_cast<bool>(mNum & 1);
+  return static_cast<bool>((mNum >> 0) & 1U);
+}
+
+// @brief dirty フラグを返す．
+inline
+bool
+McHead::is_dirty() const
+{
+  return static_cast<bool>((mNum >> 1) & 1U);
 }
 
 // @brief 要素数を増やす．
@@ -194,7 +210,8 @@ inline
 void
 McHead::inc_num()
 {
-  mNum += 2;
+  mNum += 4;
+  set_dirty(true);
 }
 
 // @brief 要素数を減らす．
@@ -202,7 +219,8 @@ inline
 void
 McHead::dec_num()
 {
-  mNum -= 2;
+  mNum -= 4;
+  set_dirty(true);
 }
 
 // @brief 削除フラグをセットする．
@@ -216,6 +234,20 @@ McHead::set_deleted(bool flag)
   }
   else {
     mNum &= ~1U;
+  }
+}
+
+// @brief dirty フラグをセットする．
+// @param[in] flag フラグの値
+inline
+void
+McHead::set_dirty(bool flag)
+{
+  if ( flag ) {
+    mNum |= 2U;
+  }
+  else {
+    mNum &= ~2U;
   }
 }
 

@@ -246,6 +246,14 @@ public:
   void
   delete_col(int col_pos);
 
+  /// @brief 行に dirty フラグをつける．
+  void
+  set_row_dirty(int row_pos);
+
+  /// @brief 列に dirty フラグをつける．
+  void
+  set_col_dirty(int col_pos);
+
   /// @brief 削除スタックにマーカーを書き込む．
   void
   save();
@@ -486,6 +494,16 @@ McMatrix::set_row_deleted(int row_pos,
   mRowHeadArray[row_pos].set_deleted(flag);
 }
 
+// @brief 行に dirty フラグをつける．
+inline
+void
+McMatrix::set_row_dirty(int row_pos)
+{
+  ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
+
+  mRowHeadArray[row_pos].set_dirty(false);
+}
+
 // @brief 列数を返す．
 inline
 int
@@ -554,6 +572,16 @@ McMatrix::set_col_deleted(int col_pos,
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 
   mColHeadArray[col_pos].set_deleted(flag);
+}
+
+// @brief 列に dirty フラグをつける．
+inline
+void
+McMatrix::set_col_dirty(int col_pos)
+{
+  ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
+
+  mColHeadArray[col_pos].set_dirty(true);
 }
 
 // @brief 列のコストを取り出す．
