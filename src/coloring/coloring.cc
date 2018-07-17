@@ -70,21 +70,21 @@ UdGraph::coloring(const string& algorithm,
   else if ( algorithm == "isx" ) {
     nsUdGraph::Isx isxsolver(*this);
     int c = isxsolver.coloring(500, color_map);
-    cout << "isx end: c = " << c << endl;
+    //cout << "isx end: c = " << c << endl;
     nsUdGraph::Dsatur dsatsolver(*this, color_map);
     //return dsatsolver.coloring(color_map);
     c = dsatsolver.coloring(color_map);
-    cout << "dsatur end: c = " << c << endl;
+    //cout << "dsatur end: c = " << c << endl;
     return c;
   }
   else if ( algorithm == "isx2" ) {
     nsUdGraph::Isx2 isxsolver(*this);
     int c = isxsolver.coloring(500, color_map);
-    cout << "isx2 end: c = " << c << endl;
+    //cout << "isx2 end: c = " << c << endl;
     nsUdGraph::Dsatur dsatsolver(*this, color_map);
     //return dsatsolver.coloring(color_map);
     c = dsatsolver.coloring(color_map);
-    cout << "dsatur end: c = " << c << endl;
+    //cout << "dsatur end: c = " << c << endl;
     return c;
   }
   else if ( algorithm == "tabucol" ) {
