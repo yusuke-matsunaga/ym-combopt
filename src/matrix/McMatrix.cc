@@ -285,7 +285,9 @@ McMatrix::select_col(int col_pos)
 // @param[out] selected_cols 簡単化中で選択された列の集合を追加する配列
 // @param[out] deleted_cols この縮約で削除された列を格納するベクタ
 // @param[in] col_comp 列の比較関数オブジェクト
-void
+// @retval true 縮約された．
+// @retval false 縮約されなかった．
+bool
 McMatrix::reduce(vector<int>& selected_cols,
 		 vector<int>& deleted_cols,
 		 const McColComp& col_comp)
@@ -296,54 +298,48 @@ McMatrix::reduce(vector<int>& selected_cols,
     print(cout);
   }
 
-  int no_change = 0;
+  bool reduced = false;
+
+  // 列支配を探し，列の削除を行う．
+  if ( col_dominance(deleted_cols, col_comp) ) {
+    reduced = true;
+    if ( mcmatrix_debug > 0 ) {
+      cout << " after col_dominance: "
+	   << active_row_num() << " x " << active_col_num()  << endl;
+      print(cout);
+    }
+  }
+
+  // 必須列を探し，列の選択を行う．
+  if ( essential_col(selected_cols) ) {
+    reduced = true;
+    if ( mcmatrix_debug > 0 ) {
+      cout << " after essential_col: "
+	   << active_row_num() << " x " << active_col_num()  << endl;
+      print(cout);
+    }
+  }
+
+  // 行支配を探し，行の削除を行う．
+  if ( row_dominance() ) {
+    reduced = true;
+  }
+
+  return reduced;
+}
+
+// @brief 変化がなくなるまで reduce() を呼ぶ．
+// @param[out] selected_cols この縮約で選択された列を格納するベクタ
+// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
+// @param[in] col_comp 列の比較関数オブジェクト
+void
+McMatrix::reduce_loop(vector<int>& selected_cols,
+		      vector<int>& deleted_cols,
+		      const McColComp& col_comp)
+{
   for ( ; ; ) {
-    // 列支配を探し，列の削除を行う．
-    if ( col_dominance(deleted_cols, col_comp) ) {
-      no_change = 0;
-      if ( mcmatrix_debug > 0 ) {
-	cout << " after col_dominance: "
-	     << active_row_num() << " x " << active_col_num()  << endl;
-	print(cout);
-      }
-    }
-    else {
-      ++ no_change;
-      if ( no_change >= 3 ) {
-	break;
-      }
-    }
-
-    // 必須列を探し，列の選択を行う．
-    if ( essential_col(selected_cols) ) {
-      no_change = 0;
-      if ( mcmatrix_debug > 0 ) {
-	cout << " after essential_col: "
-	     << active_row_num() << " x " << active_col_num()  << endl;
-	print(cout);
-      }
-    }
-    else {
-      ++ no_change;
-      if ( no_change >= 3 ) {
-	break;
-      }
-    }
-
-    // 行支配を探し，行の削除を行う．
-    if ( row_dominance() ) {
-      no_change = 0;
-      if ( mcmatrix_debug > 0 ) {
-	cout << " after row_dominance: "
-	     << active_row_num() << " x " << active_col_num() << endl;
-	print(cout);
-      }
-    }
-    else {
-      ++ no_change;
-      if ( no_change >= 3 ) {
-	break;
-      }
+    if ( !reduce(selected_cols, deleted_cols, col_comp) ) {
+      break;
     }
   }
 }

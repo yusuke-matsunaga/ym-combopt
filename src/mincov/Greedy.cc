@@ -50,7 +50,7 @@ Greedy::solve(McMatrix& matrix,
 
     // 行列を縮約する．
     vector<int> dummy;
-    matrix.reduce(solution, dummy);
+    matrix.reduce_loop(solution, dummy);
 
     if ( mDebug ) {
       cout << "After reduction" << endl;

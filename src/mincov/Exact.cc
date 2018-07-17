@@ -92,7 +92,7 @@ Exact::_solve(int lb,
   ++ solve_id;
 
   vector<int> dummy;
-  mMatrix.reduce(mCurSolution, dummy);
+  mMatrix.reduce_loop(mCurSolution, dummy);
 
   int tmp_cost = mMatrix.cost(mCurSolution);
 

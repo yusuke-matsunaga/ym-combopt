@@ -228,13 +228,26 @@ public:
   /// @param[out] selected_cols この縮約で選択された列を格納するベクタ
   /// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
   /// @param[in] col_comp 列の比較関数オブジェクト
+  /// @retval true 縮約された．
+  /// @retval false 縮約されなかった．
   ///
-  /// selected_cols, deleted_cols はこの関数内で初期化されず，
-  /// 追加されるだけなので注意．
-  void
+  /// * この関数は行支配，列支配，必須列を１回だけ適用する．
+  /// * この関数が false を返すまで繰り返す必要がある．
+  /// * selected_cols, deleted_cols はこの関数内で初期化されず，
+  ///   追加されるだけなので注意．
+  bool
   reduce(vector<int>& selected_cols,
 	 vector<int>& deleted_cols,
 	 const McColComp& col_comp = McColComp());
+
+  /// @brief 変化がなくなるまで reduce() を呼ぶ．
+  /// @param[out] selected_cols この縮約で選択された列を格納するベクタ
+  /// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
+  /// @param[in] col_comp 列の比較関数オブジェクト
+  void
+  reduce_loop(vector<int>& selected_cols,
+	      vector<int>& deleted_cols,
+	      const McColComp& col_comp = McColComp());
 
   /// @brief 行を削除する．
   /// @param[in] row_pos 削除する行番号
