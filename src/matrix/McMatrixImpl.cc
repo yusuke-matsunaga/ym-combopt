@@ -1,13 +1,14 @@
 ﻿
-/// @file McMatrix.cc
-/// @brief McMatrix の実装ファイル
+/// @file McMatrixImpl.cc
+/// @brief McMatrixImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2010, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym/McMatrix.h"
+#include "ym/McMatrixImpl.h"
+#include "ym/McColComp.h"
 #include "ym/Range.h"
 
 
@@ -17,7 +18,6 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 int mcmatrix_debug = 0;
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス McColComp
@@ -35,16 +35,16 @@ McColComp::operator()(int col1,
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス McMatrix
+// クラス McMatrixImpl
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
 // @param[in] row_size 行数
 // @param[in] col_size 列数
 // @param[in] elem_list 要素のリスト
-McMatrix::McMatrix(int row_size,
-		   int col_size,
-		   const vector<pair<int, int>>& elem_list) :
+McMatrixImpl::McMatrixImpl(int row_size,
+			   int col_size,
+			   const vector<pair<int, int>>& elem_list) :
   mCellAlloc(sizeof(McCell), 1024),
   mRowSize(0),
   mRowHeadArray(nullptr),
@@ -68,16 +68,15 @@ McMatrix::McMatrix(int row_size,
 
   // 要素を設定する．
   insert_elem(elem_list);
-
 }
 
 // @brief コンストラクタ
 // @param[in] row_size 行数
 // @param[in] cost_array コストの配列
 // @param[in] elem_list 要素のリスト
-McMatrix::McMatrix(int row_size,
-		   const vector<int>& cost_array,
-		   const vector<pair<int, int>>& elem_list) :
+McMatrixImpl::McMatrixImpl(int row_size,
+			   const vector<int>& cost_array,
+			   const vector<pair<int, int>>& elem_list) :
   mCellAlloc(sizeof(McCell), 1024),
   mRowSize(0),
   mRowHeadArray(nullptr),
@@ -101,12 +100,11 @@ McMatrix::McMatrix(int row_size,
 
   // 要素を設定する．
   insert_elem(elem_list);
-
 }
 
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のオブジェクト
-McMatrix::McMatrix(const McMatrix& src) :
+McMatrixImpl::McMatrixImpl(const McMatrixImpl& src) :
   mCellAlloc(sizeof(McCell), 1024),
   mRowSize(0),
   mRowHeadArray(nullptr),
@@ -129,8 +127,8 @@ McMatrix::McMatrix(const McMatrix& src) :
 
 // @brief 代入演算子
 // @param[in] src コピー元のオブジェクト
-const McMatrix&
-McMatrix::operator=(const McMatrix& src)
+const McMatrixImpl&
+McMatrixImpl::operator=(const McMatrixImpl& src)
 {
   if ( this != &src ) {
     clear();
@@ -141,14 +139,14 @@ McMatrix::operator=(const McMatrix& src)
 }
 
 // @brief デストラクタ
-McMatrix::~McMatrix()
+McMatrixImpl::~McMatrixImpl()
 {
   clear();
 }
 
 // @brief 内容をクリアする．
 void
-McMatrix::clear()
+McMatrixImpl::clear()
 {
   mCellAlloc.destroy();
 
@@ -177,8 +175,8 @@ McMatrix::clear()
 // @param[in] row_pos 追加する要素の行番号
 // @param[in] col_pos 追加する要素の列番号
 void
-McMatrix::insert_elem(int row_pos,
-		      int col_pos)
+McMatrixImpl::insert_elem(int row_pos,
+			  int col_pos)
 {
   ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
@@ -261,7 +259,7 @@ McMatrix::insert_elem(int row_pos,
 //
 // * 要素は (row_pos, col_pos) のペアで表す．
 void
-McMatrix::insert_elem(const vector<pair<int, int>>& elem_list)
+McMatrixImpl::insert_elem(const vector<pair<int, int>>& elem_list)
 {
   for ( auto row_col: elem_list ) {
     insert_elem(row_col.first, row_col.second);
@@ -271,7 +269,7 @@ McMatrix::insert_elem(const vector<pair<int, int>>& elem_list)
 // @brief 列 col_pos によって被覆される行を削除し，列も削除する．
 // @param[in] col_pos 選択する列番号
 void
-McMatrix::select_col(int col_pos)
+McMatrixImpl::select_col(int col_pos)
 {
   for ( auto row_pos: col_list(col_pos) ) {
     delete_row(row_pos);
@@ -288,12 +286,12 @@ McMatrix::select_col(int col_pos)
 // @retval true 縮約された．
 // @retval false 縮約されなかった．
 bool
-McMatrix::reduce(vector<int>& selected_cols,
-		 vector<int>& deleted_cols,
-		 const McColComp& col_comp)
+McMatrixImpl::reduce(vector<int>& selected_cols,
+		     vector<int>& deleted_cols,
+		     const McColComp& col_comp)
 {
   if ( mcmatrix_debug > 0 ) {
-    cout << "McMatrix::reduce() start: "
+    cout << "McMatrixImpl::reduce() start: "
 	 << active_row_num() << " x " << active_col_num() << endl;
     print(cout);
   }
@@ -328,27 +326,11 @@ McMatrix::reduce(vector<int>& selected_cols,
   return reduced;
 }
 
-// @brief 変化がなくなるまで reduce() を呼ぶ．
-// @param[out] selected_cols この縮約で選択された列を格納するベクタ
-// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
-// @param[in] col_comp 列の比較関数オブジェクト
-void
-McMatrix::reduce_loop(vector<int>& selected_cols,
-		      vector<int>& deleted_cols,
-		      const McColComp& col_comp)
-{
-  for ( ; ; ) {
-    if ( !reduce(selected_cols, deleted_cols, col_comp) ) {
-      break;
-    }
-  }
-}
-
 // @brief 行支配による縮約を行う．
 // @retval true 縮約が行われた．
 // @retval false 縮約が行われなかった．
 bool
-McMatrix::row_dominance()
+McMatrixImpl::row_dominance()
 {
   bool change = false;
 
@@ -431,8 +413,8 @@ McMatrix::row_dominance()
 // @retval true 縮約が行われた．
 // @retval false 縮約が行われなかった．
 bool
-McMatrix::col_dominance(vector<int>& deleted_cols,
-			const McColComp& col_comp)
+McMatrixImpl::col_dominance(vector<int>& deleted_cols,
+			    const McColComp& col_comp)
 {
   int del_wpos = 0;
   for ( auto col_pos1: col_head_list() ) {
@@ -518,7 +500,7 @@ McMatrix::col_dominance(vector<int>& deleted_cols,
 // @retval true 縮約が行われた．
 // @retval false 縮約が行われなかった．
 bool
-McMatrix::essential_col(vector<int>& selected_cols)
+McMatrixImpl::essential_col(vector<int>& selected_cols)
 {
   int old_size = selected_cols.size();
   for ( auto row_pos1: row_head_list() ) {
@@ -548,7 +530,7 @@ McMatrix::essential_col(vector<int>& selected_cols)
 // @brief 行を削除する．
 // @param[in] row_pos 削除する行番号
 void
-McMatrix::delete_row(int row_pos)
+McMatrixImpl::delete_row(int row_pos)
 {
   ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
 
@@ -574,7 +556,7 @@ McMatrix::delete_row(int row_pos)
 
 // @brief 行を復元する．
 void
-McMatrix::restore_row(McHead* row_head)
+McMatrixImpl::restore_row(McHead* row_head)
 {
   // ヘッダを復元する．
   mRowHeadList.restore(row_head);
@@ -599,7 +581,7 @@ McMatrix::restore_row(McHead* row_head)
 // @brief 列を削除する．
 // @param[in] col_pos 削除する列番号
 void
-McMatrix::delete_col(int col_pos)
+McMatrixImpl::delete_col(int col_pos)
 {
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 
@@ -625,7 +607,7 @@ McMatrix::delete_col(int col_pos)
 
 // @brief 列を復元する．
 void
-McMatrix::restore_col(McHead* col_head)
+McMatrixImpl::restore_col(McHead* col_head)
 {
   // ヘッダを復元する．
   mColHeadList.restore(col_head);
@@ -649,14 +631,14 @@ McMatrix::restore_col(McHead* col_head)
 
 // @brief 削除スタックにマーカーを書き込む．
 void
-McMatrix::save()
+McMatrixImpl::save()
 {
   push(nullptr);
 }
 
 // @brief 直前のマーカーまで処理を戻す．
 void
-McMatrix::restore()
+McMatrixImpl::restore()
 {
   while ( !stack_empty() ) {
     McHead* head = pop();
@@ -676,8 +658,8 @@ McMatrix::restore()
 // @param[in] row_size 行数
 // @param[in] col_size 列数
 void
-McMatrix::resize(int row_size,
-		 int col_size)
+McMatrixImpl::resize(int row_size,
+		     int col_size)
 {
   if ( mRowSize != row_size || mColSize != col_size ) {
     clear();
@@ -720,7 +702,7 @@ McMatrix::resize(int row_size,
 
 // @brief 内容をコピーする．
 void
-McMatrix::copy(const McMatrix& src)
+McMatrixImpl::copy(const McMatrixImpl& src)
 {
   ASSERT_COND(row_size() == src.row_size() );
   ASSERT_COND(col_size() == src.col_size() );
@@ -739,7 +721,7 @@ McMatrix::copy(const McMatrix& src)
 // @brief 列集合のコストを返す．
 // @param[in] col_list 列のリスト
 int
-McMatrix::cost(const vector<int>& col_list) const
+McMatrixImpl::cost(const vector<int>& col_list) const
 {
   int cur_cost = 0;
   for ( auto col: col_list ) {
@@ -753,7 +735,7 @@ McMatrix::cost(const vector<int>& col_list) const
 // @retval true colpos_list がカバーになっている．
 // @retval false colpos_list でカバーされていない行がある．
 bool
-McMatrix::verify(const vector<int>& colpos_list) const
+McMatrixImpl::verify(const vector<int>& colpos_list) const
 {
   // カバーされた行の印
   vector<bool> row_mark(row_size(), false);
@@ -778,7 +760,7 @@ McMatrix::verify(const vector<int>& colpos_list) const
 // @retval true mRowMark, mColMark の内容が全て 0 だった．
 // @retval false mRowMark, mColMark に非0の要素が含まれていた．
 bool
-McMatrix::check_mark_sanity()
+McMatrixImpl::check_mark_sanity()
 {
   for ( auto row: Range(row_size()) ) {
     if ( mRowMark[row] != 0 ) {
@@ -795,8 +777,8 @@ McMatrix::check_mark_sanity()
 
 // @brief セルの生成
 McCell*
-McMatrix::alloc_cell(int row_pos,
-		     int col_pos)
+McMatrixImpl::alloc_cell(int row_pos,
+			 int col_pos)
 {
   void* p = mCellAlloc.get_memory(sizeof(McCell));
   return new (p) McCell(row_pos, col_pos);
@@ -804,7 +786,7 @@ McMatrix::alloc_cell(int row_pos,
 
 // @brief セルの解放
 void
-McMatrix::free_cell(McCell* cell)
+McMatrixImpl::free_cell(McCell* cell)
 {
   mCellAlloc.put_memory(sizeof(McCell), cell);
 }
@@ -812,7 +794,7 @@ McMatrix::free_cell(McCell* cell)
 // @brief 内容を出力する．
 // @param[in] s 出力先のストリーム
 void
-McMatrix::print(ostream& s) const
+McMatrixImpl::print(ostream& s) const
 {
   for ( auto col_pos: Range(col_size()) ) {
     if ( col_cost(col_pos) != 1 ) {

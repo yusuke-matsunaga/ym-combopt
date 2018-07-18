@@ -68,7 +68,7 @@ set ( matrix_SOURCES
   src/matrix/McColList.cc
   src/matrix/McRowList.cc
 #  src/matrix/McBlock.cc
-  src/matrix/McMatrix.cc
+  src/matrix/McMatrixImpl.cc
   )
 
 set ( udgraph_SOURCES

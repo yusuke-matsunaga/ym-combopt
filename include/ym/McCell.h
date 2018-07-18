@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 class McCell
 {
-  friend class McMatrix;
+  friend class McMatrixImpl;
 
 public:
 
