@@ -26,13 +26,15 @@ class McBlock
 public:
 
   /// @brief コンストラクタ
-  /// @param[int] matrix 対象の行列
+  /// @param[in] matrix 対象の行列
   ///
   /// 行列全体を対象のブロックとする．
   McBlock(McMatrix& matrix);
 
   /// @brief コンストラクタ
-  /// @param[int] matrix 対象の行列
+  /// @param[in] matrix 対象の行列
+  /// @param[in] row_list 行番号のリスト
+  /// @param[in] col_list 列番号のリスト
   ///
   /// 指定された行と列のみを対象のブロックとする．
   McBlock(McMatrix& matrix,

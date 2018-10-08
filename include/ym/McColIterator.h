@@ -36,7 +36,7 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @breif dereference 演算子
+  /// @brief dereference 演算子
   /// @return 要素の行番号を返す．
   int
   operator*() const;

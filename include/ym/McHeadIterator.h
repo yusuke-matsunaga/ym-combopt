@@ -34,7 +34,7 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @breif dereference 演算子
+  /// @brief dereference 演算子
   int
   operator*() const;
 
