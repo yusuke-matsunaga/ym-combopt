@@ -18,9 +18,6 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-#add_subdirectory ( debug )
-#add_subdirectory ( cython-src )
-
 
 # ===================================================================
 #  cython 用のソースファイルの設定
@@ -42,8 +39,8 @@ set_source_files_properties (
 
 cython_add_module ( pym_combopt
   ${CYTHON_SOURCES}
-  $<TARGET_OBJECTS:ym_base>
-  $<TARGET_OBJECTS:ym_combopt>
+  $<TARGET_OBJECTS:ym_base_d>
+  $<TARGET_OBJECTS:ym_combopt_d>
   )
 
 target_compile_options ( pym_combopt
