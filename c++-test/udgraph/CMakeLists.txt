@@ -21,12 +21,10 @@ include_directories(
 #  テスト用のターゲットの設定
 # ===================================================================
 
-ym_add_gtest( udgraph_dimacs_test
+ym_add_gtest( combopt_dimacs_test
   dimacs_test.cc
   $<TARGET_OBJECTS:ym_base_ad>
   $<TARGET_OBJECTS:ym_combopt_ad>
-  )
-
-target_compile_definitions ( udgraph_dimacs_test
-  PRIVATE "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/testdata/\""
+  DEFINITIONS
+  "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/testdata/\""
   )
