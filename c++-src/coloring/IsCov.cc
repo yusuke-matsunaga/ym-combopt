@@ -100,7 +100,8 @@ IsCov::select_node(const vector<int>& cand_list,
     return min_list[0];
   }
   else {
-    int r = mRandGen.int32() % n;
+    std::uniform_int_distribution<int> rd(0, n - 1);
+    int r = rd(mRandGen);
     return min_list[r];
   }
 }

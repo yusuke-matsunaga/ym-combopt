@@ -11,7 +11,7 @@
 
 #include "ym/udgraph_nsdef.h"
 #include "coloring/ColGraph.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_YM_UDGRAPH
@@ -136,7 +136,7 @@ private:
   int mIter;
 
   // 乱数発生器
-  RandGen mRandGen;
+  std::mt19937 mRandGen;
 
 };
 

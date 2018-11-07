@@ -115,7 +115,8 @@ TabuCol::gen_random_solution()
 
   // ランダムに色を割り当てる．
   for ( auto node_id: node_list() ) {
-    int color = (mRandGen.int32() % mK) + 1;
+    std::uniform_int_distribution<int> rd_int(0, mK - 1);
+    int color = rd_int(mRandGen) + 1;
     set_color(node_id, color);
   }
 
@@ -180,7 +181,8 @@ TabuCol::get_move()
     return cand_list[0];
   }
   else {
-    int r = mRandGen.int32() % n;
+    std::uniform_int_distribution<int> rd_int(0, n - 1);
+    int r = rd_int(mRandGen);
     return cand_list[r];
   }
 }

@@ -174,7 +174,8 @@ Isx::random_select(const vector<int>& cand_list)
   int n = cand_list.size();
   ASSERT_COND( n > 0 );
 
-  int r = mRandGen.int32() % n;
+  std::uniform_int_distribution<int> rd(0, n - 1);
+  int r = rd(mRandGen);
   return cand_list[r];
 }
 

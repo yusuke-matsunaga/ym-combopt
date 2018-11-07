@@ -147,7 +147,8 @@ Isx2::get_indep_set()
   // ノードを一つづつ選択し mIndepSet に入れる．
   mIndepSet.clear();
   {
-    int r = mRandGen.int32() % mCandList.size();
+    std::uniform_int_distribution<int> rd(0, mCandList.size() - 1);
+    int r = rd(mRandGen);
     int node0 = mCandList[r];
     mIndepSet.push_back(node0);
   }
@@ -170,7 +171,7 @@ Isx2::get_indep_set()
 bool
 Isx2::add_indep_set(const vector<int>& indep_set)
 {
-  vector<vector<int> >::iterator wpos = mIndepSetList.begin();
+  vector<vector<int>>::iterator wpos = mIndepSetList.begin();
   for ( ; wpos != mIndepSetList.end(); ++ wpos) {
     int c = vect_comp(*wpos, indep_set);
     if ( c == 0 ) {
@@ -218,7 +219,8 @@ END_NONAMESPACE
 void
 Isx2::get_max_disjoint_set(vector<int>& max_iset)
 {
-  int i0 = mRandGen.int32() % mIndepSetList.size();
+  std::uniform_int_distribution<int> rd(0, mIndepSetList.size() - 1);
+  int i0 = rd(mRandGen);
   max_iset.push_back(i0);
 
   vector<bool> check_vec(node_num(), false);
@@ -253,7 +255,8 @@ Isx2::get_max_disjoint_set(vector<int>& max_iset)
     int n0 = mIndepSetList[cand_list[0]].size();
     int end = 0;
     for ( ; mIndepSetList[cand_list[end]].size() == n0; ++ end ) { }
-    int r = mRandGen.int32() % end;
+    std::uniform_int_distribution<int> rd(0, end - 1);
+    int r = rd(mRandGen);
     int i1 = cand_list[r];
     max_iset.push_back(i1);
 
@@ -315,10 +318,11 @@ Isx2::select_node()
 {
   ASSERT_COND( mCandList.size() > 0 );
 
-  if ( mRandGen.real1() < mRandRatio ) {
+  std::uniform_real_distribution<double> rd_real(0, 1.0);
+  if ( rd_real(mRandGen) < mRandRatio ) {
     // 一定の確率でランダムに選ぶ．
-    int n = mCandList.size();
-    int r = mRandGen.int32() % n;
+    std::uniform_int_distribution<int> rd_int(0, mCandList.size() - 1);
+    int r = rd_int(mRandGen);
     return mCandList[r];
   }
   else {
@@ -335,10 +339,10 @@ Isx2::select_node()
       }
     }
     int n = mTmpList.size();
-
     ASSERT_COND( n > 0 );
 
-    int r = mRandGen.int32() % n;
+    std::uniform_int_distribution<int> rd_int(0, n - 1);
+    int r = rd_int(mRandGen);
     return mTmpList[r];
   }
 }
