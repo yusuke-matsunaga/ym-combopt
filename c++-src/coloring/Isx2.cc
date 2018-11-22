@@ -231,7 +231,7 @@ Isx2::get_max_disjoint_set(vector<int>& max_iset)
   // iset0 と disjoint な集合の番号を cand_list に入れる．
   vector<int> cand_list;
   cand_list.reserve(mIndepSetList.size());
-  for ( int i: Range(mIndepSetList.size()) ) {
+  for ( int i: Range<>(mIndepSetList.size()) ) {
     if ( i == i0 ) {
       continue;
     }
@@ -292,7 +292,7 @@ Isx2::get_max_disjoint_set(vector<int>& max_iset)
 void
 Isx2::init_cand_list()
 {
-  for ( auto node_id: Range(node_num()) ) {
+  for ( auto node_id: Range<>(node_num()) ) {
     if ( color(node_id) == 0 ) {
       mCandList.push_back(node_id);
       mCandMark[node_id] = true;

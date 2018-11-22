@@ -121,7 +121,7 @@ TabuCol::gen_random_solution()
   }
 
   // mGammaTable を初期化する．
-  for ( auto i: Range(n * mK) ) {
+  for ( auto i: Range<>(n * mK) ) {
     mGammaTable[i] = 0;
   }
   for ( auto node_id: node_list() ) {
@@ -132,7 +132,7 @@ TabuCol::gen_random_solution()
   }
 
   // mTabuMatrix を初期化する．
-  for ( auto i: Range(n * mK) ) {
+  for ( auto i: Range<>(n * mK) ) {
     mTabuMatrix[i] = 0;
   }
 }
@@ -150,7 +150,7 @@ TabuCol::get_move()
       // conflict していない節点は除外する．
       continue;
     }
-    for ( auto col1: Range(1, mK + 1) ) {
+    for ( auto col1: Range<>(1, mK + 1) ) {
       if ( col1 == color(node_id) ) {
 	// 同じ色も除外する．
 	continue;

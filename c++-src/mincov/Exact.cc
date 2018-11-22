@@ -30,11 +30,11 @@ verify_block(McMatrix& a,
   ASSERT_COND( a.row_head_list() == b.row_head_list() );
   ASSERT_COND( a.col_head_list() == b.col_head_list() );
 
-  for ( int row_pos: Range(a.row_size()) ) {
+  for ( int row_pos: Range<>(a.row_size()) ) {
     ASSERT_COND( a.row_list(row_pos) == b.row_list(row_pos) );
   }
 
-  for ( int col_pos: Range(a.col_size()) ) {
+  for ( int col_pos: Range<>(a.col_size()) ) {
     ASSERT_COND( a.col_list(col_pos) == b.col_list(col_pos) );
   }
 }

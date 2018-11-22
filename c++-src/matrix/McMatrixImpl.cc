@@ -62,7 +62,7 @@ McMatrixImpl::McMatrixImpl(int row_size,
   resize(row_size, col_size);
 
   // コストを設定する．
-  for ( auto col: Range(col_size) ) {
+  for ( auto col: Range<>(col_size) ) {
     mCostArray[col] = 1;
   }
 
@@ -94,7 +94,7 @@ McMatrixImpl::McMatrixImpl(int row_size,
   resize(row_size, cost_array.size());
 
   // コストを設定する．
-  for ( auto col: Range(mColSize) ) {
+  for ( auto col: Range<>(mColSize) ) {
     mCostArray[col] = cost_array[col];
   }
 
@@ -396,7 +396,7 @@ McMatrixImpl::row_dominance()
   }
 
   // 実際に削除する．
-  for ( auto i: Range(del_wpos) ) {
+  for ( auto i: Range<>(del_wpos) ) {
     auto row = mDelList[i];
     delete_row(row);
     mRowMark[row] = 0;
@@ -483,7 +483,7 @@ McMatrixImpl::col_dominance(vector<int>& deleted_cols,
 
   // 実際に削除する．
   deleted_cols.reserve(deleted_cols.size() + del_wpos);
-  for ( auto i: Range(del_wpos) ) {
+  for ( auto i: Range<>(del_wpos) ) {
     auto col = mDelList[i];
     delete_col(col);
     deleted_cols.push_back(col);
@@ -516,7 +516,7 @@ McMatrixImpl::essential_col(vector<int>& selected_cols)
     }
   }
   int size = selected_cols.size();
-  for ( auto i: Range(old_size, size) ) {
+  for ( auto i: Range<>(old_size, size) ) {
     int col_pos = selected_cols[i];
     select_col(col_pos);
     mColMark[col_pos] = 0;
@@ -670,7 +670,7 @@ McMatrixImpl::resize(int row_size,
     mRowHeadArray = new McHead[mRowSize];
     mRowArray = new McCell*[mRowSize];
     mRowMark = new int[mRowSize];
-    for ( auto row_pos: Range(mRowSize) ) {
+    for ( auto row_pos: Range<>(mRowSize) ) {
       mRowHeadArray[row_pos].init(row_pos, false);
       mRowArray[row_pos] = alloc_cell(row_pos, -1);
       mRowMark[row_pos] = 0;
@@ -680,7 +680,7 @@ McMatrixImpl::resize(int row_size,
     mColArray = new McCell*[mColSize];
     mCostArray = new int[mColSize];
     mColMark = new int[mColSize];
-    for ( auto col_pos: Range(mColSize) ) {
+    for ( auto col_pos: Range<>(mColSize) ) {
       mColHeadArray[col_pos].init(col_pos, true);
       mColArray[col_pos] = alloc_cell(-1, col_pos);
       mCostArray[col_pos] = 1;
@@ -707,13 +707,13 @@ McMatrixImpl::copy(const McMatrixImpl& src)
   ASSERT_COND(row_size() == src.row_size() );
   ASSERT_COND(col_size() == src.col_size() );
 
-  for ( auto row_pos: Range(row_size()) ) {
+  for ( auto row_pos: Range<>(row_size()) ) {
     for ( auto col_pos: row_list(row_pos) ) {
       insert_elem(row_pos, col_pos);
     }
   }
 
-  for ( auto col_pos: Range(mColSize) ) {
+  for ( auto col_pos: Range<>(mColSize) ) {
     mCostArray[col_pos] = src.mCostArray[col_pos];
   }
 }
@@ -748,7 +748,7 @@ McMatrixImpl::verify(const vector<int>& colpos_list) const
   }
 
   // 印の付いていない行があったらエラー
-  for ( auto row_pos: Range(row_size()) ) {
+  for ( auto row_pos: Range<>(row_size()) ) {
     if ( !row_mark[row_pos] ) {
       return false;
     }
@@ -762,12 +762,12 @@ McMatrixImpl::verify(const vector<int>& colpos_list) const
 bool
 McMatrixImpl::check_mark_sanity()
 {
-  for ( auto row: Range(row_size()) ) {
+  for ( auto row: Range<>(row_size()) ) {
     if ( mRowMark[row] != 0 ) {
       return false;
     }
   }
-  for ( auto col: Range(col_size()) ) {
+  for ( auto col: Range<>(col_size()) ) {
     if ( mColMark[col] != 0 ) {
       return false;
     }
@@ -796,12 +796,12 @@ McMatrixImpl::free_cell(McCell* cell)
 void
 McMatrixImpl::print(ostream& s) const
 {
-  for ( auto col_pos: Range(col_size()) ) {
+  for ( auto col_pos: Range<>(col_size()) ) {
     if ( col_cost(col_pos) != 1 ) {
       s << "Col#" << col_pos << ": " << col_cost(col_pos) << endl;
     }
   }
-  for ( auto row_pos: Range(row_size()) ) {
+  for ( auto row_pos: Range<>(row_size()) ) {
     s << "Row#" << row_pos << ":";
     for ( auto col_pos: row_list(row_pos) ) {
       s << " " << col_pos;

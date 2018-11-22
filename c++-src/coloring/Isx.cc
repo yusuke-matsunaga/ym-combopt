@@ -85,7 +85,7 @@ Isx::get_indep_set()
 void
 Isx::init_cand_list()
 {
-  for ( auto node_id: Range(node_num()) ) {
+  for ( auto node_id: Range<>(node_num()) ) {
     if ( color(node_id) == 0 ) {
       mCandList.push_back(node_id);
       mCandMark[node_id] = true;

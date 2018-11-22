@@ -49,7 +49,7 @@ ColGraph::get_color_map(vector<int>& color_map) const
 {
   color_map.clear();
   color_map.resize(mNodeNum);
-  for ( auto i: Range(mNodeNum) ) {
+  for ( auto i: Range<>(mNodeNum) ) {
     color_map[i] = mColorMap[i];
   }
   return mColNum;
@@ -59,7 +59,7 @@ ColGraph::get_color_map(vector<int>& color_map) const
 bool
 ColGraph::is_colored() const
 {
-  for ( auto id: Range(mNodeNum) ) {
+  for ( auto id: Range<>(mNodeNum) ) {
     if ( color(id) == 0 ) {
       return false;
     }
@@ -75,7 +75,7 @@ ColGraph::is_colored() const
 bool
 ColGraph::verify() const
 {
-  for ( auto id1: Range(mNodeNum) ) {
+  for ( auto id1: Range<>(mNodeNum) ) {
     for ( auto id2: adj_list(id1) ) {
       if ( color(id1) == color(id2) ) {
 	return false;
@@ -102,7 +102,7 @@ ColGraph::init(const UdGraph& graph,
   ASSERT_COND( color_map.size() == mNodeNum );
   mNodeNum1 = 0;
   mColNum = 0;
-  for ( auto node_id: Range(mNodeNum) ) {
+  for ( auto node_id: Range<>(mNodeNum) ) {
     int c = color_map[node_id];
     mColorMap[node_id] = c;
     if ( c == 0 ) {
@@ -118,7 +118,7 @@ ColGraph::init(const UdGraph& graph,
   // 未彩色のノードのリストを作る．
   mNodeList = new int[mNodeNum1];
   int wpos = 0;
-  for ( auto node_id: Range(mNodeNum) ) {
+  for ( auto node_id: Range<>(mNodeNum) ) {
     if ( color(node_id) == 0 ) {
       mNodeList[wpos] = node_id;
       ++ wpos;
@@ -145,7 +145,7 @@ ColGraph::init(const UdGraph& graph,
   }
 
   // 隣接リストの領域を確保する．
-  for ( auto i: Range(mNodeNum) ) {
+  for ( auto i: Range<>(mNodeNum) ) {
     AdjList& adj_list = mAdjListArray[i];
     adj_list.mBody = new int[adj_list.mNum];
     // ちょっとしたギミックで mNum を 0 に戻す．
