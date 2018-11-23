@@ -108,11 +108,11 @@ Dsatur::init()
     int n = node_list().num() + color_num();
     int vectlen = (n + 63) / 64;
     mNodeArray = new DsatNode[node_num()];
-    for ( auto node_id: Range<>(node_num()) ) {
+    for ( auto node_id: Range(node_num()) ) {
       DsatNode* node = &mNodeArray[node_id];
       node->init(node_id, adj_list(node_id).num(), vectlen);
     }
-    for ( auto node_id: Range<>(node_num()) ) {
+    for ( auto node_id: Range(node_num()) ) {
       int c = color(node_id);
       for ( auto node1_id: adj_list(node_id) ) {
 	if ( color(node1_id) == 0 ) {
@@ -172,7 +172,7 @@ Dsatur::coloring(vector<int>& color_map)
     }
     vector<int> color_list;
     color_list.reserve(color_num());
-    for ( auto c: Range<>(1, color_num() + 1) ) {
+    for ( auto c: Range(1, color_num() + 1) ) {
       if ( !max_node->check_adj_color(c) ) {
 	color_list.push_back(c);
       }

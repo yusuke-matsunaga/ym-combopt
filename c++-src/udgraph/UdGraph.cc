@@ -106,7 +106,7 @@ UdGraph::is_reflective() const
     }
   }
 
-  for ( auto id: Range<>(node_num()) ) {
+  for ( auto id: Range(node_num()) ) {
     if ( !mark[id] ) {
       return false;
     }
@@ -127,7 +127,7 @@ UdGraph::dump(ostream& s) const
     link_list[id2].push_back(id1);
   }
 
-  for ( auto id1: Range<>(node_num()) ) {
+  for ( auto id1: Range(node_num()) ) {
     cout << id1 << ": ";
     for ( auto id2: link_list[id1] ) {
       cout << " " << id2;

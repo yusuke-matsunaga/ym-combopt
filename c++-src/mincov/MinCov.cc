@@ -309,7 +309,7 @@ MinCov::sanity_check()
     int row_pos = p.first;
     row_mark[row_pos] = true;
   }
-  for ( auto row_pos: Range<>(row_size()) ) {
+  for ( auto row_pos: Range(row_size()) ) {
     if ( !row_mark[row_pos] ) {
       cout << "Warning: Row#" << row_pos << " has no elem" << endl;
     }
@@ -332,7 +332,7 @@ MinCov::verify_solution(const vector<int>& solution,
     }
   }
   uncov_row_list.clear();
-  for ( auto row: Range<>(row_size()) ) {
+  for ( auto row: Range(row_size()) ) {
     if ( matrix.row_elem_num(row) > 0 && !row_mark[row] ) {
       uncov_row_list.push_back(row);
     }

@@ -38,7 +38,7 @@ IsCov::covering(int limit,
   while ( remain_num > limit ) {
     vector<int> cand_list;
     cand_list.reserve(remain_num);
-    for ( auto node_id: Range<>(mGraph.node_num()) ) {
+    for ( auto node_id: Range(mGraph.node_num()) ) {
       if ( mGraph.color(node_id) == 0 ) {
 	cand_list.push_back(node_id);
       }
