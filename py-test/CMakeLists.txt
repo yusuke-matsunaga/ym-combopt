@@ -39,8 +39,8 @@ set_source_files_properties (
 
 cython_add_module ( pym_combopt
   ${CYTHON_SOURCES}
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_combopt_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_combopt_obj_d>
   )
 
 target_compile_options ( pym_combopt

@@ -23,8 +23,8 @@ include_directories(
 
 ym_add_gtest( combopt_dimacs_test
   dimacs_test.cc
-  $<TARGET_OBJECTS:ym_base_ad>
-  $<TARGET_OBJECTS:ym_combopt_ad>
+  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_combopt_obj_ad>
   DEFINITIONS
   "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/testdata/\""
   )
