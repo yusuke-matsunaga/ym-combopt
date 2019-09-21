@@ -9,7 +9,6 @@
 
 #include "MclqSolver.h"
 #include "MclqNode.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_UDGRAPH
@@ -57,18 +56,18 @@ mc_recur(const vector<MclqNode*>& selected_node_list,
     return node_set.size();
   }
 
-  HashSet<int> mark;
+  unordered_set<int> mark;
   vector<pair<MclqNode*, int> > tmp_node_list;
   tmp_node_list.reserve(rest_node_list.size());
   for ( auto node1: rest_node_list ) {
-    mark.add(node1->id());
+    mark.insert(node1->id());
   }
 
   for ( auto node1: rest_node_list ) {
     int n = 0;
     for ( int j = 0; j < node1->adj_size(); ++ j ) {
       MclqNode* node2 = node1->adj_node(j);
-      if ( mark.check(node2->id()) ) {
+      if ( mark.count(node2->id()) > 0 ) {
 	++ n;
       }
     }
@@ -79,17 +78,17 @@ mc_recur(const vector<MclqNode*>& selected_node_list,
   int max_val = best_so_far;
   for ( auto node_val_pair: tmp_node_list ) {
     auto node1 = node_val_pair.first;
-    HashSet<int> mark;
+    unordered_set<int> mark;
     for ( int i = 0; i < node1->adj_size(); ++ i ) {
       MclqNode* node2 = node1->adj_node(i);
-      mark.add(node2->id());
+      mark.insert(node2->id());
     }
 
     vector<MclqNode*> new_node_list;
     new_node_list.reserve(rest_node_list.size());
 
     for ( auto node2: rest_node_list ) {
-      if ( mark.check(node2->id()) ) {
+      if ( mark.count(node2->id()) > 0 ) {
 	new_node_list.push_back(node2);
       }
     }

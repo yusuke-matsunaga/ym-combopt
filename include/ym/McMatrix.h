@@ -16,7 +16,6 @@
 #include "ym/McColComp.h"
 #include "ym/McColList.h"
 #include "ym/McRowList.h"
-//#include "ym/UnitAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -265,7 +264,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 本体
-  std::unique_ptr<McMatrixImpl> mImpl;
+  unique_ptr<McMatrixImpl> mImpl;
 
 };
 
@@ -277,7 +276,7 @@ private:
 // @brief 空のコンストラクタ
 inline
 McMatrix::McMatrix() :
-  mImpl(new McMatrixImpl(0, 0))
+  mImpl{new McMatrixImpl(0, 0)}
 {
 }
 
@@ -291,7 +290,7 @@ inline
 McMatrix::McMatrix(int row_size,
 		   int col_size,
 		   const vector<pair<int, int>>& elem_list) :
-  mImpl(new McMatrixImpl(row_size, col_size, elem_list))
+  mImpl{new McMatrixImpl(row_size, col_size, elem_list)}
 {
 }
 
@@ -305,7 +304,7 @@ inline
 McMatrix::McMatrix(int row_size,
 		   const vector<int>& cost_array,
 		   const vector<pair<int, int>>& elem_list) :
-  mImpl(new McMatrixImpl(row_size, cost_array, elem_list))
+  mImpl{new McMatrixImpl(row_size, cost_array, elem_list)}
 {
 }
 
@@ -313,7 +312,7 @@ McMatrix::McMatrix(int row_size,
 // @param[in] src コピー元のオブジェクト
 inline
 McMatrix::McMatrix(const McMatrix& src) :
-  mImpl(new McMatrixImpl(*src.mImpl))
+  mImpl{new McMatrixImpl(*src.mImpl)}
 {
 }
 
@@ -323,7 +322,7 @@ inline
 McMatrix&
 McMatrix::operator=(const McMatrix& src)
 {
-  mImpl = static_cast<std::unique_ptr<McMatrixImpl>>(new McMatrixImpl(*src.mImpl));
+  mImpl = unique_ptr<McMatrixImpl>{new McMatrixImpl(*src.mImpl)};
 
   return *this;
 }
@@ -500,7 +499,7 @@ void
 McMatrix::resize(int row_size,
 		 int col_size)
 {
-  mImpl = static_cast<std::unique_ptr<McMatrixImpl>>(new McMatrixImpl(row_size, col_size));
+  mImpl = unique_ptr<McMatrixImpl>{new McMatrixImpl(row_size, col_size)};
 }
 
 // @brief 要素を追加する．
