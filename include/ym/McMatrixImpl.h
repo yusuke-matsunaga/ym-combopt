@@ -14,7 +14,6 @@
 #include "ym/McHeadList.h"
 #include "ym/McColList.h"
 #include "ym/McRowList.h"
-#include "ym/UnitAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -324,61 +323,64 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // セルを確保するためのアロケータ
-  UnitAlloc mCellAlloc;
+  // 確保したセルのリスト
+  vector<McCell*> mCellList;
+
+  // フリーリストの先頭
+  McCell* mFreeTop{nullptr};
 
   // 行数
-  int mRowSize;
+  int mRowSize{0};
 
   // 行のヘッダの配列
   // サイズは mRowSize
-  McHead* mRowHeadArray;
+  McHead* mRowHeadArray{nullptr};
 
   // 現在アクティブな行のヘッダのリスト
   McHeadList mRowHeadList;
 
   // 行の先頭を表すダミーセルの配列
   // サイズは mRowSize
-  McCell** mRowArray;
+  McCell** mRowArray{nullptr};
 
   // 列数
-  int mColSize;
+  int mColSize{0};
 
   // 列のヘッダの配列
   // サイズは mColSize
-  McHead* mColHeadArray;
+  McHead* mColHeadArray{nullptr};
 
   // 現在アクティブな列のヘッダのリスト
   McHeadList mColHeadList;
 
   // 列の先頭を表すダミーセルの配列
   // サイズは mColSize
-  McCell** mColArray;
+  McCell** mColArray{nullptr};
 
   // コストの配列
   // サイズは mColSize;
-  int* mCostArray;
+  int* mCostArray{0};
 
   // 削除の履歴を覚えておくスタック
-  McHead** mDelStack;
+  McHead** mDelStack{nullptr};
 
   // mDelStack のポインタ
-  int mStackTop;
+  int mStackTop{0};
 
   // 作業用に使う行のマーク配列
   // サイズは mRowSize
   mutable
-  int* mRowMark;
+  int* mRowMark{nullptr};
 
   // 作業用に使う列のマーク配列
   // サイズは mColSize
   mutable
-  int* mColMark;
+  int* mColMark{nullptr};
 
   // 作業用に使う配列
   // サイズは max(mRowSize, mColSize)
   mutable
-  int* mDelList;
+  int* mDelList{nullptr};
 
 };
 

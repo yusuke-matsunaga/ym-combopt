@@ -44,19 +44,7 @@ McColComp::operator()(int col1,
 // @param[in] elem_list 要素のリスト
 McMatrixImpl::McMatrixImpl(int row_size,
 			   int col_size,
-			   const vector<pair<int, int>>& elem_list) :
-  mCellAlloc(sizeof(McCell), 1024),
-  mRowSize(0),
-  mRowHeadArray(nullptr),
-  mRowArray(nullptr),
-  mColSize(0),
-  mColHeadArray(nullptr),
-  mColArray(nullptr),
-  mCostArray(nullptr),
-  mDelStack(nullptr),
-  mRowMark(nullptr),
-  mColMark(nullptr),
-  mDelList(nullptr)
+			   const vector<pair<int, int>>& elem_list)
 {
   // サイズを設定する．
   resize(row_size, col_size);
@@ -76,19 +64,7 @@ McMatrixImpl::McMatrixImpl(int row_size,
 // @param[in] elem_list 要素のリスト
 McMatrixImpl::McMatrixImpl(int row_size,
 			   const vector<int>& cost_array,
-			   const vector<pair<int, int>>& elem_list) :
-  mCellAlloc(sizeof(McCell), 1024),
-  mRowSize(0),
-  mRowHeadArray(nullptr),
-  mRowArray(nullptr),
-  mColSize(0),
-  mColHeadArray(nullptr),
-  mColArray(nullptr),
-  mCostArray(nullptr),
-  mDelStack(nullptr),
-  mRowMark(nullptr),
-  mColMark(nullptr),
-  mDelList(nullptr)
+			   const vector<pair<int, int>>& elem_list)
 {
   // サイズを設定する．
   resize(row_size, cost_array.size());
@@ -104,19 +80,7 @@ McMatrixImpl::McMatrixImpl(int row_size,
 
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のオブジェクト
-McMatrixImpl::McMatrixImpl(const McMatrixImpl& src) :
-  mCellAlloc(sizeof(McCell), 1024),
-  mRowSize(0),
-  mRowHeadArray(nullptr),
-  mRowArray(nullptr),
-  mColSize(0),
-  mColHeadArray(nullptr),
-  mColArray(nullptr),
-  mCostArray(nullptr),
-  mDelStack(nullptr),
-  mRowMark(nullptr),
-  mColMark(nullptr),
-  mDelList(nullptr)
+McMatrixImpl::McMatrixImpl(const McMatrixImpl& src)
 {
   // サイズを設定する．
   resize(src.row_size(), src.col_size());
@@ -148,7 +112,10 @@ McMatrixImpl::~McMatrixImpl()
 void
 McMatrixImpl::clear()
 {
-  mCellAlloc.destroy();
+  for ( cell: mCellList ) {
+    delete cell;
+  }
+  mCellList.clear();
 
   delete [] mRowHeadArray;
   delete [] mRowArray;
@@ -780,15 +747,30 @@ McCell*
 McMatrixImpl::alloc_cell(int row_pos,
 			 int col_pos)
 {
-  void* p = mCellAlloc.get_memory(sizeof(McCell));
-  return new (p) McCell(row_pos, col_pos);
+  if ( mFreeTop != nullptr ) {
+    auto cell = mFreeTop;
+    mFreeTop = cell->mLeftLink;
+    cell->mRowPos = row_pos;
+    cell->mColPos = col_pos;
+    cell->mLeftLink = nullptr;
+    cell->mRightLink = nullptr;
+    cell->mUpLink = nullptr;
+    cell->mDownLink = nullptr;
+    return cell;
+  }
+  else {
+    auto cell = new McCell(row_pos, col_pos);
+    mCellList.push_back(cell);
+    return cell;
+  }
 }
 
 // @brief セルの解放
 void
 McMatrixImpl::free_cell(McCell* cell)
 {
-  mCellAlloc.put_memory(sizeof(McCell), cell);
+  cell->mLeftLink = mFreeTop;
+  mFreeTop = cell;
 }
 
 // @brief 内容を出力する．

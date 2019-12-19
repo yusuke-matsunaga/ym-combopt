@@ -9,7 +9,6 @@
 
 #include "LbMIS1.h"
 #include "ym/McMatrix.h"
-#include "ym/SimpleAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
