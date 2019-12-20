@@ -23,6 +23,15 @@ class MisNode
   friend class MisNodeHeap;
 
 public:
+
+  /// @brief コンストラクタ
+  MisNode() = default;
+
+  /// @brief デストラクタ
+  ~MisNode();
+
+
+public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
@@ -30,7 +39,7 @@ public:
   /// @brief 内容を初期化する．
   /// @param[in] row_pos 行番号
   void
-  set(int row_pos);
+  set_row_pos(int row_pos);
 
   /// @brief 隣接ノードの情報を設定する．
   void
@@ -69,19 +78,19 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 行番号
-  int mRowPos;
+  int mRowPos{0};
 
   // 隣接するノードのポインタ配列
-  MisNode** mAdjLink;
+  MisNode** mAdjLink{nullptr};
 
   // mAdjLink のサイズ
-  int mAdjSize;
+  int mAdjSize{0};
 
   // mAdjLink 中の有効な要素数
-  int mNum;
+  int mNum{0};
 
   // ヒープ上のインデックス
-  int mHeapIdx;
+  int mHeapIdx{0};
 
 };
 
@@ -90,17 +99,20 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
+// @brief デストラクタ
+inline
+MisNode::~MisNode()
+{
+  delete [] mAdjLink;
+}
+
 // @brief 内容を初期化する．
 // @param[in] row_pos 行番号
 inline
 void
-MisNode::set(int row_pos)
+MisNode::set_row_pos(int row_pos)
 {
   mRowPos = row_pos;
-  mAdjLink = nullptr;
-  mAdjSize = 0;
-  mNum = 0;
-  mHeapIdx = 0;
 }
 
 // @brief 隣接ノードの情報を設定する．

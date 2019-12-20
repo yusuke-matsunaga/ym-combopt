@@ -10,7 +10,6 @@
 
 
 #include "ym/udgraph_nsdef.h"
-#include "ym/SimpleAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_UDGRAPH
@@ -57,9 +56,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // メモリアロケータ
-  SimpleAlloc mAlloc;
 
   // ノード数
   int mNodeNum;

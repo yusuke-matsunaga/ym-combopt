@@ -112,7 +112,7 @@ McMatrixImpl::~McMatrixImpl()
 void
 McMatrixImpl::clear()
 {
-  for ( cell: mCellList ) {
+  for ( auto cell: mCellList ) {
     delete cell;
   }
   mCellList.clear();

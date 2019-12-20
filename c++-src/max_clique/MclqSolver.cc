@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 MclqSolver::MclqSolver(const UdGraph& graph) :
   mNodeNum(graph.node_num())
 {
-  mNodeArray = mAlloc.get_array<MclqNode>(mNodeNum);
+  mNodeArray = new MclqNode[mNodeNum];
   for ( int i = 0; i < mNodeNum; ++ i ) {
     auto node = &mNodeArray[i];
     node->set(i);
@@ -39,7 +39,7 @@ MclqSolver::MclqSolver(const UdGraph& graph) :
     MclqNode* node1 = &mNodeArray[i];
     const vector<int>& link_list = link_array[i];
     int link_num = link_list.size();
-    MclqNode** adj_link = mAlloc.get_array<MclqNode*>(link_num);
+    MclqNode** adj_link = new MclqNode*[link_num];
     for ( int j = 0; j < link_num; ++ j ) {
       MclqNode* node2 = &mNodeArray[link_list[j]];
       adj_link[j] = node2;
@@ -51,6 +51,7 @@ MclqSolver::MclqSolver(const UdGraph& graph) :
 // @brief デストラクタ
 MclqSolver::~MclqSolver()
 {
+  delete [] mNodeArray;
 }
 
 END_NAMESPACE_YM_UDGRAPH

@@ -11,7 +11,6 @@
 #include "ym/McMatrix.h"
 #include "MisNode.h"
 #include "MisNodeHeap.h"
-#include "ym/SimpleAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -34,13 +33,12 @@ LbMIS2::operator()(const McMatrix& matrix)
   // 各行に対応する Node というオブジェクトを作る．
   // ndoe_array[row_pos] に row_pos の行の Node が入る．
   // top から Node::mNext を使ってリンクとリストを作る．
-  SimpleAlloc alloc;
   int rs = matrix.row_size();
   int rn = matrix.active_row_num();
 
   MisNodeHeap node_heap(rs);
 
-  MisNode** node_array = alloc.get_array<MisNode*>(rs);
+  MisNode** node_array = new MisNode*[rs];
   for ( int i = 0; i < rs; ++ i ) {
     node_array[i] = nullptr;
   }
@@ -49,7 +47,7 @@ LbMIS2::operator()(const McMatrix& matrix)
   for ( auto row_pos: matrix.row_head_list() ) {
     MisNode* node = node_heap.node(idx);
     ++ idx;
-    node->set(row_pos);
+    node->set_row_pos(row_pos);
     node_array[row_pos] = node;
   }
 
@@ -57,7 +55,7 @@ LbMIS2::operator()(const McMatrix& matrix)
   // node1 と列を共有する行の Node が node1->mAdjLink[0:node1->mAdjNum -1]
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
-  int* row_list = alloc.get_array<int>(rn);
+  int* row_list = new int[rn];
   vector<bool> mark(rn, false);
   for ( auto row_pos: matrix.row_head_list() ) {
     // マークを用いて隣接関係を作る．
@@ -72,7 +70,7 @@ LbMIS2::operator()(const McMatrix& matrix)
       }
     }
     MisNode* node1 = node_array[row_pos];
-    MisNode** adj_link = alloc.get_array<MisNode*>(row_list_idx);
+    MisNode** adj_link = new MisNode*[row_list_idx];
     for ( int i = 0; i < row_list_idx; ++ i ) {
       MisNode* node2 = node_array[row_list[i]];
       adj_link[i] = node2;
@@ -113,6 +111,9 @@ LbMIS2::operator()(const McMatrix& matrix)
       }
     }
   }
+
+  delete [] node_array;
+  delete [] row_list;
 
   return cost;
 }

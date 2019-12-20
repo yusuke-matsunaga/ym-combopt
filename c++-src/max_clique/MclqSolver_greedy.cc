@@ -62,10 +62,7 @@ MclqSolver::greedy(vector<int>& node_set)
   }
 
   // 作業用のフラグ配列
-  bool* tmp_mark = mAlloc.get_array<bool>(mNodeNum);
-  for ( int i = 0; i < mNodeNum; ++ i ) {
-    tmp_mark[i] = false;
-  }
+  vector<bool> tmp_mark(mNodeNum, false);
 
   node_set.clear();
 

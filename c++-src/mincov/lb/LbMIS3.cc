@@ -10,7 +10,6 @@
 #include "LbMIS3.h"
 #include "ym/McMatrix.h"
 #include "ym/UdGraph.h"
-#include "ym/SimpleAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -33,13 +32,12 @@ LbMIS3::operator()(const McMatrix& matrix)
   // 各行に対応する Node というオブジェクトを作る．
   // ndoe_array[row_pos] に row_pos の行の Node が入る．
   // top から Node::mNext を使ってリンクとリストを作る．
-  SimpleAlloc alloc;
   int rs = matrix.row_size();
   int rn = matrix.active_row_num();
 
   UdGraph graph(rs);
 
-  int* row_map = alloc.get_array<int>(rs);
+  int* row_map = new int[rs];
   for ( int i = 0; i < rs; ++ i ) {
     row_map[i] = 0;
   }
@@ -85,6 +83,8 @@ LbMIS3::operator()(const McMatrix& matrix)
   max_clique(graph, node_set);
 #warning "TODO: 未完成"
   int cost = 0;
+
+  delete [] row_map;
 
   return cost;
 }

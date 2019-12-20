@@ -21,6 +21,15 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 class MclqNode
 {
 public:
+
+  /// @brief コンストラクタ
+  MclqNode() = default;
+
+  /// @brief デストラクタ
+  ~MclqNode();
+
+
+public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
@@ -80,16 +89,16 @@ private:
   int mId;
 
   // 隣接するノードのポインタ配列
-  MclqNode** mAdjLink;
+  MclqNode** mAdjLink{nullptr};
 
   // mAdjLink のサイズ
-  int mAdjSize;
+  int mAdjSize{0};
 
   // mAdjLink 中の有効な要素数
-  int mNum;
+  int mNum{0};
 
   // ヒープ上のインデックス
-  int mHeapIdx;
+  int mHeapIdx{0};
 
 };
 
@@ -98,6 +107,13 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
+// @brief デストラクタ
+inline
+MclqNode::~MclqNode()
+{
+  delete [] mAdjLink;
+}
+
 // @brief 内容を初期化する．
 // @param[in] id ノード番号
 inline
@@ -105,10 +121,6 @@ void
 MclqNode::set(int id)
 {
   mId = id;
-  mAdjLink = nullptr;
-  mAdjSize = 0;
-  mNum = 0;
-  mHeapIdx = 0;
 }
 
 // @brief 隣接ノードの情報を設定する．
