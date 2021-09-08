@@ -21,10 +21,10 @@ TEST(UdGraphDimacsTest, read_dimacs)
 
   UdGraph graph;
   bool stat1 = read_dimacs(s, graph);
-  ASSERT_COND( stat1 );
+  EXPECT_TRUE( stat1 );
 
-  ASSERT_EQ( 138, graph.node_num() );
-  ASSERT_EQ( 986, graph.edge_num() );
+  EXPECT_EQ( 138, graph.node_num() );
+  EXPECT_EQ( 986, graph.edge_num() );
 
   ostringstream obuf;
   write_dimacs(obuf, graph);

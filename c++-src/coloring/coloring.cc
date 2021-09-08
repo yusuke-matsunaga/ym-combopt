@@ -3,9 +3,8 @@
 /// @brief coloring の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/UdGraph.h"
 #include "Dsatur.h"
@@ -19,8 +18,10 @@ BEGIN_NAMESPACE_YM
 
 // dsatur で彩色問題を解く．
 int
-dsatur(const UdGraph& graph,
-       vector<int>& color_map)
+dsatur(
+  const UdGraph& graph,
+  vector<int>& color_map
+)
 {
   nsUdGraph::Dsatur dsatsolver(graph);
   return dsatsolver.coloring(color_map);
@@ -28,8 +29,10 @@ dsatur(const UdGraph& graph,
 
 // tabucol で彩色問題を解く．
 int
-tabucol(const UdGraph& graph,
-	vector<int>& color_map)
+tabucol(
+  const UdGraph& graph,
+  vector<int>& color_map
+)
 {
   int k0 = dsatur(graph, color_map);
   int limit = 100000;
@@ -50,13 +53,11 @@ tabucol(const UdGraph& graph,
   return k1;
 }
 
-// @brief 彩色問題を解く
-// @param[in] algorithm アルゴリズム名
-// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
-// @return 彩色数を返す．
 int
-UdGraph::coloring(const string& algorithm,
-		  vector<int>& color_map) const
+UdGraph::coloring(
+  vector<int>& color_map,
+  const string& algorithm
+) const
 {
   if ( algorithm == "dsatur" ) {
     return dsatur(*this, color_map);
@@ -94,17 +95,6 @@ UdGraph::coloring(const string& algorithm,
     // デフォルトフォールバック
     return dsatur(*this, color_map);
   }
-}
-
-// @brief 彩色問題を解く
-// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
-// @return 彩色数を返す．
-//
-// デフォルトのヒューリスティックを用いる．
-int
-UdGraph::coloring(vector<int>& color_map) const
-{
-  return coloring(string(), color_map);
 }
 
 END_NAMESPACE_YM

@@ -3,9 +3,8 @@
 /// @brief LbMIS3 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "LbMIS3.h"
 #include "ym/McMatrix.h"
@@ -22,7 +21,9 @@ BEGIN_NAMESPACE_YM_MINCOV
 // @param[in] matrix 対象の行列
 // @return 下限値
 int
-LbMIS3::operator()(const McMatrix& matrix)
+LbMIS3::operator()(
+  const McMatrix& matrix
+)
 {
   if ( matrix.active_row_num() == 0 ) {
     return 0;

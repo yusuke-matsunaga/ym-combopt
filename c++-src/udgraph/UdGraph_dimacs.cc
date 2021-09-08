@@ -3,12 +3,12 @@
 /// @brief UdGraph_dimacs の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/UdGraph.h"
 #include "ym/MsgMgr.h"
+#include "ym/split.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -19,25 +19,10 @@ BEGIN_NAMESPACE_YM
 
 BEGIN_NONAMESPACE
 
-// 文字列を空白で区切る
 void
-split(const string& src_str,
-      vector<string>& str_list)
-{
-  string tmp_str(src_str);
-  for ( ; ; ) {
-    string::size_type p = tmp_str.find_first_of(' ');
-    string tmp = tmp_str.substr(0, p);
-    str_list.push_back(tmp);
-    if ( p == string::npos ) {
-      break;
-    }
-    tmp_str = tmp_str.substr(p + 1, string::npos);
-  }
-}
-
-void
-syntax_error(int line)
+syntax_error(
+  int line
+)
 {
   ostringstream err;
   err << "Line " << line << ": Syntax error";
@@ -49,15 +34,11 @@ syntax_error(int line)
 
 END_NONAMESPACE
 
-// @relates UdGraph
-// @brief DIMACS 形式のファイルを読み込む．
-// @param[in] filename 入力元のファイル名
-// @param[in] graph 読み込んだ内容を設定するグラフ
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
 bool
-read_dimacs(const string& filename,
-	    UdGraph& graph)
+read_dimacs(
+  const string& filename,
+  UdGraph& graph
+)
 {
   ifstream s(filename);
   if ( !s ) {
@@ -72,15 +53,11 @@ read_dimacs(const string& filename,
   return read_dimacs(s, graph);
 }
 
-// @relates UdGraph
-// @brief DIMACS 形式のファイルを読み込む．
-// @param[in] s 入力元のストリーム
-// @param[in] graph 読み込んだ内容を設定するグラフ
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
 bool
-read_dimacs(istream& s,
-	    UdGraph& graph)
+read_dimacs(
+  istream& s,
+  UdGraph& graph
+)
 {
   bool first = true;
   int line = 1;
@@ -99,8 +76,7 @@ read_dimacs(istream& s,
       continue;
     }
 
-    vector<string> str_list;
-    split(buff, str_list);
+    auto str_list = split(buff);
     if ( str_list.empty() ) {
       syntax_error(line);
       return false;
@@ -172,13 +148,11 @@ read_dimacs(istream& s,
   return true;
 }
 
-// @relates UdGraph
-// @brief 内容を DIMACS 形式で出力する．
-// @param[in] filename 出力先のファイル名
-// @param[in] graph 対象のグラフ
 void
-write_dimacs(const string& filename,
-	     const UdGraph& graph)
+write_dimacs(
+  const string& filename,
+  const UdGraph& graph
+)
 {
   ofstream s(filename);
   if ( !s ) {
@@ -193,19 +167,16 @@ write_dimacs(const string& filename,
   write_dimacs(s, graph);
 }
 
-// @relates UdGraph
-// @brief 内容を DIMACS 形式で出力する．
-// @param[in] s 出力先のストリーム
-// @param[in] graph 対象のグラフ
 void
-write_dimacs(ostream& s,
-	     const UdGraph& graph)
+write_dimacs(
+  ostream& s,
+  const UdGraph& graph
+)
 {
   s << "p edge " << graph.node_num() << " " << graph.edge_list().size() << endl;
   for ( auto edge: graph.edge_list() ) {
     s << "e " << edge.id1() + 1 << " " << edge.id2() + 1 << endl;
   }
 }
-
 
 END_NAMESPACE_YM

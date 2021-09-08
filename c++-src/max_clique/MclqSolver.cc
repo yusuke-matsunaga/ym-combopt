@@ -12,6 +12,33 @@
 #include "ym/UdGraph.h"
 
 
+BEGIN_NAMESPACE_YM
+
+// @brief 最大クリークを求める．
+int
+max_clique(
+  const UdGraph& graph,
+  vector<int>& node_set,
+  const string& algorithm
+)
+{
+  nsUdGraph::MclqSolver solver(graph);
+
+  if ( algorithm == "exact" ) {
+    return solver.exact(node_set);
+  }
+  else if ( algorithm == "greedy" ) {
+    return solver.greedy(node_set);
+  }
+  else {
+    // デフォルトフォールバック
+    return solver.greedy(node_set);
+  }
+}
+
+END_NAMESPACE_YM
+
+
 BEGIN_NAMESPACE_YM_UDGRAPH
 
 // @brief コンストラクタ

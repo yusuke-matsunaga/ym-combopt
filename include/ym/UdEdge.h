@@ -5,9 +5,10 @@
 /// @brief UdEdge のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2015, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2015, 2016, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
+#error "obsolete"
 
 #include "ym/udgraph_nsdef.h"
 
@@ -27,17 +28,28 @@ public:
   /// @brief 空のコンストラクタ
   ///
   /// 内容は未定
-  UdEdge();
+  UdEdge() = default;
 
   /// @brief 内容を指定したコンストラクタ
-  /// @param[in] id1, id2 枝の両端のノード番号
   ///
   /// id1 > id2 の場合は取り替える．
-  UdEdge(int id1,
-	 int id2);
+  UdEdge(
+    SizeType id1, ///< [in] ノード1の番号
+    SizeType id2  ///< [in] ノード2の番号
+  )
+  {
+    if ( id1 <= id2 ) {
+      mId1 = id1;
+      mId2 = id2;
+    }
+    else {
+      mId1 = id2;
+      mId2 = id1;
+    }
+  }
 
   /// @brief デストラクタ
-  ~UdEdge();
+  ~UdEdge() = default;
 
 
 public:
@@ -46,18 +58,18 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 小さい方のノード番号を得る．
-  int
-  id1() const;
+  SizeType
+  id1() const
+  {
+    return mId1;
+  }
 
   /// @brief 大きい方のノード番号を得る．
-  int
-  id2() const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  SizeType
+  id2() const
+  {
+    return mId2;
+  }
 
 
 private:
@@ -66,65 +78,12 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノード番号1
-  int mId1;
+  SizeType mId1{-1};
 
   // ノード番号2
-  int mId2;
+  SizeType mId2{-1};
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// UdEdge のインライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief 空のコンストラクタ
-//
-// 内容は未定
-inline
-UdEdge::UdEdge()
-{
-}
-
-// @brief 内容を指定したコンストラクタ
-// @param[in] id1, id2 枝の両端のノード番号
-//
-// id1 > id2 の場合は取り替える．
-inline
-UdEdge::UdEdge(int id1,
-	       int id2)
-{
-  if ( id1 <= id2 ) {
-    mId1 = id1;
-    mId2 = id2;
-  }
-  else {
-    mId1 = id2;
-    mId2 = id1;
-  }
-}
-
-// @brief デストラクタ
-inline
-UdEdge::~UdEdge()
-{
-}
-
-// @brief 小さい方のノード番号を得る．
-inline
-int
-UdEdge::id1() const
-{
-  return mId1;
-}
-
-// @brief 大きい方のノード番号を得る．
-inline
-int
-UdEdge::id2() const
-{
-  return mId2;
-}
 
 END_NAMESPACE_YM_UDGRAPH
 

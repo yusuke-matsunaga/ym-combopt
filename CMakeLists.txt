@@ -71,7 +71,6 @@ set ( coloring_SOURCES
   )
 
 set ( max_clique_SOURCES
-  c++-src/max_clique/max_clique.cc
   c++-src/max_clique/MclqSolver.cc
   c++-src/max_clique/MclqSolver_greedy.cc
   c++-src/max_clique/MclqSolver_exact.cc

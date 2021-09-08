@@ -74,7 +74,7 @@ cdef class UdGraph :
         cdef int nc
         if len(args) == 1 and type(args[0]) == str :
             c_algorithm = args[0].encode('UTF-8')
-            nc = self._this.coloring(c_algorithm, c_color_map)
+            nc = self._this.coloring(c_color_map, c_algorithm)
         else :
             nc = self._this.coloring(c_color_map)
         return nc, [ c_color_map[i] for i in range(self.node_num) ]

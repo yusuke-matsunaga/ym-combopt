@@ -3,9 +3,8 @@
 /// @brief UdGraph の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2015, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/UdGraph.h"
 #include "ym/Range.h"
@@ -18,9 +17,9 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] node_num ノード数
-UdGraph::UdGraph(int node_num) :
-  mNodeNum(node_num)
+UdGraph::UdGraph(
+  SizeType node_num
+) : mNodeNum{node_num}
 {
 }
 
@@ -30,54 +29,55 @@ UdGraph::~UdGraph()
 }
 
 // @brief ノード数を(再)設定する．
-// @param[in] node_num ノード数
 //
 // 以前の内容は消去される．
 void
-UdGraph::resize(int node_num)
+UdGraph::resize(
+  SizeType node_num
+)
 {
   mEdgeList.clear();
   mNodeNum = node_num;
 }
 
 // @brief 2つのノードを接続する．
-// @param[in] id1, id2 2つのノードの番号 ( 0 <= id1, id2 < node_num() )
 void
-UdGraph::connect(int id1,
-		 int id2)
+UdGraph::connect(
+  SizeType id1,
+  SizeType id2
+)
 {
   ASSERT_COND( id1 >= 0 && id1 < node_num() );
   ASSERT_COND( id2 >= 0 && id2 < node_num() );
 
   // 正規化する
   if ( id1 > id2 ) {
-    int tmp = id1;
-    id1 = id2;
-    id2 = tmp;
+    std::swap(id1, id2);
   }
 
   mEdgeList.push_back(UdEdge(id1, id2));
 }
 
 // @brief ノード数を得る．
-int
+SizeType
 UdGraph::node_num() const
 {
   return mNodeNum;
 }
 
 // @brief 枝の総数を返す．
-int
+SizeType
 UdGraph::edge_num() const
 {
   return mEdgeList.size();
 }
 
 // @brief 枝の情報を返す．
-// @param[in] idx 枝番号 ( 0 <= idx < edge_num() )
 // @return 枝を返す．
 const UdEdge&
-UdGraph::edge(int idx) const
+UdGraph::edge(
+  SizeType idx
+) const
 {
   ASSERT_COND( idx >= 0 && idx < edge_num() );
 
@@ -99,8 +99,8 @@ UdGraph::is_reflective() const
 {
   vector<bool> mark(mNodeNum, false);
   for ( auto edge: mEdgeList ) {
-    int id1 = edge.id1();
-    int id2 = edge.id2();
+    auto id1 = edge.id1();
+    auto id2 = edge.id2();
     if ( id1 == id2 ) {
       mark[id1] = true;
     }
@@ -115,14 +115,15 @@ UdGraph::is_reflective() const
 }
 
 // @brief グラフの内容を出力する．
-// @param[in] s 出力先のストリーム
 void
-UdGraph::dump(ostream& s) const
+UdGraph::dump(
+  ostream& s
+) const
 {
-  vector<vector<int> > link_list(node_num());
+  vector<vector<SizeType>> link_list(node_num());
   for ( auto edge: mEdgeList ) {
-    int id1 = edge.id1();
-    int id2 = edge.id2();
+    auto id1 = edge.id1();
+    auto id2 = edge.id2();
     link_list[id1].push_back(id2);
     link_list[id2].push_back(id1);
   }
