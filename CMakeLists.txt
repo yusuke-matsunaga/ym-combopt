@@ -10,8 +10,8 @@ include_directories (
   ${PROJECT_BINARY_DIR}/include
   ${PROJECT_SOURCE_DIR}/ym-common/include
   ${PROJECT_SOURCE_DIR}/ym-base/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/private_include
+  include
+  private_include
   )
 
 
@@ -24,8 +24,8 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( c++-test/udgraph )
-add_subdirectory ( py-test )
+add_subdirectory ( tests/c++/udgraph )
+add_subdirectory ( tests/python )
 
 
 # ===================================================================
@@ -33,47 +33,47 @@ add_subdirectory ( py-test )
 # ===================================================================
 
 set ( mincov_SOURCES
-  c++-src/mincov/Greedy.cc
-  c++-src/mincov/Exact.cc
-  c++-src/mincov/lb/LbCS.cc
-  c++-src/mincov/lb/LbMIS1.cc
-  c++-src/mincov/lb/LbMIS2.cc
-  c++-src/mincov/lb/LbMIS3.cc
-  c++-src/mincov/lb/MisNodeHeap.cc
-  c++-src/mincov/MaxClique.cc
-  c++-src/mincov/MinCov.cc
-  c++-src/mincov/sel/SelCS.cc
-  c++-src/mincov/sel/SelNaive.cc
-  c++-src/mincov/sel/SelSimple.cc
+  c++-srcs/mincov/Greedy.cc
+  c++-srcs/mincov/Exact.cc
+  c++-srcs/mincov/lb/LbCS.cc
+  c++-srcs/mincov/lb/LbMIS1.cc
+  c++-srcs/mincov/lb/LbMIS2.cc
+  c++-srcs/mincov/lb/LbMIS3.cc
+  c++-srcs/mincov/lb/MisNodeHeap.cc
+  c++-srcs/mincov/MaxClique.cc
+  c++-srcs/mincov/MinCov.cc
+  c++-srcs/mincov/sel/SelCS.cc
+  c++-srcs/mincov/sel/SelNaive.cc
+  c++-srcs/mincov/sel/SelSimple.cc
   )
 
 set ( matrix_SOURCES
-  c++-src/matrix/McHeadList.cc
-  c++-src/matrix/McColList.cc
-  c++-src/matrix/McRowList.cc
-#  c++-src/matrix/McBlock.cc
-  c++-src/matrix/McMatrixImpl.cc
+  c++-srcs/matrix/McHeadList.cc
+  c++-srcs/matrix/McColList.cc
+  c++-srcs/matrix/McRowList.cc
+#  c++-srcs/matrix/McBlock.cc
+  c++-srcs/matrix/McMatrixImpl.cc
   )
 
 set ( udgraph_SOURCES
-  c++-src/udgraph/UdGraph.cc
-  c++-src/udgraph/UdGraph_dimacs.cc
+  c++-srcs/udgraph/UdGraph.cc
+  c++-srcs/udgraph/UdGraph_dimacs.cc
   )
 
 set ( coloring_SOURCES
-  c++-src/coloring/coloring.cc
-  c++-src/coloring/ColGraph.cc
-  c++-src/coloring/Dsatur.cc
-  c++-src/coloring/IsCov.cc
-  c++-src/coloring/Isx.cc
-  c++-src/coloring/Isx2.cc
-  c++-src/coloring/TabuCol.cc
+  c++-srcs/coloring/coloring.cc
+  c++-srcs/coloring/ColGraph.cc
+  c++-srcs/coloring/Dsatur.cc
+  c++-srcs/coloring/IsCov.cc
+  c++-srcs/coloring/Isx.cc
+  c++-srcs/coloring/Isx2.cc
+  c++-srcs/coloring/TabuCol.cc
   )
 
 set ( max_clique_SOURCES
-  c++-src/max_clique/MclqSolver.cc
-  c++-src/max_clique/MclqSolver_greedy.cc
-  c++-src/max_clique/MclqSolver_exact.cc
+  c++-srcs/max_clique/MclqSolver.cc
+  c++-srcs/max_clique/MclqSolver_greedy.cc
+  c++-srcs/max_clique/MclqSolver_exact.cc
   )
 
 set ( ym_combopt_SOURCES
