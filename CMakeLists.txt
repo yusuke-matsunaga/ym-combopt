@@ -25,7 +25,7 @@ include_directories (
 # ===================================================================
 
 add_subdirectory ( tests/c++/udgraph )
-add_subdirectory ( tests/python )
+#add_subdirectory ( tests/python )
 
 
 # ===================================================================
