@@ -3,9 +3,8 @@
 /// @brief ColGraph の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "coloring/ColGraph.h"
 #include "ym/UdGraph.h"
@@ -19,17 +18,18 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-ColGraph::ColGraph(const UdGraph& graph)
+ColGraph::ColGraph(
+  const UdGraph& graph
+)
 {
-  init(graph, vector<int>(graph.node_num(), 0));
+  init(graph, vector<SizeType>(graph.node_num(), 0));
 }
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-// @param[in] color_map 部分的な彩色結果
-ColGraph::ColGraph(const UdGraph& graph,
-		   const vector<int>& color_map)
+ColGraph::ColGraph(
+  const UdGraph& graph,
+  const vector<SizeType>& color_map
+)
 {
   init(graph, color_map);
 }
@@ -42,10 +42,10 @@ ColGraph::~ColGraph()
 }
 
 // @brief 彩色結果を得る．
-// @param[out] color_map 彩色結果を納めるベクタ
-// @return 彩色数(= color_num())を返す．
-int
-ColGraph::get_color_map(vector<int>& color_map) const
+SizeType
+ColGraph::get_color_map(
+  vector<SizeType>& color_map
+) const
 {
   color_map.clear();
   color_map.resize(mNodeNum);
@@ -86,15 +86,15 @@ ColGraph::verify() const
 }
 
 // @brief 内容をセットする．
-// @param[in] graph 対象のグラフ
-// @param[in] color_map 部分的な彩色結果
 void
-ColGraph::init(const UdGraph& graph,
-	       const vector<int>& color_map)
+ColGraph::init(
+  const UdGraph& graph,
+  const vector<SizeType>& color_map
+)
 {
   mNodeNum = graph.node_num();
   mAdjListArray = new AdjList[mNodeNum];
-  mColorMap = new int[mNodeNum];
+  mColorMap = new SizeType[mNodeNum];
 
   // mColorMap の初期化を行う．
   // 同時に使用されている色番号の最大値を求める．
@@ -103,7 +103,7 @@ ColGraph::init(const UdGraph& graph,
   mNodeNum1 = 0;
   mColNum = 0;
   for ( auto node_id: Range(mNodeNum) ) {
-    int c = color_map[node_id];
+    SizeType c = color_map[node_id];
     mColorMap[node_id] = c;
     if ( c == 0 ) {
       ++ mNodeNum1;
@@ -116,8 +116,8 @@ ColGraph::init(const UdGraph& graph,
   }
 
   // 未彩色のノードのリストを作る．
-  mNodeList = new int[mNodeNum1];
-  int wpos = 0;
+  mNodeList = new SizeType[mNodeNum1];
+  SizeType wpos = 0;
   for ( auto node_id: Range(mNodeNum) ) {
     if ( color(node_id) == 0 ) {
       mNodeList[wpos] = node_id;
@@ -129,8 +129,8 @@ ColGraph::init(const UdGraph& graph,
   // 各ノードに接続する枝数を数える．
   mEdgeNum = 0;
   for ( auto edge: graph.edge_list() ) {
-    int id1 = edge.id1();
-    int id2 = edge.id2();
+    SizeType id1 = edge.id1();
+    SizeType id2 = edge.id2();
     if ( id1 == id2 ) {
       // そもそもセルフループは彩色不可なので無視する．
       continue;
@@ -146,16 +146,16 @@ ColGraph::init(const UdGraph& graph,
 
   // 隣接リストの領域を確保する．
   for ( auto i: Range(mNodeNum) ) {
-    AdjList& adj_list = mAdjListArray[i];
-    adj_list.mBody = new int[adj_list.mNum];
+    auto& adj_list = mAdjListArray[i];
+    adj_list.mBody = new SizeType[adj_list.mNum];
     // ちょっとしたギミックで mNum を 0 に戻す．
     adj_list.mNum = 0;
   }
 
   // 隣接リストの設定を行う．
   for ( auto edge: graph.edge_list() ) {
-    int id1 = edge.id1();
-    int id2 = edge.id2();
+    SizeType id1 = edge.id1();
+    SizeType id2 = edge.id2();
     if ( id1 == id2 ) {
       // そもそもセルフループは彩色不可なので無視する．
       continue;

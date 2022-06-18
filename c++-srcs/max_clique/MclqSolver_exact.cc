@@ -3,9 +3,8 @@
 /// @brief MclqSolver の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2014, 2015, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "MclqSolver.h"
 #include "MclqNode.h"
@@ -18,20 +17,23 @@ BEGIN_NONAMESPACE
 struct NodeLt
 {
   bool
-  operator()(const pair<MclqNode*, int>& left,
-	     const pair<MclqNode*, int>& right)
+  operator()(
+    const pair<MclqNode*, SizeType>& left,
+    const pair<MclqNode*, SizeType>& right
+  )
   {
     return left.second > right.second;
   }
 };
 
-int count;
+SizeType count;
 
-int
-mc_recur(const vector<MclqNode*>& selected_node_list,
-	 const vector<MclqNode*>& rest_node_list,
-	 int best_so_far,
-	 vector<int>& node_set)
+SizeType
+mc_recur(
+  const vector<MclqNode*>& selected_node_list,
+  const vector<MclqNode*>& rest_node_list,
+  SizeType best_so_far,
+  vector<SizeType>& node_set)
 {
 #if 0
   cout << "mc_recur(selected_node_list = " << selected_node_list.size()
@@ -56,16 +58,16 @@ mc_recur(const vector<MclqNode*>& selected_node_list,
     return node_set.size();
   }
 
-  unordered_set<int> mark;
-  vector<pair<MclqNode*, int> > tmp_node_list;
+  unordered_set<SizeType> mark;
+  vector<pair<MclqNode*, SizeType>> tmp_node_list;
   tmp_node_list.reserve(rest_node_list.size());
   for ( auto node1: rest_node_list ) {
     mark.insert(node1->id());
   }
 
   for ( auto node1: rest_node_list ) {
-    int n = 0;
-    for ( int j = 0; j < node1->adj_size(); ++ j ) {
+    SizeType n = 0;
+    for ( SizeType j = 0; j < node1->adj_size(); ++ j ) {
       MclqNode* node2 = node1->adj_node(j);
       if ( mark.count(node2->id()) > 0 ) {
 	++ n;
@@ -75,11 +77,11 @@ mc_recur(const vector<MclqNode*>& selected_node_list,
   }
   sort(tmp_node_list.begin(), tmp_node_list.end(), NodeLt());
 
-  int max_val = best_so_far;
+  SizeType max_val = best_so_far;
   for ( auto node_val_pair: tmp_node_list ) {
     auto node1 = node_val_pair.first;
-    unordered_set<int> mark;
-    for ( int i = 0; i < node1->adj_size(); ++ i ) {
+    unordered_set<SizeType> mark;
+    for ( SizeType i = 0; i < node1->adj_size(); ++ i ) {
       MclqNode* node2 = node1->adj_node(i);
       mark.insert(node2->id());
     }
@@ -95,9 +97,9 @@ mc_recur(const vector<MclqNode*>& selected_node_list,
 
     vector<MclqNode*> new_selected_node_list = selected_node_list;
     new_selected_node_list.push_back(node1);
-    vector<int> tmp_node_set;
+    vector<SizeType> tmp_node_set;
     mc_recur(new_selected_node_list, new_node_list, max_val, tmp_node_set);
-    int val = tmp_node_set.size();
+    SizeType val = tmp_node_set.size();
     if ( max_val < val ) {
       max_val = val;
       node_set = tmp_node_set;
@@ -117,23 +119,22 @@ mc_recur(const vector<MclqNode*>& selected_node_list,
 END_NONAMESPACE
 
 // @brief 最大クリークを求める．
-// @param[in] graph 対象のグラフ
-// @param[out] node_set クリークの要素(ノード番号)を収める配列
-// @return 要素数を返す．
-int
-MclqSolver::exact(vector<int>& node_set)
+SizeType
+MclqSolver::exact(
+  vector<SizeType>& node_set
+)
 {
   node_set.clear();
 
   // 処理対象のノードを収めるリスト
   vector<MclqNode*> node_list;
-  for ( int i = 0; i < mNodeNum; ++ i ) {
+  for ( SizeType i = 0; i < mNodeNum; ++ i ) {
     auto node = &mNodeArray[i];
     node_list.push_back(node);
   }
 
   count = 0;
-  mc_recur(vector<MclqNode*>(0), node_list, 0, node_set);
+  mc_recur(vector<MclqNode*>{}, node_list, 0, node_set);
 
   return node_set.size();
 }

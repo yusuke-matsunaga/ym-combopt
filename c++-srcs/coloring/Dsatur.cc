@@ -3,9 +3,8 @@
 /// @brief Dsatur の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2013, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2013, 2015, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Dsatur.h"
 #include "DsatNode.h"
@@ -24,15 +23,19 @@ public:
 
   /// @brief ノードの比較関数
   int
-  operator()(DsatNode* node1,
-	     DsatNode* node2);
+  operator()(
+    DsatNode* node1,
+    DsatNode* node2
+  );
 
 };
 
 // @brief ノードの比較関数
 int
-DsatComp::operator()(DsatNode* node1,
-		     DsatNode* node2)
+DsatComp::operator()(
+  DsatNode* node1,
+  DsatNode* node2
+)
 {
   if ( node1->sat_degree() < node2->sat_degree() ) {
     return 1;
@@ -52,13 +55,15 @@ DsatComp::operator()(DsatNode* node1,
 
 // @brief ノードに彩色して情報を更新する．
 void
-update_sat_degree(DsatNode* node,
-		  ColGraph& graph,
-		  DsatNode* node_array,
-		  NodeHeap<DsatNode, DsatComp>& node_heap)
+update_sat_degree(
+  DsatNode* node,
+  ColGraph& graph,
+  DsatNode* node_array,
+  NodeHeap<DsatNode, DsatComp>& node_heap
+)
 {
   // node に隣接するノードの SAT degree を更新する．
-  int color = graph.color(node->id());
+  SizeType color = graph.color(node->id());
   for ( auto node1_id: graph.adj_list(node->id()) ) {
     DsatNode* node1 = &node_array[node1_id];
     if ( graph.color(node1_id) == 0 ) {
@@ -82,19 +87,18 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-Dsatur::Dsatur(const UdGraph& graph) :
-  ColGraph(graph)
+Dsatur::Dsatur(
+  const UdGraph& graph
+) : ColGraph{graph}
 {
   init();
 }
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-// @param[in] color_map 部分的な彩色結果
-Dsatur::Dsatur(const UdGraph& graph,
-	       const vector<int>& color_map) :
-  ColGraph(graph, color_map)
+Dsatur::Dsatur(
+  const UdGraph& graph,
+  const vector<SizeType>& color_map
+) : ColGraph{graph, color_map}
 {
   init();
 }
@@ -105,15 +109,15 @@ Dsatur::init()
 {
   if ( node_num() > 0 ) {
     // 部分的に彩色済みの場合には n < node_num()
-    int n = node_list().num() + color_num();
-    int vectlen = (n + 63) / 64;
+    SizeType n = node_list().num() + color_num();
+    SizeType vectlen = (n + 63) / 64;
     mNodeArray = new DsatNode[node_num()];
     for ( auto node_id: Range(node_num()) ) {
       DsatNode* node = &mNodeArray[node_id];
       node->init(node_id, adj_list(node_id).num(), vectlen);
     }
     for ( auto node_id: Range(node_num()) ) {
-      int c = color(node_id);
+      SizeType c = color(node_id);
       for ( auto node1_id: adj_list(node_id) ) {
 	if ( color(node1_id) == 0 ) {
 	  DsatNode* node1 = &mNodeArray[node1_id];
@@ -138,10 +142,10 @@ Dsatur::~Dsatur()
 }
 
 // @brief 彩色する．
-// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
-// @return 彩色数を返す．
-int
-Dsatur::coloring(vector<int>& color_map)
+SizeType
+Dsatur::coloring(
+  vector<SizeType>& color_map
+)
 {
   // dsatur アルゴリズムを用いる．
 
@@ -161,16 +165,16 @@ Dsatur::coloring(vector<int>& color_map)
   while ( !node_heap.empty() ) {
     DsatNode* max_node = node_heap.get_min();
     // max_node につけることのできる最小の色番号を求める．
-    int cnum = 0;
+    SizeType cnum = 0;
     vector<int> free_list;
     free_list.reserve(adj_list(max_node->id()).num());
     for ( auto node1_id: adj_list(max_node->id()) ) {
-      int c = color(node1_id);
+      SizeType c = color(node1_id);
       if ( c == 0 ) {
 	free_list.push_back(node1_id);
       }
     }
-    vector<int> color_list;
+    vector<SizeType> color_list;
     color_list.reserve(color_num());
     for ( auto c: Range(1, color_num() + 1) ) {
       if ( !max_node->check_adj_color(c) ) {
@@ -181,10 +185,10 @@ Dsatur::coloring(vector<int>& color_map)
       set_color(max_node->id(), new_color());
     }
     else {
-      int min_count = free_list.size() + 1;
-      int min_col = 0;
+      SizeType min_count = free_list.size() + 1;
+      SizeType min_col = 0;
       for ( auto col: color_list ) {
-	int n = 0;
+	SizeType n = 0;
 	for ( auto node1_id: free_list ) {
 	  DsatNode* node1 = &mNodeArray[node1_id];
 	  if ( !node1->check_adj_color(col) ) {
@@ -237,9 +241,11 @@ DsatNode::~DsatNode()
 
 // @brief 初期化する．
 void
-DsatNode::init(int id,
-	       int adj_degree,
-	       int vectlen)
+DsatNode::init(
+  SizeType id,
+  SizeType adj_degree,
+  SizeType vectlen
+)
 {
   mId = id;
   mColorSet = new ymuint64[vectlen];

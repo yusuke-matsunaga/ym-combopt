@@ -5,9 +5,8 @@
 /// @brief McColList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 #include "ym/McColIterator.h"
@@ -30,13 +29,16 @@ public:
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] begin_cell 先頭の要素
-  /// @param[in] end_cell 末尾の要素
-  McColList(McCell* begin_cell,
-	    McCell* end_cell);
+  McColList(
+    McCell* begin_cell, ///< [in] 先頭の要素
+    McCell* end_cell	///< [in] 末尾の要素
+  ) : mBegin{begin_cell},
+      mEnd{end_cell}
+  {
+  }
 
   /// @brief デストラクタ
-  ~McColList();
+  ~McColList() = default;
 
 
 public:
@@ -46,22 +48,24 @@ public:
 
   /// @brief 先頭の反復子を返す．
   iterator
-  begin() const;
+  begin() const
+  {
+    return McColIterator{mBegin};
+  }
 
   /// @brief 末尾の反復子を返す．
   iterator
-  end() const;
+  end() const
+  {
+    return McColIterator{mEnd};
+  }
 
   friend
   bool
-  operator==(const McColList& list1,
-	     const McColList& list2);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  operator==(
+    const McColList& list1,
+    const McColList& list2
+  );
 
 
 private:
@@ -79,74 +83,35 @@ private:
 
 /// @relates McColList
 /// @brief 等価比較演算子
-/// @param[in] list1, list2 オペランド
+///< [in] list1, list2 オペランド
 bool
-operator==(const McColList& list1,
-	   const McColList& list2);
+operator==(
+  const McColList& list1,
+  const McColList& list2
+);
 
 /// @relates McColList
 /// @brief 非等価比較演算子
-/// @param[in] list1, list2 オペランド
-bool
-operator!=(const McColList& list1,
-	   const McColList& list2);
-
-/// @relates McColList
-/// @brief 包含関係を調べる．
-/// @param[in] list1, list2 オペランド
-///
-/// list1 が list2 の要素をすべて含んでいたら true を返す．
-bool
-check_containment(const McColList& list1,
-		  const McColList& list2);
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] begin_cell 先頭の要素
-// @param[in] end_cell 末尾の要素
-inline
-McColList::McColList(McCell* begin_cell,
-		     McCell* end_cell) :
-  mBegin(begin_cell),
-  mEnd(end_cell)
-{
-}
-
-// @brief デストラクタ
-inline
-McColList::~McColList()
-{
-}
-
-// @brief 先頭の反復子を返す．
-inline
-McColIterator
-McColList::begin() const
-{
-  return McColIterator(mBegin);
-}
-
-// @brief 末尾の反復子を返す．
-inline
-McColIterator
-McColList::end() const
-{
-  return McColIterator(mEnd);
-}
-
-// @brief 非等価比較演算子
-// @param[in] list1, list2 オペランド
+///< [in] list1, list2 オペランド
 inline
 bool
-operator!=(const McColList& list1,
-	   const McColList& list2)
+operator!=(
+  const McColList& list1,
+  const McColList& list2
+)
 {
   return !operator==(list1, list2);
 }
+
+/// @relates McColList
+/// @brief 包含関係を調べる．
+///
+/// list1 が list2 の要素をすべて含んでいたら true を返す．
+bool
+check_containment(
+  const McColList& list1, ///< [in] オペランド1
+  const McColList& list2  ///< [in] オペランド2
+);
 
 END_NAMESPACE_YM_MINCOV
 

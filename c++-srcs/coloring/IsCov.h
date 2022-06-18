@@ -5,9 +5,8 @@
 /// @brief IsCov のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/udgraph_nsdef.h"
 #include "coloring/ColGraph.h"
@@ -25,8 +24,9 @@ class IsCov
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  IsCov(const UdGraph& graph);
+  IsCov(
+    const UdGraph& graph ///< [in] 対象のグラフ
+  );
 
   /// @brief デストラクタ
   ~IsCov();
@@ -38,9 +38,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief independent set cover を行う．
-  int
-  covering(int limit,
-	   vector<int>& color_map);
+  SizeType
+  covering(
+    SizeType limit,
+    vector<SizeType>& color_map
+  );
 
 
 private:
@@ -49,22 +51,22 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 集合に加えるノードを選ぶ．
-  /// @param[in] cand_list 候補となるノードのリスト
-  /// @param[in] cur_mark 現在の候補集合を表す配列
   ///
   /// - cur_mark[node_id] = true のノードが候補集合の要素
   /// - 現在の集合に隣接していないノードの内，隣接ノード数の少ないものを選ぶ．
   /// - 追加できるノードがない場合は -1 を返す．
-  int
-  select_node(const vector<int>& cand_list,
-	      const vector<bool>& cur_mark);
+  SizeType
+  select_node(
+    const vector<SizeType>& cand_list, ///< [in] 候補となるノードのリスト
+    const vector<bool>& cur_mark       ///< [in] 現在の候補集合を表す配列
+  );
 
   /// @brief 候補リストを更新する．
-  /// @param[inout] cand_list 候補リスト
-  /// @param[in] node_id 新たに加わったノード
   void
-  update_cand_list(vector<int>& cand_list,
-		   int node_id);
+  update_cand_list(
+    vector<SizeType>& cand_list, ///< [inout] 候補リスト
+    SizeType node_id		 ///< [in] 新たに加わったノード
+  );
 
 
 private:

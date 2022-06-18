@@ -3,9 +3,8 @@
 /// @brief Greedy の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Greedy.h"
 #include "mincov/Selector.h"
@@ -20,13 +19,12 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @grief greedy アルゴリズムで解を求める．
-// @param[in] matrix 対象の行列
-// @param[in] selector 列を選ぶ関数オブジェクト
-// @param[out] solution 選ばれた列集合
 void
-Greedy::solve(McMatrix& matrix,
-	      Selector& selector,
-	      vector<int>& solution)
+Greedy::solve(
+  McMatrix& matrix,
+  Selector& selector,
+  vector<SizeType>& solution
+)
 {
   if ( mDebug ) {
     cout << "Greedy::solve() start" << endl;
@@ -35,7 +33,7 @@ Greedy::solve(McMatrix& matrix,
 
   while ( matrix.active_row_num() > 0 ) {
     // 次の分岐のための列をとってくる．
-    int col = selector(matrix);
+    auto col = selector(matrix);
     if ( mDebug ) {
       cout << " selecting Col#" << col << endl;
     }
@@ -49,7 +47,7 @@ Greedy::solve(McMatrix& matrix,
     }
 
     // 行列を縮約する．
-    vector<int> dummy;
+    vector<SizeType> dummy;
     matrix.reduce_loop(solution, dummy);
 
     if ( mDebug ) {
@@ -60,9 +58,10 @@ Greedy::solve(McMatrix& matrix,
 }
 
 // @brief デバッグフラグをセットする．
-// @param[in] flag セットする値
 void
-Greedy::set_debug_flag(bool flag)
+Greedy::set_debug_flag(
+  bool flag
+)
 {
   mDebug = flag;
 }

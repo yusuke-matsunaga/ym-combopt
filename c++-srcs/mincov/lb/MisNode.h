@@ -5,9 +5,8 @@
 /// @brief MisNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 
@@ -28,7 +27,7 @@ public:
   MisNode() = default;
 
   /// @brief デストラクタ
-  ~MisNode();
+  ~MisNode() = default;
 
 
 public:
@@ -37,39 +36,69 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容を初期化する．
-  /// @param[in] row_pos 行番号
   void
-  set_row_pos(int row_pos);
+  set_row_pos(
+    SizeType row_pos ///< [in] 行番号
+  )
+  {
+    mRowPos = row_pos;
+  }
 
   /// @brief 隣接ノードの情報を設定する．
   void
-  set_adj_link(int adj_num,
-	       MisNode** adj_link);
+  set_adj_link(
+    vector<MisNode*>&& adj_link
+  )
+  {
+    mAdjLink.swap(adj_link);
+    mNum = mAdjLink.size();
+  }
 
   /// @brief 行番号を返す．
-  int
-  row_pos() const;
+  SizeType
+  row_pos() const
+  {
+    return mRowPos;
+  }
 
   /// @brief 削除済みフラグを返す．
   bool
-  deleted() const;
+  deleted() const
+  {
+    // 実はヒープインデックスが無効か
+    // どうかで判断する．
+    return mHeapIdx == 0;
+  }
 
   /// @brief 隣接するノード数を返す．
-  int
-  adj_size() const;
+  SizeType
+  adj_size() const
+  {
+    return mAdjLink.size();
+  }
 
   /// @brief 隣接するノードを返す．
-  /// @param[in] pos 位置番号 ( 0 <= pos < adj_size() )
   MisNode*
-  adj_node(int pos) const;
+  adj_node(
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < adj_size() )
+  ) const
+  {
+    return mAdjLink[pos];
+  }
 
   /// @brief 有効な隣接ノード数を返す．
-  int
-  adj_num() const;
+  SizeType
+  adj_num() const
+  {
+    return mNum;
+  }
 
   /// @brief adj_num を１減らす
   void
-  dec_adj_num();
+  dec_adj_num()
+  {
+    -- mNum;
+  }
 
 
 private:
@@ -78,102 +107,18 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 行番号
-  int mRowPos{0};
+  SizeType mRowPos{0};
 
   // 隣接するノードのポインタ配列
-  MisNode** mAdjLink{nullptr};
-
-  // mAdjLink のサイズ
-  int mAdjSize{0};
+  vector<MisNode*> mAdjLink;
 
   // mAdjLink 中の有効な要素数
-  int mNum{0};
+  SizeType mNum{0};
 
   // ヒープ上のインデックス
-  int mHeapIdx{0};
+  SizeType mHeapIdx{0};
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief デストラクタ
-inline
-MisNode::~MisNode()
-{
-  delete [] mAdjLink;
-}
-
-// @brief 内容を初期化する．
-// @param[in] row_pos 行番号
-inline
-void
-MisNode::set_row_pos(int row_pos)
-{
-  mRowPos = row_pos;
-}
-
-// @brief 隣接ノードの情報を設定する．
-inline
-void
-MisNode::set_adj_link(int adj_num,
-		      MisNode** adj_link)
-{
-  mAdjLink = adj_link;
-  mAdjSize = adj_num;
-  mNum = adj_num;
-}
-
-// @brief 行番号を返す．
-inline
-int
-MisNode::row_pos() const
-{
-  return mRowPos;
-}
-
-// @brief 削除済みフラグを返す．
-inline
-bool
-MisNode::deleted() const
-{
-  return mHeapIdx == 0;
-}
-
-// @brief 隣接するノード数を返す．
-inline
-int
-MisNode::adj_size() const
-{
-  return mAdjSize;
-}
-
-// @brief 隣接するノードを返す．
-// @param[in] pos 位置番号 ( 0 <= pos < adj_size() )
-inline
-MisNode*
-MisNode::adj_node(int pos) const
-{
-  return mAdjLink[pos];
-}
-
-// @brief 有効な隣接ノード数を返す．
-inline
-int
-MisNode::adj_num() const
-{
-  return mNum;
-}
-
-// @brief adj_num を１減らす
-inline
-void
-MisNode::dec_adj_num()
-{
-  -- mNum;
-}
 
 END_NAMESPACE_YM_MINCOV
 

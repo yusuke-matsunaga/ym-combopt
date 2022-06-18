@@ -3,9 +3,8 @@
 /// @brief LbMIS2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "LbMIS2.h"
 #include "ym/McMatrix.h"
@@ -20,10 +19,10 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 下限を求める．
-// @param[in] block 対象の行列
-// @return 下限値
 int
-LbMIS2::operator()(const McMatrix& matrix)
+LbMIS2::operator()(
+  const McMatrix& matrix
+)
 {
   if ( matrix.active_row_num() == 0 ) {
     return 0;
@@ -33,17 +32,14 @@ LbMIS2::operator()(const McMatrix& matrix)
   // 各行に対応する Node というオブジェクトを作る．
   // ndoe_array[row_pos] に row_pos の行の Node が入る．
   // top から Node::mNext を使ってリンクとリストを作る．
-  int rs = matrix.row_size();
-  int rn = matrix.active_row_num();
+  SizeType rs = matrix.row_size();
+  SizeType rn = matrix.active_row_num();
 
   MisNodeHeap node_heap(rs);
 
-  MisNode** node_array = new MisNode*[rs];
-  for ( int i = 0; i < rs; ++ i ) {
-    node_array[i] = nullptr;
-  }
+  vector<MisNode*> node_array(rn, nullptr);
 
-  int idx = 0;
+  SizeType idx = 0;
   for ( auto row_pos: matrix.row_head_list() ) {
     MisNode* node = node_heap.node(idx);
     ++ idx;
@@ -55,28 +51,24 @@ LbMIS2::operator()(const McMatrix& matrix)
   // node1 と列を共有する行の Node が node1->mAdjLink[0:node1->mAdjNum -1]
   // に入る．
   // node1->mNum も node1->mAdjNum で初期化される．
-  int* row_list = new int[rn];
   vector<bool> mark(rn, false);
   for ( auto row_pos: matrix.row_head_list() ) {
     // マークを用いて隣接関係を作る．
-    int row_list_idx = 0;
+    vector<MisNode*> adj_link;
     for ( auto col_pos1: matrix.row_list(row_pos) ) {
       for ( auto row_pos2: matrix.col_list(col_pos1) ) {
 	if ( !mark[row_pos2] ) {
 	  mark[row_pos2] = true;
-	  row_list[row_list_idx] = row_pos2;
-	  ++ row_list_idx;
+	  adj_link.push_back(node_array[row_pos2]);
 	}
       }
     }
-    MisNode* node1 = node_array[row_pos];
-    MisNode** adj_link = new MisNode*[row_list_idx];
-    for ( int i = 0; i < row_list_idx; ++ i ) {
-      MisNode* node2 = node_array[row_list[i]];
-      adj_link[i] = node2;
+    // マークを消す．
+    for ( auto node: adj_link ) {
+      mark[node->row_pos()] = false;
     }
-    node1->set_adj_link(row_list_idx, adj_link);
-
+    MisNode* node1 = node_array[row_pos];
+    node1->set_adj_link(std::move(adj_link));
     node_heap.put(node1);
   }
 
@@ -87,7 +79,7 @@ LbMIS2::operator()(const McMatrix& matrix)
     MisNode* best_node = node_heap.get_min();
 
     // best_node に対応する行を被覆する列の最小コストを求める．
-    int min_cost = UINT_MAX;
+    int min_cost = INT_MAX;
     for ( auto cpos: matrix.row_list(best_node->row_pos()) ) {
       if ( min_cost > matrix.col_cost(cpos) ) {
 	min_cost = matrix.col_cost(cpos);
@@ -95,13 +87,13 @@ LbMIS2::operator()(const McMatrix& matrix)
     }
     cost += min_cost;
 
-    for ( int i = 0; i < best_node->adj_size(); ++ i ) {
+    for ( SizeType i = 0; i < best_node->adj_size(); ++ i ) {
       // best_node に隣接しているノードも処理済みとする．
       MisNode* node2 = best_node->adj_node(i);
       if ( !node2->deleted() ) {
 	node_heap.delete_node(node2);
 	// さらにこのノードに隣接しているノードの mNum を減らす．
-	for ( int j = 0; j < node2->adj_size(); ++ j ) {
+	for ( SizeType j = 0; j < node2->adj_size(); ++ j ) {
 	  MisNode* node3 = node2->adj_node(j);
 	  if ( !node3->deleted() ) {
 	    node3->dec_adj_num();
@@ -111,9 +103,6 @@ LbMIS2::operator()(const McMatrix& matrix)
       }
     }
   }
-
-  delete [] node_array;
-  delete [] row_list;
 
   return cost;
 }

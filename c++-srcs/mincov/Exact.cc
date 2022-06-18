@@ -3,9 +3,8 @@
 /// @brief Exact の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Exact.h"
 #include "ym/McMatrix.h"
@@ -22,8 +21,10 @@ int solve_id = 0;
 // 2つの行列が等しいかをチェックする関数
 // 等しくなければ例外を送出する．
 void
-verify_block(McMatrix& a,
-	     McMatrix& b)
+verify_block(
+  McMatrix& a,
+  McMatrix& b
+)
 {
   ASSERT_COND( a.row_size() == b.row_size() );
   ASSERT_COND( a.col_size() == b.col_size() );
@@ -44,15 +45,13 @@ verify_block(McMatrix& a,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] matrix 問題の行列
-// @param[in] lb_calc_list 下界の計算クラスのリスト
-// @param[in] selector 列を選択するクラス
-Exact::Exact(McMatrix& matrix,
-	     const vector<LbCalc*>& lb_calc_list,
-	     Selector& selector) :
-  mMatrix(matrix),
-  mLbCalcList(lb_calc_list),
-  mSelector(selector)
+Exact::Exact(
+  McMatrix& matrix,
+  const vector<LbCalc*>& lb_calc_list,
+  Selector& selector
+) : mMatrix(matrix),
+    mLbCalcList(lb_calc_list),
+    mSelector(selector)
 {
 }
 
@@ -62,10 +61,10 @@ Exact::~Exact()
 }
 
 // @brief 最小被覆問題を解く．
-// @param[out] solution 選ばれた列集合
-// @return 解のコスト
 int
-Exact::solve(vector<int>& solution)
+Exact::solve(
+  vector<SizeType>& solution
+)
 {
   solve_id = 0;
 
@@ -85,13 +84,15 @@ Exact::solve(vector<int>& solution)
 
 // @brief 解を求める再帰関数
 bool
-Exact::_solve(int lb,
-	      int depth)
+Exact::_solve(
+  int lb,
+  int depth
+)
 {
   int cur_id = solve_id;
   ++ solve_id;
 
-  vector<int> dummy;
+  vector<SizeType> dummy;
   mMatrix.reduce_loop(mCurSolution, dummy);
 
   int tmp_cost = mMatrix.cost(mCurSolution);
@@ -193,14 +194,14 @@ Exact::_solve(int lb,
 #endif
 
   // 次の分岐のための列をとってくる．
-  int col = mSelector(mMatrix);
+  SizeType col = mSelector(mMatrix);
 
 #if defined(VERIFY_MINCOV)
   McMatrix orig_matrix(mMatrix);
   vector<int> orig_solution(mCurSolution);
 #endif
 
-  int cur_n = mCurSolution.size();
+  SizeType cur_n = mCurSolution.size();
   mMatrix.save();
 
   // その列を選択したときの最良解を求める．
@@ -214,8 +215,8 @@ Exact::_solve(int lb,
   bool stat1 = _solve(lb, depth + 1);
 
   mMatrix.restore();
-  int c = mCurSolution.size() - cur_n;
-  for ( int i = 0; i < c; ++ i ) {
+  SizeType c = mCurSolution.size() - cur_n;
+  for ( SizeType i = 0; i < c; ++ i ) {
     mCurSolution.pop_back();
   }
 
@@ -253,21 +254,27 @@ Exact::matrix() const
 
 // @brief partition フラグを設定する．
 void
-Exact::set_partition_flag(bool flag)
+Exact::set_partition_flag(
+  bool flag
+)
 {
   mDoPartition = flag;
 }
 
 // @brief デバッグフラグを設定する．
 void
-Exact::set_debug_flag(bool flag)
+Exact::set_debug_flag(
+  bool flag
+)
 {
   mDebug = flag;
 }
 
 // @brief mMaxDepth を設定する．
 void
-Exact::set_max_depth(int depth)
+Exact::set_max_depth(
+  int depth
+)
 {
   mMaxDepth = depth;
 }

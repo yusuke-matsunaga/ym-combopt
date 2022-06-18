@@ -5,9 +5,8 @@
 /// @brief LbCS のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "mincov/LbCalc.h"
 
@@ -28,7 +27,9 @@ public:
 
   /// @brief 下界の計算をする
   int
-  operator()(const McMatrix& matrix) override;
+  operator()(
+    const McMatrix& matrix
+  ) override;
 
 };
 

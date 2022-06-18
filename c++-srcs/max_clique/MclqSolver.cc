@@ -3,9 +3,8 @@
 /// @brief MclqSolver の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "MclqSolver.h"
 #include "MclqNode.h"
@@ -15,14 +14,14 @@
 BEGIN_NAMESPACE_YM
 
 // @brief 最大クリークを求める．
-int
+SizeType
 max_clique(
   const UdGraph& graph,
-  vector<int>& node_set,
+  vector<SizeType>& node_set,
   const string& algorithm
 )
 {
-  nsUdGraph::MclqSolver solver(graph);
+  nsUdGraph::MclqSolver solver{graph};
 
   if ( algorithm == "exact" ) {
     return solver.exact(node_set);
@@ -42,32 +41,32 @@ END_NAMESPACE_YM
 BEGIN_NAMESPACE_YM_UDGRAPH
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-MclqSolver::MclqSolver(const UdGraph& graph) :
-  mNodeNum(graph.node_num())
+MclqSolver::MclqSolver(
+  const UdGraph& graph
+) : mNodeNum{graph.node_num()}
 {
   mNodeArray = new MclqNode[mNodeNum];
-  for ( int i = 0; i < mNodeNum; ++ i ) {
+  for ( SizeType i = 0; i < mNodeNum; ++ i ) {
     auto node = &mNodeArray[i];
     node->set(i);
   }
 
   // 隣接するノードの情報を link_array に入れる．
-  vector<vector<int> > link_array(mNodeNum);
+  vector<vector<SizeType>> link_array(mNodeNum);
   for ( auto edge: graph.edge_list() ) {
-    int id1 = edge.id1();
-    int id2 = edge.id2();
+    SizeType id1 = edge.id1();
+    SizeType id2 = edge.id2();
     link_array[id1].push_back(id2);
     link_array[id2].push_back(id1);
   }
 
   // link_array の情報を MclqNode に移す．
-  for ( int i = 0; i < mNodeNum; ++ i ) {
+  for ( SizeType i = 0; i < mNodeNum; ++ i ) {
     MclqNode* node1 = &mNodeArray[i];
-    const vector<int>& link_list = link_array[i];
-    int link_num = link_list.size();
+    const vector<SizeType>& link_list = link_array[i];
+    SizeType link_num = link_list.size();
     MclqNode** adj_link = new MclqNode*[link_num];
-    for ( int j = 0; j < link_num; ++ j ) {
+    for ( SizeType j = 0; j < link_num; ++ j ) {
       MclqNode* node2 = &mNodeArray[link_list[j]];
       adj_link[j] = node2;
     }

@@ -5,9 +5,8 @@
 /// @brief McCell のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 
@@ -25,13 +24,20 @@ class McCell
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] row_pos 行番号
-  /// @param[in] col_pos 列番号
-  McCell(int row_pos,
-	 int col_pos);
+  McCell(
+    SizeType row_pos, ///< [in] 行番号
+    SizeType col_pos  ///< [in] 列番号
+  ) : mRowPos{row_pos},
+      mColPos{col_pos}
+  {
+    mLeftLink = this;
+    mRightLink = this;
+    mUpLink = this;
+    mDownLink = this;
+  }
 
   /// @brief デストラクタ
-  ~McCell();
+  ~McCell() = default;
 
 
 public:
@@ -40,28 +46,46 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 行番号を返す．
-  int
-  row_pos() const;
+  SizeType
+  row_pos() const
+  {
+    return mRowPos;
+  }
 
   /// @brief 列番号を返す．
-  int
-  col_pos() const;
+  SizeType
+  col_pos() const
+  {
+    return mColPos;
+  }
 
   /// @brief 同じ行の直前の要素を返す．
   McCell*
-  row_prev() const;
+  row_prev() const
+  {
+    return mLeftLink;
+  }
 
   /// @brief 同じ行の直後の要素を返す．
   McCell*
-  row_next() const;
+  row_next() const
+  {
+    return mRightLink;
+  }
 
   /// @brief 同じ列の直前の要素を返す．
   McCell*
-  col_prev() const;
+  col_prev() const
+  {
+    return mUpLink;
+  }
 
   /// @brief 同じ列の直後の要素を返す．
   McCell*
-  col_next() const;
+  col_next() const
+  {
+    return mDownLink;
+  }
 
 
 private:
@@ -70,10 +94,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 行番号
-  int mRowPos;
+  SizeType mRowPos;
 
   // 列番号
-  int mColPos;
+  SizeType mColPos;
 
   // 左隣の要素
   McCell* mLeftLink;
@@ -89,7 +113,7 @@ private:
 
 };
 
-
+#if 0
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
@@ -162,6 +186,7 @@ McCell::col_next() const
 {
   return mDownLink;
 }
+#endif
 
 END_NAMESPACE_YM_MINCOV
 

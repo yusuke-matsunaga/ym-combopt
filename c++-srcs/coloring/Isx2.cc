@@ -3,9 +3,8 @@
 /// @brief Isx2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Isx2.h"
 #include "ym/Range.h"
@@ -15,14 +14,19 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 
 BEGIN_NONAMESPACE
 
-// ２つの vector<int> を辞書式順序で比較する．
+bool debug = 0;
+
+// ２つの vector<SizeType> を辞書式順序で比較する．
 int
-vect_comp(const vector<int>& a,
-	  const vector<int>& b)
+vect_comp(
+  const vector<SizeType>& a,
+  const vector<SizeType>& b
+)
 {
-  int n1 = a.size();
-  int n2 = b.size();
-  for ( int i = 0; i < n1 && i < n2; ++ i ) {
+  SizeType n1 = a.size();
+  SizeType n2 = b.size();
+  SizeType n_min = std::min(n1, n2);
+  for ( SizeType i = 0; i < n_min; ++ i ) {
     int d = a[i] - b[i];
     if ( d < 0 ) {
       return -1;
@@ -32,14 +36,16 @@ vect_comp(const vector<int>& a,
     }
   }
   // ここに来ているということは min(n1, n2) までは同一
-  if ( n1 == 0 && n2 == 0 ) {
-    return 0;
-  }
-  if ( n1 > 0 ) {
-    return 1;
+  if ( n1 == n_min ) {
+    if ( n2 == n_min ) {
+      return 0;
+    }
+    else {
+      return -1;
+    }
   }
   else {
-    return -1;
+    return 1;
   }
 }
 
@@ -50,14 +56,13 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-Isx2::Isx2(const UdGraph& graph) :
-  ColGraph(graph),
-  mCandMark(node_num(), false),
-  mAdjCount(node_num(), 0)
+Isx2::Isx2(
+  const UdGraph& graph
+) : ColGraph{graph},
+    mCandMark(node_num(), false),
+    mAdjCount(node_num(), 0)
 {
   mCandList.reserve(node_num());
-  mTmpList.reserve(node_num());
   mIndepSet.reserve(node_num());
 
   mRandRatio = 0.5;
@@ -69,25 +74,22 @@ Isx2::~Isx2()
 }
 
 // @brief independent set extraction を用いた coloring を行う．
-// @param[in] limit 残りのノード数がこの値を下回ったら処理をやめる．
-// @param[out] color_map 彩色結果を収める配列
-// @return 彩色数を返す．
-//
-// ここでは部分的な彩色を行う．
-int
-Isx2::coloring(int limit,
-	      vector<int>& color_map)
+SizeType
+Isx2::coloring(
+  SizeType limit,
+  vector<SizeType>& color_map
+)
 {
-  int remain_num = node_num();
-  int dlimit = 100;
-  int slimit = static_cast<int>(edge_num() * 2.0 / (node_num() - 1.0));
+  SizeType remain_num = node_num();
+  SizeType dlimit = 100;
+  SizeType slimit = static_cast<SizeType>(edge_num() * 2.0 / (node_num() - 1.0));
 
   while ( remain_num > limit ) {
-    {
+    if ( debug ) {
       cout << "# of remaining nodes: " << remain_num << endl;
     }
 
-    int dcount = 0;
+    SizeType dcount = 0;
     mIndepSetList.clear();
     while ( dcount < dlimit && mIndepSetList.size() < slimit ) {
       get_indep_set();
@@ -102,14 +104,14 @@ Isx2::coloring(int limit,
     }
 
     // pairwise disjoint な極大集合を求める．
-    int max_num = 0;
-    int max_nodes = 0;
-    vector<int> max_iset;
-    for ( int i = 0; i < 100; ++ i ) {
-      vector<int> tmp_set;
+    SizeType max_num = 0;
+    SizeType max_nodes = 0;
+    vector<SizeType> max_iset;
+    for ( SizeType i = 0; i < 100; ++ i ) {
+      vector<SizeType> tmp_set;
       get_max_disjoint_set(tmp_set);
-      int num = tmp_set.size();
-      int nodes = 0;
+      SizeType num = tmp_set.size();
+      SizeType nodes = 0;
       for ( auto i: tmp_set ) {
 	nodes += mIndepSetList[i].size();
       }
@@ -120,7 +122,7 @@ Isx2::coloring(int limit,
       }
     }
 
-    {
+    if ( debug ) {
       cout << "choose " << max_iset.size() << " disjoint sets" << endl;
     }
 
@@ -135,9 +137,6 @@ Isx2::coloring(int limit,
 }
 
 // @brief maximal independent set を選ぶ．
-//
-// - 結果は mIndepSet に格納される．
-// - mRandGen を用いてランダムに選ぶ．
 void
 Isx2::get_indep_set()
 {
@@ -147,15 +146,13 @@ Isx2::get_indep_set()
   // ノードを一つづつ選択し mIndepSet に入れる．
   mIndepSet.clear();
   {
-    std::uniform_int_distribution<int> rd(0, mCandList.size() - 1);
-    int r = rd(mRandGen);
-    int node0 = mCandList[r];
+    std::uniform_int_distribution<SizeType> rd(0, mCandList.size() - 1);
+    SizeType r = rd(mRandGen);
+    SizeType node0 = mCandList[r];
     mIndepSet.push_back(node0);
   }
   while ( !mCandList.empty() ) {
-    int node_id = select_node();
-    ASSERT_COND( node_id != -1 );
-
+    SizeType node_id = select_node();
     mIndepSet.push_back(node_id);
 
     // cand_list を更新する．
@@ -165,13 +162,12 @@ Isx2::get_indep_set()
 }
 
 // @brief 独立集合を mIndepSetList に追加する．
-// @param[in] indep_set 追加する独立集合
-// @retval true 正常に追加した．
-// @retval false すでに同じ内容の独立集合が存在した．
 bool
-Isx2::add_indep_set(const vector<int>& indep_set)
+Isx2::add_indep_set(
+  const vector<SizeType>& indep_set
+)
 {
-  vector<vector<int>>::iterator wpos = mIndepSetList.begin();
+  auto wpos = mIndepSetList.begin();
   for ( ; wpos != mIndepSetList.end(); ++ wpos) {
     int c = vect_comp(*wpos, indep_set);
     if ( c == 0 ) {
@@ -192,14 +188,17 @@ BEGIN_NONAMESPACE
 
 struct IsetLt
 {
-  IsetLt(const vector<vector<int> >& iset_list) :
-    mIndepSetList(iset_list)
+  IsetLt(
+    const vector<vector<SizeType>>& iset_list
+  ) : mIndepSetList{iset_list}
   {
   }
 
   bool
-  operator()(int a,
-	     int b)
+  operator()(
+    SizeType a,
+    SizeType b
+  )
   {
     if ( mIndepSetList[a].size() > mIndepSetList[b].size() ) {
       return true;
@@ -209,33 +208,35 @@ struct IsetLt
     }
   }
 
-  const vector<vector<int> >& mIndepSetList;
+  const vector<vector<SizeType>>& mIndepSetList;
 };
 
 END_NONAMESPACE
 
+
 // @brief pairwise disjoint な極大集合を求める．
-// @param[out] max_iset 結果を集合番号を収めるベクタ
 void
-Isx2::get_max_disjoint_set(vector<int>& max_iset)
+Isx2::get_max_disjoint_set(
+  vector<SizeType>& max_iset
+)
 {
-  std::uniform_int_distribution<int> rd(0, mIndepSetList.size() - 1);
-  int i0 = rd(mRandGen);
+  std::uniform_int_distribution<SizeType> rd(0, mIndepSetList.size() - 1);
+  SizeType i0 = rd(mRandGen);
   max_iset.push_back(i0);
 
   vector<bool> check_vec(node_num(), false);
-  const vector<int>& iset0 = mIndepSetList[i0];
+  const vector<SizeType>& iset0 = mIndepSetList[i0];
   for ( auto i: iset0 ) {
     check_vec[i] = true;
   }
   // iset0 と disjoint な集合の番号を cand_list に入れる．
-  vector<int> cand_list;
+  vector<SizeType> cand_list;
   cand_list.reserve(mIndepSetList.size());
   for ( int i: Range(mIndepSetList.size()) ) {
     if ( i == i0 ) {
       continue;
     }
-    const vector<int>& iset = mIndepSetList[i];
+    const vector<SizeType>& iset = mIndepSetList[i];
     bool disjoint = true;
     for ( auto j: iset ) {
       if ( check_vec[j] ) {
@@ -252,24 +253,24 @@ Isx2::get_max_disjoint_set(vector<int>& max_iset)
   sort(cand_list.begin(), cand_list.end(), IsetLt(mIndepSetList));
 
   while ( cand_list.size() > 0 ) {
-    int n0 = mIndepSetList[cand_list[0]].size();
-    int end = 0;
+    SizeType n0 = mIndepSetList[cand_list[0]].size();
+    SizeType end = 0;
     for ( ; mIndepSetList[cand_list[end]].size() == n0; ++ end ) { }
-    std::uniform_int_distribution<int> rd(0, end - 1);
-    int r = rd(mRandGen);
-    int i1 = cand_list[r];
+    std::uniform_int_distribution<SizeType> rd(0, end - 1);
+    SizeType r = rd(mRandGen);
+    SizeType i1 = cand_list[r];
     max_iset.push_back(i1);
 
-    const vector<int>& iset1 = mIndepSetList[i1];
+    const vector<SizeType>& iset1 = mIndepSetList[i1];
     vector<bool> check_vec(node_num(), false);
     for ( auto i: iset1 ) {
       check_vec[i] = true;
     }
     // iset1 と disjoint な集合を cand_list に残す．
-    vector<int>::iterator rpos = cand_list.begin();
-    vector<int>::iterator wpos = rpos;
+    auto rpos = cand_list.begin();
+    auto wpos = rpos;
     for ( ; rpos != cand_list.end(); ++ rpos ) {
-      const vector<int>& iset = mIndepSetList[*rpos];
+      const auto& iset = mIndepSetList[*rpos];
       bool disjoint = true;
       for ( auto i: iset ) {
 	if ( check_vec[i] ) {
@@ -310,10 +311,7 @@ Isx2::init_cand_list()
 }
 
 // @brief 候補集合に加えるノードを選ぶ．
-//
-// - 現在の候補集合に隣接していないノードの内，隣接ノード数の少ないものを選ぶ．
-// - 追加できるノードがない場合は -1 を返す．
-int
+SizeType
 Isx2::select_node()
 {
   ASSERT_COND( mCandList.size() > 0 );
@@ -321,36 +319,37 @@ Isx2::select_node()
   std::uniform_real_distribution<double> rd_real(0, 1.0);
   if ( rd_real(mRandGen) < mRandRatio ) {
     // 一定の確率でランダムに選ぶ．
-    std::uniform_int_distribution<int> rd_int(0, mCandList.size() - 1);
-    int r = rd_int(mRandGen);
+    std::uniform_int_distribution<SizeType> rd_int(0, mCandList.size() - 1);
+    SizeType r = rd_int(mRandGen);
     return mCandList[r];
   }
   else {
-    mTmpList.clear();
-    int min_num = node_num();
+    vector<SizeType> tmp_list;
+    SizeType min_num = node_num();
     for ( auto node_id: mCandList ) {
-      int c = mAdjCount[node_id];
+      SizeType c = mAdjCount[node_id];
       if ( min_num >= c ) {
 	if ( min_num > c ) {
 	  min_num = c;
-	  mTmpList.clear();
+	  tmp_list.clear();
 	}
-	mTmpList.push_back(node_id);
+	tmp_list.push_back(node_id);
       }
     }
-    int n = mTmpList.size();
-    ASSERT_COND( n > 0 );
 
-    std::uniform_int_distribution<int> rd_int(0, n - 1);
-    int r = rd_int(mRandGen);
-    return mTmpList[r];
+    SizeType n = tmp_list.size();
+    ASSERT_COND( n > 0 );
+    std::uniform_int_distribution<SizeType> rd_int(0, n - 1);
+    SizeType r = rd_int(mRandGen);
+    return tmp_list[r];
   }
 }
 
 // @brief 候補リストを更新する．
-// @param[in] node_id 新たに加わったノード
 void
-Isx2::update_cand_list(int node_id)
+Isx2::update_cand_list(
+  SizeType node_id
+)
 {
   // node_id と隣接するノードの cand_mark をはずす．
   mCandMark[node_id] = false;
@@ -364,11 +363,11 @@ Isx2::update_cand_list(int node_id)
   }
 
   // cand_mark に従って cand_list を更新する．
-  int n = mCandList.size();
-  int rpos = 0;
-  int wpos = 0;
+  SizeType n = mCandList.size();
+  SizeType rpos = 0;
+  SizeType wpos = 0;
   for ( rpos = 0; rpos < n; ++ rpos ) {
-    int node1_id = mCandList[rpos];
+    SizeType node1_id = mCandList[rpos];
     if ( mCandMark[node1_id] ) {
       mCandList[wpos] = node1_id;
       ++ wpos;

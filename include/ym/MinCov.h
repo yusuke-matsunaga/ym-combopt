@@ -5,9 +5,8 @@
 /// @brief MinCov のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2016, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 
@@ -26,25 +25,37 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 空のコンストラクタ
-  MinCov();
+  MinCov()
+  {
+    mRowSize = 0;
+    mColSize = 0;
+  }
 
   /// @brief サイズを指定したコンストラクタ
-  /// @param[in] row_size 行数
-  /// @param[in] col_size 列数
   ///
   /// * 空の行列となる．
   /// * 列のコストはすべて1になる．
-  MinCov(int row_size,
-	 int col_size);
+  MinCov(
+    SizeType row_size, ///< [in] 行数
+    SizeType col_size  ///< [in] 列数
+  ) : mRowSize{row_size},
+      mColSize{col_size},
+      mColCostArray(col_size, 1)
+  {
+  }
 
   /// @brief コスト配列をしていしたコンストラクタ
-  /// @param[in] row_size 行数
-  /// @param[in] col_cost_array 列のコストの配列
   ///
   /// * 列のサイズは col_cost_array のサイズから得られる．
   /// * 空の行列となる．
-  MinCov(int row_size,
-	 const vector<int>& col_cost_array);
+  MinCov(
+    SizeType row_size,                ///< [in] 行数
+    const vector<int>& col_cost_array ///< [in] 列のコストの配列
+  ) : mRowSize{row_size},
+      mColSize{col_cost_array.size()},
+      mColCostArray{col_cost_array}
+  {
+  }
 
   /// @brief コピーコンストラクタ
   MinCov(const MinCov& src) = default;
@@ -61,7 +72,7 @@ public:
   operator=(MinCov&& src) = default;
 
   /// @brief デストラクタ
-  ~MinCov();
+  ~MinCov() = default;
 
 
 public:
@@ -70,40 +81,61 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 問題のサイズを設定する．
-  /// @param[in] row_size 行数
-  /// @param[in] col_size 列数
   ///
   /// * 空の行列となる．
   /// * 列のコストはすべて1になる．
   void
-  resize(int row_size,
-	 int col_size);
+  resize(
+    SizeType row_size, ///< [in] 行数
+    SizeType col_size  ///< [in] 列数
+  )
+  {
+    mRowSize = row_size;
+    mColSize = col_size;
+    mColCostArray.clear();
+    mColCostArray.resize(col_size, 1);
+    mElemList.clear();
+  }
 
   /// @brief 問題のサイズとコスト配列を設定する．
-  /// @param[in] row_size 行数
-  /// @param[in] col_cost_array 列のコスト配列
   ///
   /// * 列のサイズは col_cost_array のサイズから得られる．
   /// * 空の行列となる．
   void
-  resize(int row_size,
-	 const vector<int>& col_cost_array);
+  resize(
+    SizeType row_size,                ///< [in] 行数
+    const vector<int>& col_cost_array ///< [in] 列のコスト配列
+  )
+  {
+    mRowSize = row_size;
+    mColSize = col_cost_array.size();
+    mColCostArray = col_cost_array;
+    mElemList.clear();
+  }
 
   /// @brief 列のコストを設定する
-  /// @param[in] col_pos 列番号 ( 0 <= col_pos < col_size() )
-  /// @param[in] cost コスト
   void
-  set_col_cost(int col_pos,
-	       int cost);
+  set_col_cost(
+    SizeType col_pos, ///< [in] 列番号 ( 0 <= col_pos < col_size() )
+    int cost	      ///< [in] コスト
+  )
+  {
+    ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
+
+    mColCostArray[col_pos] = cost;
+  }
 
   /// @brief 要素を追加する．
-  /// @param[in] row_pos 追加する要素の行番号
-  /// @param[in] col_pos 追加する要素の列番号
   ///
   /// * 重複した要素の追加についてはチェックしない．
   void
-  insert_elem(int row_pos,
-	      int col_pos);
+  insert_elem(
+    SizeType row_pos, ///< [in] 追加する要素の行番号
+    SizeType col_pos  ///< [in] 追加する要素の列番号
+  )
+  {
+    mElemList.push_back(make_pair(row_pos, col_pos));
+  }
 
 
 public:
@@ -112,25 +144,43 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 行数を得る．
-  int
-  row_size() const;
+  SizeType
+  row_size() const
+  {
+    return mRowSize;
+  }
 
   /// @brief 列数を得る．
-  int
-  col_size() const;
+  SizeType
+  col_size() const
+  {
+    return mColSize;
+  }
 
   /// @brief 列のコストを得る．
-  /// @param[in] col_pos 列番号 ( 0 <= col_pos < col_size )
   int
-  col_cost(int col_pos) const;
+  col_cost(
+    SizeType col_pos ///< [in] 列番号 ( 0 <= col_pos < col_size )
+  ) const
+  {
+    ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
+
+    return mColCostArray[col_pos];
+  }
 
   /// @brief 列のコスト配列を得る．
   const vector<int>&
-  col_cost_array() const;
+  col_cost_array() const
+  {
+    return mColCostArray;
+  }
 
   /// @brief 要素のリストを得る．
-  const vector<pair<int, int>>&
-  elem_list() const;
+  const vector<pair<SizeType, SizeType>>&
+  elem_list() const
+  {
+    return mElemList;
+  }
 
 
 public:
@@ -139,22 +189,21 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 最小被覆問題を解く．
-  /// @param[out] solution 選ばれた列集合
-  /// @param[in] option オプション文字列
   /// @return 解のコスト
   int
-  exact(vector<int>& solution,
-	const string& option = string());
+  exact(
+    vector<SizeType>& solution,     ///< [out] 選ばれた列集合
+    const string& option = string{} ///< [in] オプション文字列
+  );
 
   /// @brief ヒューリスティックで最小被覆問題を解く．
-  /// @param[out] solution 選ばれた列集合
-  /// @param[in] algorithm アルゴリズム名
-  /// @param[in] option オプション文字列
   /// @return 解のコスト
   int
-  heuristic(vector<int>& solution,
-	    const string& algorithm = string(),
-	    const string& option = string());
+  heuristic(
+    vector<SizeType>& solution,         ///< [out] 選ばれた列集合
+    const string& algorithm = string{},	///< [in] アルゴリズム名
+    const string& option = string{}	///< [in] オプション文字列
+  );
 
 
 private:
@@ -169,12 +218,13 @@ private:
   sanity_check();
 
   /// @brief 解を検証する．
-  /// @param[out] uncov_row_list 被覆されていない行のリスト
   /// @retval true 正しい解だった．
   /// @retval false 被覆されていない行があった．
   bool
-  verify_solution(const vector<int>& solution,
-		  vector<int>& uncov_row_list);
+  verify_solution(
+    const vector<SizeType>& solution, ///< [in] 解のリスト
+    vector<SizeType>& uncov_row_list  ///< [in] 被覆されていない行のリスト
+  );
 
 
 private:
@@ -183,10 +233,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 行数
-  int mRowSize;
+  SizeType mRowSize;
 
   // 列数
-  int mColSize;
+  SizeType mColSize;
 
   // 列のコスト配列
   // サイズは mColSize
@@ -194,148 +244,9 @@ private:
 
   // 要素のリスト
   // (row_pos, col_pos) のペアのリスト
-  vector<pair<int, int>> mElemList;
+  vector<pair<SizeType, SizeType>> mElemList;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-inline
-MinCov::MinCov()
-{
-  mRowSize = 0;
-  mColSize = 0;
-}
-
-// @brief コンストラクタ
-// @param[in] row_size 行数
-// @param[in] col_size 列数
-inline
-MinCov::MinCov(int row_size,
-	       int col_size) :
-  mRowSize(row_size),
-  mColSize(col_size),
-  mColCostArray(col_size, 1)
-{
-}
-
-// @brief コンストラクタ
-// @param[in] row_size 行数
-// @param[in] col_cost_array 列のコストの配列
-inline
-MinCov::MinCov(int row_size,
-	       const vector<int>& col_cost_array) :
-  mRowSize(row_size),
-  mColSize(col_cost_array.size()),
-  mColCostArray(col_cost_array)
-{
-}
-
-// @brief デストラクタ
-inline
-MinCov::~MinCov()
-{
-}
-
-// @brief 問題のサイズを設定する．
-// @param[in] row_size 行数
-// @param[in] col_size 列数
-inline
-void
-MinCov::resize(int row_size,
-	       int col_size)
-{
-  mRowSize = row_size;
-  mColSize = col_size;
-  mColCostArray.clear();
-  mColCostArray.resize(col_size, 1);
-  mElemList.clear();
-}
-
-// @brief 問題のサイズとコスト配列を設定する．
-// @param[in] row_size 行数
-// @param[in] col_cost_array 列のコスト配列
-inline
-void
-MinCov::resize(int row_size,
-	       const vector<int>& col_cost_array)
-{
-  mRowSize = row_size;
-  mColSize = col_cost_array.size();
-  mColCostArray = col_cost_array;
-  mElemList.clear();
-}
-
-// @brief 列のコストを設定する
-// @param[in] col_pos 追加する要素の列番号
-// @param[in] cost コスト
-inline
-void
-MinCov::set_col_cost(int col_pos,
-		     int cost)
-{
-  ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
-
-  mColCostArray[col_pos] = cost;
-}
-
-// @brief 要素を追加する．
-// @param[in] row_pos 追加する要素の行番号
-// @param[in] col_pos 追加する要素の列番号
-inline
-void
-MinCov::insert_elem(int row_pos,
-		    int col_pos)
-{
-  mElemList.push_back(make_pair(row_pos, col_pos));
-}
-
-// @brief 行数を得る．
-inline
-int
-MinCov::row_size() const
-{
-  return mRowSize;
-}
-
-// @brief 列数を得る．
-inline
-int
-MinCov::col_size() const
-{
-  return mColSize;
-}
-
-// @brief 列のコストを得る．
-// @param[in] col_pos 列番号 ( 0 <= col_pos < col_size )
-inline
-int
-MinCov::col_cost(int col_pos) const
-{
-  ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
-
-  return mColCostArray[col_pos];
-}
-
-// @brief 列のコスト配列を得る．
-inline
-const vector<int>&
-MinCov::col_cost_array() const
-{
-  return mColCostArray;
-}
-
-// @brief 要素のリストを得る．
-inline
-const vector<pair<int, int>>&
-MinCov::elem_list() const
-{
-  return mElemList;
-}
 
 END_NAMESPACE_YM_MINCOV
 

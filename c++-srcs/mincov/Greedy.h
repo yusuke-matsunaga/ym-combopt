@@ -5,9 +5,8 @@
 /// @brief Greedy のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 
@@ -28,26 +27,20 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 最小被覆問題を解く．
-  /// @param[in] matrix 対象の行列
-  /// @param[in] selector 列を選ぶ関数オブジェクト
-  /// @param[out] solution 選ばれた列集合
   static
   void
-  solve(McMatrix& matrix,
-	Selector& selector,
-	vector<int>& solution);
+  solve(
+    McMatrix& matrix,          ///< [in] 対象の行列
+    Selector& selector,	       ///< [in] 列を選ぶ関数オブジェクト
+    vector<SizeType>& solution ///< [out] 選ばれた列集合
+  );
 
   /// @brief デバッグフラグをセットする．
-  /// @param[in] flag セットする値
   static
   void
-  set_debug_flag(bool flag);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  set_debug_flag(
+    bool flag ///< [in] セットする値
+  );
 
 
 private:

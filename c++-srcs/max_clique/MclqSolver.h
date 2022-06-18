@@ -5,9 +5,8 @@
 /// @brief MclqSolver のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/udgraph_nsdef.h"
 
@@ -25,8 +24,9 @@ class MclqSolver
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  MclqSolver(const UdGraph& graph);
+  MclqSolver(
+    const UdGraph& graph ///< [in] 対象のグラフ
+  );
 
   /// @brief デストラクタ
   ~MclqSolver();
@@ -38,18 +38,16 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief greedy ヒューリスティックで解を求める．
-  int
-  greedy(vector<int>& node_set);
+  SizeType
+  greedy(
+    vector<SizeType>& node_set
+  );
 
   /// @brief 分枝限定法を用いた厳密解を求める．
-  int
-  exact(vector<int>& node_set);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  SizeType
+  exact(
+    vector<SizeType>& node_set
+  );
 
 
 private:
@@ -58,7 +56,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノード数
-  int mNodeNum;
+  SizeType mNodeNum;
 
   // ノードの配列
   MclqNode* mNodeArray;

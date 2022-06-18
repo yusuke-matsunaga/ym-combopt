@@ -5,9 +5,8 @@
 /// @brief Dsatur のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2013, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2013, 2015, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/udgraph_nsdef.h"
 #include "coloring/ColGraph.h"
@@ -27,14 +26,15 @@ class Dsatur :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  Dsatur(const UdGraph& graph);
+  Dsatur(
+    const UdGraph& graph ///< [in] 対象のグラフ
+  );
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  /// @param[in] color_map 部分的な彩色結果
-  Dsatur(const UdGraph& graph,
-	 const vector<int>& color_map);
+  Dsatur(
+    const UdGraph& graph,             ///< [in] 対象のグラフ
+    const vector<SizeType>& color_map ///< [in] 部分的な彩色結果
+  );
 
   /// @brief デストラクタ
   ~Dsatur();
@@ -46,10 +46,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 彩色する．
-  /// @param[out] color_map ノードに対する彩色結果(=int)を収める配列
   /// @return 彩色数を返す．
-  int
-  coloring(vector<int>& color_map);
+  SizeType
+  coloring(
+    vector<SizeType>& color_map ///< [out] ノードに対する彩色結果(=int)を収める配列
+  );
 
 
 private:
@@ -63,8 +64,10 @@ private:
 
   /// @brief ノードに色を割り当てる．
   void
-  color_node(int node_id,
-	     int color);
+  color_node(
+    SizeType node_id,
+    SizeType color
+  );
 
 
 private:

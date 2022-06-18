@@ -3,9 +3,8 @@
 /// @brief MinCov の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/MinCov.h"
 #include "Greedy.h"
@@ -66,12 +65,11 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief 最小被覆問題を解く．
-// @param[out] solution 選ばれた列集合
-// @param[in] option オプション文字列
-// @return 解のコスト
 int
-MinCov::exact(vector<int>& solution,
-	      const string& option)
+MinCov::exact(
+  vector<SizeType>& solution,
+  const string& option
+)
 {
   sanity_check();
 
@@ -178,7 +176,7 @@ MinCov::exact(vector<int>& solution,
   int cost = solver.solve(solution);
 
   { // 結果が正しいか検証しておく．
-    vector<int> uncov_row_list;
+    vector<SizeType> uncov_row_list;
     bool stat = verify_solution(solution, uncov_row_list);
     if ( !stat ) {
       for ( auto row: uncov_row_list ) {
@@ -193,13 +191,12 @@ MinCov::exact(vector<int>& solution,
 BEGIN_NONAMESPACE
 
 // @brief greedy アルゴリズムで解を求める．
-// @param[in] option オプション文字列
-// @param[out] solution 解
-// @return 解のコスト
 void
-greedy(McMatrix& matrix,
-       const string& option,
-       vector<int>& solution)
+greedy(
+  McMatrix& matrix,
+  const string& option,
+  vector<SizeType>& solution
+)
 {
   // ここの仕事はオプション文字列を解析して
   // Greedy を呼ぶこと．
@@ -253,27 +250,25 @@ greedy(McMatrix& matrix,
 
 END_NONAMESPACE
 
+
 // @brief ヒューリスティックで最小被覆問題を解く．
-// @param[out] solution 選ばれた列集合
-// @param[in] algorithm ヒューリスティックの名前
-// @param[in] option オプション文字列
-// @return 解のコスト
 int
-MinCov::heuristic(vector<int>& solution,
-		  const string& algorithm,
-		  const string& option)
+MinCov::heuristic(
+  vector<SizeType>& solution,
+  const string& algorithm,
+  const string& option)
 {
   sanity_check();
 
-  McMatrix matrix(row_size(), mColCostArray, mElemList);
+  McMatrix matrix{row_size(), mColCostArray, mElemList};
 
   // 最初に縮約を行う．
-  vector<int> dummy;
+  vector<SizeType> dummy;
   matrix.reduce_loop(solution, dummy);
 
   // この時点で解けていたらヒューリスティックは必要ない．
   if ( matrix.active_row_num() > 0 ) {
-    vector<int> solution1;
+    vector<SizeType> solution1;
     if ( algorithm == string("greedy") ) {
       greedy(matrix, option, solution1);
     }
@@ -286,7 +281,7 @@ MinCov::heuristic(vector<int>& solution,
   }
 
   { // 結果が正しいか検証しておく．
-    vector<int> uncov_row_list;
+    vector<SizeType> uncov_row_list;
     bool stat = verify_solution(solution, uncov_row_list);
     if ( !stat ) {
       for ( auto row: uncov_row_list ) {
@@ -299,14 +294,12 @@ MinCov::heuristic(vector<int>& solution,
 }
 
 // @brief mElemList をチェックする．
-//
-// 要素を持たない行があったら警告する．
 void
 MinCov::sanity_check()
 {
   vector<bool> row_mark(row_size(), false);
   for ( auto p: mElemList ) {
-    int row_pos = p.first;
+    SizeType row_pos = p.first;
     row_mark[row_pos] = true;
   }
   for ( auto row_pos: Range(row_size()) ) {
@@ -317,14 +310,13 @@ MinCov::sanity_check()
 }
 
 // @brief 解を検証する．
-// @param[out] uncov_row_list 被覆されていない行のリスト
-// @retval true 正しい解だった．
-// @retval false 被覆されていない行があった．
 bool
-MinCov::verify_solution(const vector<int>& solution,
-			vector<int>& uncov_row_list)
+MinCov::verify_solution(
+  const vector<SizeType>& solution,
+  vector<SizeType>& uncov_row_list
+)
 {
-  McMatrix matrix(row_size(), mColCostArray, mElemList);
+  McMatrix matrix{row_size(), mColCostArray, mElemList};
   vector<bool> row_mark(row_size(), false);
   for ( auto col: solution ) {
     for ( auto row: matrix.col_list(col) ) {

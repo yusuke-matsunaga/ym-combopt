@@ -5,7 +5,7 @@
 /// @brief UdGraph のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2015, 2016, 2018, 2021 Yusuke Matsunaga
+/// Copyright (C) 2015, 2016, 2018, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/udgraph_nsdef.h"
@@ -188,11 +188,11 @@ public:
 
   /// @brief 彩色問題を解く
   /// @return 彩色数を返す．
-  int
+  SizeType
   coloring(
-    vector<int>& color_map, ///< [out] ノードに対する彩色結果(=int)を収める配列
-    const string& algorithm ///< [in] アルゴリズム名
-    = string()              ///< 空の時にはデフォルトのアルゴリズムを用いる．
+    vector<SizeType>& color_map, ///< [out] ノードに対する彩色結果(=SizeType)を収める配列
+    const string& algorithm      ///< [in] アルゴリズム名
+    = string{}                   ///< 空の時にはデフォルトのアルゴリズムを用いる．
   ) const;
 
 
@@ -257,24 +257,24 @@ write_dimacs(
 /// @brief (最大)独立集合を求める．
 /// @return 要素数を返す．
 extern
-int
+SizeType
 independent_set(
-  const UdGraph& graph,    ///< [in] 対象のグラフ
-  vector<int>& node_set,   ///< [out] 独立集合の要素(ノード番号)を収める配列
-  const string& algorithm  ///< [in] アルゴリズム名
-  = string()               ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
+  const UdGraph& graph,        ///< [in] 対象のグラフ
+  vector<SizeType>& node_set,  ///< [out] 独立集合の要素(ノード番号)を収める配列
+  const string& algorithm      ///< [in] アルゴリズム名
+  = string{}                   ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
 );
 
 /// @relates UdGraph
 /// @brief (最大)クリークを求める．
 /// @return 要素数を返す．
 extern
-int
+SizeType
 max_clique(
-  const UdGraph& graph,    ///< [in] 対象のグラフ
-  vector<int>& node_set,   ///< [out] クリークの要素(ノード番号)を収める配列
-  const string& algorithm  ///< [in] アルゴリズム名
-  = string()		   ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
+  const UdGraph& graph,       ///< [in] 対象のグラフ
+  vector<SizeType>& node_set, ///< [out] クリークの要素(ノード番号)を収める配列
+  const string& algorithm     ///< [in] アルゴリズム名
+  = string{}		      ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
 );
 
 END_NAMESPACE_YM

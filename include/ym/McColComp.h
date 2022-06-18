@@ -5,9 +5,8 @@
 /// @brief McColComp のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 
@@ -33,23 +32,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief col1 の代わりに col2 を使っても全体のコストが上がらない時に true を返す．
-  /// @param[in] col1, col2 対象の列番号
   virtual
   bool
-  operator()(int col1,
-	     int col2) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
+  operator()(
+    SizeType col1, ///< [in] 列番号1
+    SizeType col2  ///< [in] 列番号2
+  ) const;
 
 };
 

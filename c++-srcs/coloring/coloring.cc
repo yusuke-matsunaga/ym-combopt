@@ -17,10 +17,10 @@
 BEGIN_NAMESPACE_YM
 
 // dsatur で彩色問題を解く．
-int
+SizeType
 dsatur(
   const UdGraph& graph,
-  vector<int>& color_map
+  vector<SizeType>& color_map
 )
 {
   nsUdGraph::Dsatur dsatsolver(graph);
@@ -28,20 +28,20 @@ dsatur(
 }
 
 // tabucol で彩色問題を解く．
-int
+SizeType
 tabucol(
   const UdGraph& graph,
-  vector<int>& color_map
+  vector<SizeType>& color_map
 )
 {
-  int k0 = dsatur(graph, color_map);
-  int limit = 100000;
-  int L = 9;
+  SizeType k0 = dsatur(graph, color_map);
+  SizeType limit = 100000;
+  SizeType L = 9;
   double alpha = 0.6;
-  int k1 = k0;
-  for ( int k = k0; k > 0; -- k ) {
-    nsUdGraph::TabuCol tabucol(graph, k);
-    vector<int> color_map1;
+  SizeType k1 = k0;
+  for ( SizeType k = k0; k > 0; -- k ) {
+    nsUdGraph::TabuCol tabucol{graph, k};
+    vector<SizeType> color_map1;
     if ( tabucol.coloring(limit, L, alpha, color_map1) ) {
       k1 = k;
       color_map = color_map1;
@@ -53,9 +53,9 @@ tabucol(
   return k1;
 }
 
-int
+SizeType
 UdGraph::coloring(
-  vector<int>& color_map,
+  vector<SizeType>& color_map,
   const string& algorithm
 ) const
 {
@@ -64,13 +64,13 @@ UdGraph::coloring(
   }
   else if ( algorithm == "iscov" ) {
     nsUdGraph::IsCov iscsolver(*this);
-    int c = iscsolver.covering(500, color_map);
+    SizeType c = iscsolver.covering(500, color_map);
     nsUdGraph::Dsatur dsatsolver(*this, color_map);
     return dsatsolver.coloring(color_map);
   }
   else if ( algorithm == "isx" ) {
     nsUdGraph::Isx isxsolver(*this);
-    int c = isxsolver.coloring(500, color_map);
+    SizeType c = isxsolver.coloring(500, color_map);
     //cout << "isx end: c = " << c << endl;
     nsUdGraph::Dsatur dsatsolver(*this, color_map);
     //return dsatsolver.coloring(color_map);
@@ -80,7 +80,7 @@ UdGraph::coloring(
   }
   else if ( algorithm == "isx2" ) {
     nsUdGraph::Isx2 isxsolver(*this);
-    int c = isxsolver.coloring(500, color_map);
+    SizeType c = isxsolver.coloring(500, color_map);
     //cout << "isx2 end: c = " << c << endl;
     nsUdGraph::Dsatur dsatsolver(*this, color_map);
     //return dsatsolver.coloring(color_map);

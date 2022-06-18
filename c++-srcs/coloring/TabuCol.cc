@@ -3,9 +3,8 @@
 /// @brief TabuCol の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "TabuCol.h"
 #include "ym/Range.h"
@@ -18,25 +17,22 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-// @param[in] k 彩色数
-TabuCol::TabuCol(const UdGraph& graph,
-		 int k) :
-  ColGraph(graph),
-  mK(k)
+TabuCol::TabuCol(
+  const UdGraph& graph,
+  SizeType k
+) : ColGraph{graph},
+    mK(k)
 {
   init();
 }
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-// @param[in] color_map 部分的な彩色結果
-// @param[in] k 彩色数
-TabuCol::TabuCol(const UdGraph& graph,
-		 const vector<int>& color_map,
-		 int k) :
-  ColGraph(graph, color_map),
-  mK(k)
+TabuCol::TabuCol(
+  const UdGraph& graph,
+  const vector<SizeType>& color_map,
+  SizeType k
+) : ColGraph{graph, color_map},
+    mK(k)
 {
   init();
 }
@@ -45,9 +41,9 @@ TabuCol::TabuCol(const UdGraph& graph,
 void
 TabuCol::init()
 {
-  int n = node_num();
+  SizeType n = node_num();
   mGammaTable = new int[n * mK];
-  mTabuMatrix = new int[n * mK];
+  mTabuMatrix = new SizeType[n * mK];
 }
 
 // @brief デストラクタ
@@ -58,40 +54,33 @@ TabuCol::~TabuCol()
 }
 
 // @brief 彩色が可能か調べる．
-// @param[in] iter_limit 最大の繰り返し回数
-// @param[in] L タブー期間の基本パラメータ
-// @param[in] alpha タブ期間の節点数依存パラメータ
-// @param[out] color_map 彩色結果を入れる配列
-// @retval true 彩色できた．
-// @retval false 彩色できなかった．
-//
-// color_map[i] には i 番目の節点の色が入る．
 bool
-TabuCol::coloring(int iter_limit,
-		  int L,
-		  double alpha,
-		  vector<int>& color_map)
+TabuCol::coloring(
+  SizeType iter_limit,
+  SizeType L,
+  double alpha,
+  vector<SizeType>& color_map)
 {
   gen_random_solution();
 
   for ( mIter = 0; mIter < iter_limit; ++ mIter ) {
-    int nc = conflict_num();
+    SizeType nc = conflict_num();
     if ( nc == 0 ) {
+      // 衝突なく彩色ができたら終わる．
       break;
     }
 
     // 最良ムーブを取り出す．
     auto p = get_move();
-    int node_id = p.first;
-    int col = p.second;
+    SizeType node_id = p.first;
+    SizeType col = p.second;
 
     // 逆のムーブをタブーリストに加える．
-    int tenure = L + static_cast<int>(alpha * nc);
+    SizeType tenure = L + static_cast<SizeType>(alpha * nc);
     add_tabu(node_id, col, tenure);
 
     // ムーブに従って色を変える．
-    int old_col = color(node_id);
-
+    SizeType old_col = color(node_id);
     ASSERT_COND( old_col != col );
 
     set_color(node_id, col);
@@ -111,12 +100,12 @@ TabuCol::coloring(int iter_limit,
 void
 TabuCol::gen_random_solution()
 {
-  int n = node_num();
+  SizeType n = node_num();
 
   // ランダムに色を割り当てる．
   for ( auto node_id: node_list() ) {
-    std::uniform_int_distribution<int> rd_int(0, mK - 1);
-    int color = rd_int(mRandGen) + 1;
+    std::uniform_int_distribution<SizeType> rd_int(1, mK);
+    SizeType color = rd_int(mRandGen);
     set_color(node_id, color);
   }
 
@@ -125,7 +114,7 @@ TabuCol::gen_random_solution()
     mGammaTable[i] = 0;
   }
   for ( auto node_id: node_list() ) {
-    int c = color(node_id);
+    SizeType c = color(node_id);
     for ( auto node1_id: adj_list(node_id) ) {
       ++ mGammaTable[encode(node1_id, c)];
     }
@@ -138,12 +127,12 @@ TabuCol::gen_random_solution()
 }
 
 // @brief γ(node, col) が最小となる move を得る．
-pair<int, int>
+pair<SizeType, SizeType>
 TabuCol::get_move()
 {
-  int nc = conflict_num();
-  int min_val = node_num() + 1;
-  vector<pair<int, int> > cand_list;
+  SizeType nc = conflict_num();
+  SizeType min_val = node_num() + 1;
+  vector<pair<SizeType, SizeType>> cand_list;
   for ( auto node_id: node_list() ) {
     int g = gamma(node_id, color(node_id));
     if ( g == 0 ) {
@@ -167,7 +156,7 @@ TabuCol::get_move()
       }
       else {
 	// タブーリストで禁止されていた．
-	if ( d == -nc ) {
+	if ( d == - nc ) {
 	  // だけどこれ一発で解決するなら許しちゃう．
 	  return make_pair(node_id, col1);
 	}
@@ -175,23 +164,23 @@ TabuCol::get_move()
     }
   }
 
-  int n = cand_list.size();
+  SizeType n = cand_list.size();
   ASSERT_COND( n > 0 );
   if ( n == 1 ) {
     return cand_list[0];
   }
   else {
-    std::uniform_int_distribution<int> rd_int(0, n - 1);
-    int r = rd_int(mRandGen);
+    std::uniform_int_distribution<SizeType> rd_int(0, n - 1);
+    SizeType r = rd_int(mRandGen);
     return cand_list[r];
   }
 }
 
 // @brief conflict vertices の個数を数える．
-int
+SizeType
 TabuCol::conflict_num() const
 {
-  int n = 0;
+  SizeType n = 0;
   for ( auto node_id: node_list() ) {
     int g = gamma(node_id, color(node_id));
 #if 0

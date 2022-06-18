@@ -5,9 +5,8 @@
 /// @brief MclqNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2014, 2015, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/udgraph_nsdef.h"
 
@@ -26,7 +25,10 @@ public:
   MclqNode() = default;
 
   /// @brief デストラクタ
-  ~MclqNode();
+  ~MclqNode()
+  {
+    delete [] mAdjLink;
+  }
 
 
 public:
@@ -35,49 +37,89 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容を初期化する．
-  /// @param[in] id ノード番号
   void
-  set(int id);
+  set(
+    SizeType id ///< [in] ノード番号
+  )
+  {
+    mId = id;
+  }
 
   /// @brief 隣接ノードの情報を設定する．
   void
-  set_adj_link(int adj_num,
-	       MclqNode** adj_link);
+  set_adj_link(
+    SizeType adj_num,
+    MclqNode** adj_link
+  )
+  {
+    mAdjLink = adj_link;
+    mAdjSize = adj_num;
+    mNum = adj_num;
+  }
 
   /// @brief ノード番号を返す．
-  int
-  id() const;
+  SizeType
+  id() const
+  {
+    return mId;
+  }
 
   /// @brief 削除済みフラグを返す．
   bool
-  deleted() const;
+  deleted() const
+  {
+    return mHeapIdx == 0;
+  }
 
   /// @brief 隣接するノード数を返す．
-  int
-  adj_size() const;
+  SizeType
+  adj_size() const
+  {
+    return mAdjSize;
+  }
 
   /// @brief 隣接するノードを返す．
-  /// @param[in] pos 位置番号 ( 0 <= pos < adj_size() )
   MclqNode*
-  adj_node(int pos) const;
+  adj_node(
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < adj_size() )
+  ) const
+  {
+    ASSERT_COND( pos >= 0 && pos < adj_size() );
+
+    return mAdjLink[pos];
+  }
 
   /// @brief 有効な隣接ノード数を返す．
-  int
-  adj_num() const;
+  SizeType
+  adj_num() const
+  {
+    return mNum;
+  }
 
   /// @brief adj_num を1減らす
   void
-  dec_adj_num();
+  dec_adj_num()
+  {
+    -- mNum;
+  }
 
   /// @brief ヒープ上の位置(+1)を返す．
   ///
   /// ヒープになければ 0 を返す．
-  int
-  heap_location() const;
+  SizeType
+  heap_location() const
+  {
+    return mHeapIdx;
+  }
 
   /// @brief ヒープ上の位置を設定する．
   void
-  set_heap_location(int pos);
+  set_heap_location(
+    SizeType pos
+  )
+  {
+    mHeapIdx = pos;
+  }
 
 
 private:
@@ -86,23 +128,23 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノード番号
-  int mId;
+  SizeType mId;
 
   // 隣接するノードのポインタ配列
   MclqNode** mAdjLink{nullptr};
 
   // mAdjLink のサイズ
-  int mAdjSize{0};
+  SizeType mAdjSize{0};
 
   // mAdjLink 中の有効な要素数
-  int mNum{0};
+  SizeType mNum{0};
 
   // ヒープ上のインデックス
-  int mHeapIdx{0};
+  SizeType mHeapIdx{0};
 
 };
 
-
+#if 0
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
@@ -202,6 +244,7 @@ MclqNode::set_heap_location(int pos)
 {
   mHeapIdx = pos;
 }
+#endif
 
 END_NAMESPACE_YM_UDGRAPH
 

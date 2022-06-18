@@ -5,9 +5,8 @@
 /// @brief Isx のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/udgraph_nsdef.h"
 #include "coloring/ColGraph.h"
@@ -26,8 +25,9 @@ class Isx :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  Isx(const UdGraph& graph);
+  Isx(
+    const UdGraph& graph ///< [in] 対象のグラフ
+  );
 
   /// @brief デストラクタ
   ~Isx();
@@ -39,14 +39,14 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief independent set extraction を用いた coloring を行う．
-  /// @param[in] limit 残りのノード数がこの値を下回ったら処理をやめる．
-  /// @param[out] color_map 彩色結果を収める配列
   /// @return 彩色数を返す．
   ///
   /// ここでは部分的な彩色を行う．
-  int
-  coloring(int limit,
-	   vector<int>& color_map);
+  SizeType
+  coloring(
+    SizeType limit,             ///< [in] 残りのノード数がこの値を下回ったら処理をやめる．
+    vector<SizeType>& color_map	///< [out] 彩色結果を収める配列
+  );
 
 
 private:
@@ -65,21 +65,17 @@ private:
   void
   init_cand_list();
 
-  /// @brief 集合に加えるノ選ぶ．
-  ///
-  /// - 独立集合に隣接していないノードの内，隣接ノード数の少ないものを選ぶ．
-  /// - 追加できるノードがない場合は -1 を返す．
-  int
-  select_node();
-
   /// @brief 候補リストを更新する．
-  /// @param[in] node_id 新たに加わったノード
   void
-  update_cand_list(int node_id);
+  update_cand_list(
+    SizeType node_id ///< [in] 新たに加わったノード
+  );
 
   /// @brief ランダムに選ぶ．
-  int
-  random_select(const vector<int>& cand_list);
+  SizeType
+  random_select(
+    const vector<SizeType>& cand_list ///< [in] 候補のノード番号
+  );
 
 
 private:
@@ -88,7 +84,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 候補ノードのリスト
-  vector<int> mCandList;
+  vector<SizeType> mCandList;
 
   // 候補ノードの印
   // サイズは node_num()
@@ -96,23 +92,15 @@ private:
 
   // 候補ノードの隣接数
   // サイズは node_num()
-  vector<int> mAdjCount;
-
-  // select_node() で用いる作業用リスト
-  vector<int> mTmpList;
+  vector<SizeType> mAdjCount;
 
   // 現在の独立集合
-  vector<int> mIndepSet;
+  vector<SizeType> mIndepSet;
 
   // 乱数生成器
   std::mt19937 mRandGen;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
 
 END_NAMESPACE_YM_UDGRAPH
 

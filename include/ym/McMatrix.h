@@ -5,9 +5,8 @@
 /// @brief McMatrix のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 #include "ym/McMatrixImpl.h"
@@ -34,48 +33,66 @@ class McMatrix
 public:
 
   /// @brief 空のコンストラクタ
-  McMatrix();
+  McMatrix(
+  ) : mImpl{new McMatrixImpl{0, 0}}
+  {
+  }
 
   /// @brief コンストラクタ
-  /// @param[in] row_size 行数
-  /// @param[in] col_size 列数
-  /// @param[in] elem_list 要素のリスト
   ///
   /// * elem_list は (row_pos, col_pos) の pair のリスト
-  McMatrix(int row_size,
-	   int col_size,
-	   const vector<pair<int, int>>& elem_list = vector<pair<int, int>>());
+  McMatrix(
+    SizeType row_size,                                ///< [in] 行数
+    SizeType col_size,				      ///< [in] 列数
+    const vector<pair<SizeType, SizeType>>& elem_list ///< [in] 要素のリスト
+    = vector<pair<SizeType, SizeType>>{}
+  ) : mImpl{new McMatrixImpl{row_size, col_size, elem_list}}
+  {
+  }
 
   /// @brief コンストラクタ
-  /// @param[in] row_size 行数
-  /// @param[in] cost_array コストの配列
-  /// @param[in] elem_list 要素のリスト
   ///
   /// * elem_list は (row_pos, col_pos) の pair のリスト
-  McMatrix(int row_size,
-	   const vector<int>& cost_array,
-	   const vector<pair<int, int>>& elem_list = vector<pair<int, int>>());
+  McMatrix(
+    SizeType row_size,                                ///< [in] 行数
+    const vector<int>& cost_array,                    ///< [in] コストの配列
+    const vector<pair<SizeType, SizeType>>& elem_list ///< [in] 要素のリスト
+    = vector<pair<SizeType, SizeType>>{}
+  ) : mImpl{new McMatrixImpl{row_size, cost_array, elem_list}}
+  {
+  }
 
   /// @brief コピーコンストラクタ
-  /// @param[in] src コピー元のオブジェクト
-  McMatrix(const McMatrix& src);
+  McMatrix(
+    const McMatrix& src ///< [in] コピー元のオブジェクト
+  ) : mImpl{new McMatrixImpl(*src.mImpl)}
+  {
+  }
 
   /// @brief コピー代入演算子
-  /// @param[in] src コピー元のオブジェクト
   McMatrix&
-  operator=(const McMatrix& src);
+  operator=(
+    const McMatrix& src ///< [in] コピー元のオブジェクト
+  )
+  {
+    mImpl = unique_ptr<McMatrixImpl>{new McMatrixImpl{*src.mImpl}};
+
+    return *this;
+  }
 
   /// @brief ムーブコンストラクタ
-  /// @param[in] src ムーブ元のオブジェクト
-  McMatrix(McMatrix&& src) = default;
+  McMatrix(
+    McMatrix&& src ///< [in] ムーブ元のオブジェクト
+  ) = default;
 
   /// @brief ムーブ代入演算子
-  /// @param[in] src ムーブ元のオブジェクト
   McMatrix&
-  operator=(McMatrix&& src) = default;
+  operator=(
+    McMatrix&& src ///< [in] ムーブ元のオブジェクト
+  ) = default;
 
   /// @brief デストラクタ
-  ~McMatrix();
+  ~McMatrix() = default;
 
 
 public:
@@ -84,82 +101,146 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 行数を返す．
-  int
-  row_size() const;
+  SizeType
+  row_size() const
+  {
+    return mImpl->row_size();
+  }
 
   /// @brief アクティブな行の数
-  int
-  active_row_num() const;
+  SizeType
+  active_row_num() const
+  {
+    return mImpl->active_row_num();
+  }
 
   /// @brief アクティブな行のヘッダのリスト
   const McHeadList&
-  row_head_list() const;
+  row_head_list() const
+  {
+    return mImpl->row_head_list();
+  }
 
   /// @brief 行方向のリストを返す．
-  /// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
   McRowList
-  row_list(int row_pos) const;
+  row_list(
+    SizeType row_pos ///< [in] 行番号 ( 0 <= row_pos < row_size() )
+  ) const
+  {
+    return mImpl->row_list(row_pos);
+  }
 
   /// @brief 行の要素数を返す．
-  /// @param[in] row_pos 行番号 ( 0 <= row_pos < row_size() )
   int
-  row_elem_num(int row_pos) const;
+  row_elem_num(
+    SizeType row_pos ///< [in] 行番号 ( 0 <= row_pos < row_size() )
+  ) const
+  {
+    return mImpl->row_elem_num(row_pos);
+  }
 
   /// @brief 行の削除フラグを調べる．
   bool
-  row_deleted(int row_pos) const;
+  row_deleted(
+    SizeType row_pos ///< [in] 行番号 ( 0 <= row_pos < row_size() )
+  ) const
+  {
+    return mImpl->row_deleted(row_pos);
+  }
 
   /// @brief 列数を返す．
-  int
-  col_size() const;
+  SizeType
+  col_size() const
+  {
+    return mImpl->col_size();
+  }
 
   /// @brief アクティブな列の数
-  int
-  active_col_num() const;
+  SizeType
+  active_col_num() const
+  {
+    return mImpl->active_col_num();
+  }
 
   /// @brief アクティブな列のヘッダのリスト
   const McHeadList&
-  col_head_list() const;
+  col_head_list() const
+  {
+    return mImpl->col_head_list();
+  }
 
   /// @brief 列方向のリストを返す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
   McColList
-  col_list(int col_pos) const;
+  col_list(
+    SizeType col_pos ///< [in] 列位置 ( 0 <= col_pos < col_size() )
+  ) const
+  {
+    return mImpl->col_list(col_pos);
+  }
 
   /// @brief 列の要素数を返す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  int
-  col_elem_num(int col_pos) const;
+  SizeType
+  col_elem_num(
+    SizeType col_pos ///< [in] 列位置 ( 0 <= col_pos < col_size() )
+  ) const
+  {
+    return mImpl->col_elem_num(col_pos);
+  }
 
   /// @brief 列の削除フラグを調べる．
   bool
-  col_deleted(int col_pos) const;
+  col_deleted(
+    SizeType col_pos ///< [in] 列位置 ( 0 <= col_pos < col_size() )
+  ) const
+  {
+    return mImpl->col_deleted(col_pos);
+  }
 
   /// @brief 列のコストを取り出す．
-  /// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-  int
-  col_cost(int col_pos) const;
+  SizeType
+  col_cost(
+    SizeType col_pos ///< [in] 列位置 ( 0 <= col_pos < col_size() )
+  ) const
+  {
+    return mImpl->col_cost(col_pos);
+  }
 
   /// @brief 列のコストの配列を取り出す．
   const int*
-  col_cost_array() const;
+  col_cost_array() const
+  {
+    return mImpl->col_cost_array();
+  }
 
   /// @brief 列集合のコストを返す．
-  /// @param[in] col_list 列のリスト
+
   int
-  cost(const vector<int>& col_list) const;
+  cost(
+    const vector<SizeType>& col_list ///< [in] 列のリスト
+  ) const
+  {
+    return mImpl->cost(col_list);
+  }
 
   /// @brief 列集合がカバーになっているか検証する．
-  /// @param[in] col_list 列のリスト
   /// @retval true col_list がカバーになっている．
   /// @retval false col_list でカバーされていない行がある．
   bool
-  verify(const vector<int>& col_list) const;
+  verify(
+    const vector<SizeType>& col_list ///< [in] 列のリスト
+  ) const
+  {
+    return mImpl->verify(col_list);
+  }
 
   /// @brief 内容を出力する．
-  /// @param[in] s 出力先のストリーム
   void
-  print(ostream& s) const;
+  print(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const
+  {
+    mImpl->print(s);
+  }
 
 
 public:
@@ -170,30 +251,43 @@ public:
   /// @brief 内容をクリアする．
   /// @note 行/列のサイズは不変
   void
-  clear();
+  clear()
+  {
+    mImpl->clear();
+  }
 
   /// @brief サイズを変更する．
-  /// @param[in] row_size 行数
-  /// @param[in] col_size 列数
   ///
   /// 内容はクリアされる．
   void
-  resize(int row_size,
-	 int col_size);
+  resize(
+    SizeType row_size, ///< [in] 行数
+    SizeType col_size  ///< [in] 列数
+  )
+  {
+    mImpl = unique_ptr<McMatrixImpl>{new McMatrixImpl(row_size, col_size)};
+  }
 
   /// @brief 要素を追加する．
-  /// @param[in] row_pos 追加する要素の行番号
-  /// @param[in] col_pos 追加する要素の列番号
   void
-  insert_elem(int row_pos,
-	      int col_pos);
+  insert_elem(
+    SizeType row_pos, ///< [in] 追加する要素の行番号
+    SizeType col_pos  ///< [in] 追加する要素の列番号
+  )
+  {
+    mImpl->insert_elem(row_pos, col_pos);
+  }
 
   /// @brief 要素を追加する．
-  /// @param[in] elem_list 要素のリスト
   ///
   /// * 要素は (row_pos, col_pos) のペアで表す．
   void
-  insert_elem(const vector<pair<int, int>>& elem_list);
+  insert_elem(
+    const vector<pair<SizeType, SizeType>>& elem_list ///< [in] 要素のリスト
+  )
+  {
+    mImpl->insert_elem(elem_list);
+  }
 
 
 public:
@@ -202,14 +296,15 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 列 col_pos によって被覆される行を削除し，列も削除する．
-  /// @param[in] col_pos 選択する列番号
   void
-  select_col(int col_pos);
+  select_col(
+    SizeType col_pos ///< [in] 選択する列番号
+  )
+  {
+    mImpl->select_col(col_pos);
+  }
 
   /// @brief 行列を縮約する．
-  /// @param[out] selected_cols この縮約で選択された列を格納するベクタ
-  /// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
-  /// @param[in] col_comp 列の比較関数オブジェクト
   /// @retval true 縮約された．
   /// @retval false 縮約されなかった．
   ///
@@ -218,44 +313,81 @@ public:
   /// * selected_cols, deleted_cols はこの関数内で初期化されず，
   ///   追加されるだけなので注意．
   bool
-  reduce(vector<int>& selected_cols,
-	 vector<int>& deleted_cols,
-	 const McColComp& col_comp = McColComp());
+  reduce(
+    vector<SizeType>& selected_cols, ///< [out] この縮約で選択された列を格納するベクタ
+    vector<SizeType>& deleted_cols,  ///< [out] この縮約で削除された列を格納するベクタ
+    const McColComp& col_comp	     ///< [in]  列の比較関数オブジェクト
+    = McColComp{}
+  )
+  {
+    return mImpl->reduce(selected_cols, deleted_cols, col_comp);
+  }
 
   /// @brief 変化がなくなるまで reduce() を呼ぶ．
-  /// @param[out] selected_cols この縮約で選択された列を格納するベクタ
-  /// @param[out] deleted_cols この縮約で削除された列を格納するベクタ
-  /// @param[in] col_comp 列の比較関数オブジェクト
   void
-  reduce_loop(vector<int>& selected_cols,
-	      vector<int>& deleted_cols,
-	      const McColComp& col_comp = McColComp());
+  reduce_loop(
+    vector<SizeType>& selected_cols,  ///< [out] この縮約で選択された列を格納するベクタ
+    vector<SizeType>& deleted_cols,   ///< [out] この縮約で削除された列を格納するベクタ
+    const McColComp& col_comp	      ///< [in]  列の比較関数オブジェクト
+    = McColComp()
+  )
+  {
+    for ( ; ; ) {
+      if ( !reduce(selected_cols, deleted_cols, col_comp) ) {
+	break;
+      }
+    }
+  }
 
   /// @brief 行を削除する．
-  /// @param[in] row_pos 削除する行番号
   void
-  delete_row(int row_pos);
+  delete_row(
+    SizeType row_pos ///< [in] 削除する行番号
+  )
+  {
+    mImpl->delete_row(row_pos);
+  }
 
   /// @brief 列を削除する．
-  /// @param[in] col_pos 削除する列番号
   void
-  delete_col(int col_pos);
+  delete_col(
+    SizeType col_pos ///< [in] 削除する列番号
+  )
+  {
+    mImpl->delete_col(col_pos);
+  }
 
   /// @brief 行に dirty フラグをつける．
   void
-  set_row_dirty(int row_pos);
+  set_row_dirty(
+    SizeType row_pos ///< [in] 行番号
+  )
+  {
+    mImpl->set_row_dirty(row_pos);
+  }
 
   /// @brief 列に dirty フラグをつける．
   void
-  set_col_dirty(int col_pos);
+  set_col_dirty(
+    SizeType col_pos ///< [in] 列番号
+  )
+  {
+    mImpl->set_col_dirty(col_pos);
+  }
 
   /// @brief 削除スタックにマーカーを書き込む．
   void
-  save();
+  save()
+  {
+    mImpl->save();
+  }
 
   /// @brief 直前のマーカーまで処理を戻す．
   void
-  restore();
+  restore()
+  {
+    mImpl->restore();
+  }
 
 
 private:
@@ -268,7 +400,7 @@ private:
 
 };
 
-
+#if 0
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
@@ -619,6 +751,7 @@ McMatrix::restore()
 {
   mImpl->restore();
 }
+#endif
 
 END_NAMESPACE_YM_MINCOV
 

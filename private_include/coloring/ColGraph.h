@@ -5,7 +5,7 @@
 /// @brief ColGraph のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/udgraph_nsdef.h"
@@ -23,14 +23,15 @@ class ColGraph
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  ColGraph(const UdGraph& graph);
+  ColGraph(
+    const UdGraph& graph ///< [in] 対象のグラフ
+  );
 
   /// @brief コンストラクタ
-  /// @param[in] graph 対象のグラフ
-  /// @param[in] color_map 部分的な彩色結果
-  ColGraph(const UdGraph& graph,
-	    const vector<int>& color_map);
+  ColGraph(
+    const UdGraph& graph,             ///< [in] 対象のグラフ
+    const vector<SizeType>& color_map ///< [in] 部分的な彩色結果
+  );
 
   /// @brief デストラクタ
   ~ColGraph();
@@ -42,57 +43,98 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノード数を得る．
-  int
-  node_num() const;
+  SizeType
+  node_num() const
+  {
+    return mNodeNum;
+  }
 
   /// @brief 枝数を得る．
-  int
-  edge_num() const;
+  SizeType
+  edge_num() const
+  {
+    return mEdgeNum;
+  }
 
   /// @brief ノード番号のリストを返す．
   ///
   /// 彩色されていたノードは含まないのでサイズは node_num() より小さい場合がある．
-  Array<int>
-  node_list() const;
+  Array<SizeType>
+  node_list() const
+  {
+    return Array<SizeType>{mNodeList, 0, mNodeNum1};
+  }
 
   /// @brief 隣接するノード番号のリストを得る．
-  /// @param[in] node_id 対象のノード番号 ( 0 <= node_id < node_num() )
-  Array<int>
-  adj_list(int node_id) const;
+  Array<SizeType>
+  adj_list(
+    SizeType node_id ///< [in] 対象のノード番号 ( 0 <= node_id < node_num() )
+  ) const
+  {
+    ASSERT_COND( node_id >= 0 && node_id < node_num() );
+
+    const auto& adj_list = mAdjListArray[node_id];
+    return Array<SizeType>{adj_list.mBody, 0, adj_list.mNum};
+  }
 
   /// @brief 現在使用中の色数を返す．
-  int
-  color_num() const;
+  SizeType
+  color_num() const
+  {
+    return mColNum;
+  }
 
   /// @brief ノードの色を返す．
-  /// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
-  int
-  color(int node_id) const;
+  SizeType
+  color(
+    SizeType node_id ///< [in] ノード番号 ( 0 <= node_id < node_num() )
+  ) const
+  {
+    ASSERT_COND( node_id >= 0 && node_id < node_num() );
+
+    return mColorMap[node_id];
+  }
 
   /// @brief 新しい色を割り当てる．
   /// @return 割り当てた新しい色を返す．
-  int
-  new_color();
+  SizeType
+  new_color()
+  {
+    ++ mColNum;
+    return mColNum;
+  }
 
   /// @brief ノードに色を割り当てる．
-  /// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
-  /// @param[in] color 色 ( 1 <= color <= color_num() )
   void
-  set_color(int node_id,
-	    int color);
+  set_color(
+    SizeType node_id, ///< [in] ノード番号 ( 0 <= node_id < node_num() )
+    SizeType color    ///< [in] 色 ( 1 <= color <= color_num() )
+  )
+  {
+    ASSERT_COND( node_id >= 0 && node_id < node_num() );
+    ASSERT_COND( color >= 1 && color <= color_num() );
 
-  /// @brief ノードに色を割り当てる．
-  /// @param[in] node_id_list ノード番号のリスト
-  /// @param[in] color 色 ( 1 <= color <= color_num() )
+    mColorMap[node_id] = color;
+  }
+
+  /// @brief ノード集合に色を割り当てる．
   void
-  set_color(const vector<int>& node_id_list,
-	    int color);
+  set_color(
+    const vector<SizeType>& node_id_list, ///< [in] ノード番号のリスト
+    SizeType color                        ///< [in] 色 ( 1 <= color <= color_num() )
+  )
+  {
+    for ( auto node_id: node_id_list ) {
+      set_color(node_id, color);
+    }
+  }
 
   /// @brief 彩色結果を得る．
-  /// @param[out] color_map 彩色結果を納めるベクタ
   /// @return 彩色数(= color_num())を返す．
-  int
-  get_color_map(vector<int>& color_map) const;
+  SizeType
+  get_color_map(
+    vector<SizeType>& color_map ///< [out] 彩色結果を納めるベクタ
+  ) const;
 
   /// @brief 全てのノードが彩色されていたら true を返す．
   bool
@@ -113,14 +155,14 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容をセットする．
-  /// @param[in] graph 対象のグラフ
-  /// @param[in] color_map 部分的な彩色結果
   ///
   /// コンストラクタのみから使われると仮定しているので
   /// 古い内容の破棄は行わない．
   void
-  init(const UdGraph& graph,
-       const vector<int>& color_map);
+  init(
+    const UdGraph& graph,             ///< [in] 対象のグラフ
+    const vector<SizeType>& color_map ///< [in] 部分的な彩色結果
+  );
 
 
 private:
@@ -131,43 +173,44 @@ private:
   // 隣接リストを表す構造体
   struct AdjList
   {
-    AdjList();
-
-    ~AdjList();
+    ~AdjList()
+    {
+      delete [] mBody;
+    }
 
     // 要素数
-    int mNum;
+    SizeType mNum{0};
 
     // 実体の配列
-    int* mBody;
+    SizeType* mBody{nullptr};
   };
 
   // ノード数
-  int mNodeNum;
+  SizeType mNodeNum;
 
   // 枝数
-  int mEdgeNum;
+  SizeType mEdgeNum;
 
   // ノードの隣接リストの配列
   // サイズは mNodeNum;
   AdjList* mAdjListArray;
 
   // 未彩色のノード数
-  int mNodeNum1;
+  SizeType mNodeNum1;
 
   // 未彩色のノードの配列
   // サイズは mNodeNum1;
-  int* mNodeList;
+  SizeType* mNodeList;
 
   // 現在使用中の色数
-  int mColNum;
+  SizeType mColNum;
 
   // 彩色結果の配列
-  int* mColorMap;
+  SizeType* mColorMap;
 
 };
 
-
+#if 0
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
@@ -278,6 +321,7 @@ ColGraph::AdjList::~AdjList()
 {
   delete [] mBody;
 }
+#endif
 
 END_NAMESPACE_YM_UDGRAPH
 

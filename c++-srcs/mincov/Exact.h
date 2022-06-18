@@ -5,9 +5,8 @@
 /// @brief Exact のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/mincov_nsdef.h"
 #include "ym/McMatrix.h"
@@ -26,12 +25,11 @@ class Exact
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] matrix 問題の行列
-  /// @param[in] lb_list 下界の計算クラスのリスト
-  /// @param[in] selector 列を選択するクラス
-  Exact(McMatrix& block,
-	const vector<LbCalc*>& lb_list,
-	Selector& selector);
+  Exact(
+    McMatrix& block,                ///< [in] 問題の行列
+    const vector<LbCalc*>& lb_list, ///< [in] 下界の計算クラスのリスト
+    Selector& selector		    ///< [in] 列を選択するクラス
+  );
 
   /// @brief デストラクタ
   ~Exact();
@@ -43,10 +41,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 最小被覆問題を解く．
-  /// @param[out] solution 選ばれた列集合
   /// @return 解のコスト
   int
-  solve(vector<int>& solution);
+  solve(
+    vector<SizeType>& solution ///< [out] 選ばれた列集合
+  );
 
   /// @brief 対象の行列を返す．
   const McMatrix&
@@ -55,17 +54,23 @@ public:
   /// @brief partition フラグを設定する．
   static
   void
-  set_partition_flag(bool flag);
+  set_partition_flag(
+    bool flag
+  );
 
   /// @brief デバッグフラグを設定する．
   static
   void
-  set_debug_flag(bool flag);
+  set_debug_flag(
+    bool flag
+  );
 
   /// @brief mMaxDepth を設定する．
   static
   void
-  set_max_depth(int depth);
+  set_max_depth(
+    int depth
+  );
 
 
 private:
@@ -75,8 +80,10 @@ private:
 
   /// @brief 解を求める再帰関数
   bool
-  _solve(int lb,
-	 int depth);
+  _solve(
+    int lb,
+    int depth
+  );
 
 
 private:
@@ -97,10 +104,10 @@ private:
   int mBest;
 
   // 現在のベスト解
-  vector<int> mBestSolution;
+  vector<SizeType> mBestSolution;
 
   // 現在の解
-  vector<int> mCurSolution;
+  vector<SizeType> mCurSolution;
 
   // block_partition を行うとき true にするフラグ
   static

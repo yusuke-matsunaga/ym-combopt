@@ -3,9 +3,8 @@
 /// @brief Isx の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Isx.h"
 #include "ym/Range.h"
@@ -18,14 +17,13 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] graph 対象のグラフ
-Isx::Isx(const UdGraph& graph) :
-  ColGraph(graph),
-  mCandMark(node_num(), false),
-  mAdjCount(node_num(), 0)
+Isx::Isx(
+  const UdGraph& graph
+) : ColGraph{graph},
+    mCandMark(node_num(), false),
+    mAdjCount(node_num(), 0)
 {
   mCandList.reserve(node_num());
-  mTmpList.reserve(node_num());
   mIndepSet.reserve(node_num());
 }
 
@@ -35,16 +33,13 @@ Isx::~Isx()
 }
 
 // @brief independent set extraction を用いた coloring を行う．
-// @param[in] limit 残りのノード数がこの値を下回ったら処理をやめる．
-// @param[out] color_map 彩色結果を収める配列
-// @return 彩色数を返す．
-//
-// ここでは部分的な彩色を行う．
-int
-Isx::coloring(int limit,
-	      vector<int>& color_map)
+SizeType
+Isx::coloring(
+  SizeType limit,
+  vector<SizeType>& color_map
+)
 {
-  int remain_num = node_num();
+  SizeType remain_num = node_num();
   while ( remain_num > limit ) {
     get_indep_set();
 
@@ -58,9 +53,6 @@ Isx::coloring(int limit,
 }
 
 // @brief maximal independent set を選ぶ．
-//
-// - 結果は mIndepSet に格納される．
-// - mRandGen を用いてランダムに選ぶ．
 void
 Isx::get_indep_set()
 {
@@ -69,14 +61,31 @@ Isx::get_indep_set()
 
   // ノードを一つづつ選択し mIndepSet に入れる．
   mIndepSet.clear();
-  int node_id = random_select(mCandList);
+  SizeType node_id = random_select(mCandList);
   while ( node_id != -1 ) {
     mIndepSet.push_back(node_id);
 
     // cand_list を更新する．
     update_cand_list(node_id);
 
-    node_id = select_node();
+    if ( mCandList.empty() ) {
+      break;
+    }
+
+    // mCandList 中で隣接数が最小のものを選ぶ．
+    vector<SizeType> tmp_list;
+    SizeType min_num = node_num();
+    for ( auto node_id: mCandList ) {
+      SizeType c = mAdjCount[node_id];
+      if ( min_num >= c ) {
+	if ( min_num > c ) {
+	  min_num = c;
+	  tmp_list.clear();
+	}
+	tmp_list.push_back(node_id);
+      }
+    }
+    node_id = random_select(tmp_list);
   }
   //sort(mIndepSet.begin(), mIndepSet.end());
 }
@@ -100,40 +109,11 @@ Isx::init_cand_list()
   }
 }
 
-// @brief 候補集合に加えるノードを選ぶ．
-//
-// - 現在の候補集合に隣接していないノードの内，隣接ノード数の少ないものを選ぶ．
-// - 追加できるノードがない場合は -1 を返す．
-int
-Isx::select_node()
-{
-  ASSERT_COND( mCandList.size() > 0 );
-
-  mTmpList.clear();
-  int min_num = node_num();
-  for ( auto node_id: mCandList ) {
-    int c = mAdjCount[node_id];
-    if ( min_num >= c ) {
-      if ( min_num > c ) {
-	min_num = c;
-	mTmpList.clear();
-      }
-      mTmpList.push_back(node_id);
-    }
-  }
-
-  int n = mTmpList.size();
-  if ( n == 0 ) {
-    return -1;
-  }
-
-  return random_select(mTmpList);
-}
-
 // @brief 候補リストを更新する．
-// @param[in] node_id 新たに加わったノード
 void
-Isx::update_cand_list(int node_id)
+Isx::update_cand_list(
+  SizeType node_id
+)
 {
   // node_id と隣接するノードの cand_mark をはずす．
   mCandMark[node_id] = false;
@@ -146,9 +126,9 @@ Isx::update_cand_list(int node_id)
     }
   }
 
-  int rpos = 0;
-  int wpos = 0;
-  int n = mCandList.size();
+  SizeType rpos = 0;
+  SizeType wpos = 0;
+  SizeType n = mCandList.size();
   for ( ; rpos < n; ++ rpos ) {
     auto node1_id = mCandList[rpos];
     if ( mCandMark[node1_id] ) {
@@ -168,14 +148,16 @@ Isx::update_cand_list(int node_id)
 }
 
 // @brief ランダムに選ぶ．
-int
-Isx::random_select(const vector<int>& cand_list)
+SizeType
+Isx::random_select(
+  const vector<SizeType>& cand_list
+)
 {
-  int n = cand_list.size();
+  SizeType n = cand_list.size();
   ASSERT_COND( n > 0 );
 
-  std::uniform_int_distribution<int> rd(0, n - 1);
-  int r = rd(mRandGen);
+  std::uniform_int_distribution<SizeType> rd(0, n - 1);
+  SizeType r = rd(mRandGen);
   return cand_list[r];
 }
 

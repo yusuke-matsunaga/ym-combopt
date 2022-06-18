@@ -5,9 +5,8 @@
 /// @brief LbMax のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "LbCalc.h"
 
@@ -24,10 +23,9 @@ class LbMAX :
 public:
 
   /// @brief コンストラクタ
-  LbMAX();
+  LbMAX() = default;
 
   /// @brief デストラクタ
-  virtual
   ~LbMAX();
 
 
@@ -37,13 +35,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 下界の計算をする．
-  virtual
   int
-  operator()(const McMatrix& matrix);
+  operator()(
+    const McMatrix& matrix
+  ) override;
 
   /// @brief 下界の計算クラスを追加する．
   void
-  add_calc(LbCalc* calc);
+  add_calc(
+    LbCalc* calc
+  )
+  {
+    mCalcList.push_back(unique_ptr<LbCal>{calc});
+  }
 
 
 private:
@@ -52,7 +56,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 下界の計算クラスのリスト
-  vector<LbCalc*> mCalcList;
+  vector<unique_ptr<LbCalc>> mCalcList;
 
 };
 
