@@ -65,7 +65,7 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief 最小被覆問題を解く．
-int
+SizeType
 MinCov::exact(
   vector<SizeType>& solution,
   const string& option
@@ -173,7 +173,7 @@ MinCov::exact(
 
   McMatrix matrix(row_size(), mColCostArray, mElemList);
   Exact solver(matrix, lb_list, *selector);
-  int cost = solver.solve(solution);
+  SizeType cost = solver.solve(solution);
 
   { // 結果が正しいか検証しておく．
     vector<SizeType> uncov_row_list;
@@ -252,7 +252,7 @@ END_NONAMESPACE
 
 
 // @brief ヒューリスティックで最小被覆問題を解く．
-int
+SizeType
 MinCov::heuristic(
   vector<SizeType>& solution,
   const string& algorithm,

@@ -16,6 +16,21 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 /// @class MinCov MinCov.h "ym/MinCov.h"
 /// @brief 最小被覆問題を表すクラス
+///
+/// 集合 $ = { s_1, s_2, ..., s_n } が与えられた時．
+/// S の部分集合 S1 = { s_k1, s_k2, ..., s_kn }
+/// に対して S1 の要素 s_ki は S1 を「被覆」する，と言う．
+/// 与えられた部分集合族 C = { Si } の全てを被覆するような
+/// S の部分集合のうち要素数最小のものを C の最小被覆と呼ぶ．
+///
+/// 場合によっては各集合要素にコストを持たせ，要素数ではなく，
+/// 選ばれた要素のコストの総和を最小化する問題もある．
+/// もしも負か0のコストを持つ要素があった場合，そのような要素は
+/// 必ず最小解に含まれるので簡単に処理できる．
+/// そこでコストは1以上と仮定する．
+///
+/// ここではこの問題を，集合要素を「列」に，被覆条件の部分集合
+/// を「行」に対応させた「行列被覆問題」として表している．
 //////////////////////////////////////////////////////////////////////
 class MinCov
 {
@@ -49,8 +64,8 @@ public:
   /// * 列のサイズは col_cost_array のサイズから得られる．
   /// * 空の行列となる．
   MinCov(
-    SizeType row_size,                ///< [in] 行数
-    const vector<int>& col_cost_array ///< [in] 列のコストの配列
+    SizeType row_size,                     ///< [in] 行数
+    const vector<SizeType>& col_cost_array ///< [in] 列のコストの配列
   ) : mRowSize{row_size},
       mColSize{col_cost_array.size()},
       mColCostArray{col_cost_array}
@@ -104,7 +119,7 @@ public:
   void
   resize(
     SizeType row_size,                ///< [in] 行数
-    const vector<int>& col_cost_array ///< [in] 列のコスト配列
+    const vector<SizeType>& col_cost_array ///< [in] 列のコスト配列
   )
   {
     mRowSize = row_size;
@@ -117,7 +132,7 @@ public:
   void
   set_col_cost(
     SizeType col_pos, ///< [in] 列番号 ( 0 <= col_pos < col_size() )
-    int cost	      ///< [in] コスト
+    SizeType cost     ///< [in] コスト
   )
   {
     ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
@@ -158,7 +173,7 @@ public:
   }
 
   /// @brief 列のコストを得る．
-  int
+  SizeType
   col_cost(
     SizeType col_pos ///< [in] 列番号 ( 0 <= col_pos < col_size )
   ) const
@@ -169,7 +184,7 @@ public:
   }
 
   /// @brief 列のコスト配列を得る．
-  const vector<int>&
+  const vector<SizeType>&
   col_cost_array() const
   {
     return mColCostArray;
@@ -190,7 +205,7 @@ public:
 
   /// @brief 最小被覆問題を解く．
   /// @return 解のコスト
-  int
+  SizeType
   exact(
     vector<SizeType>& solution,     ///< [out] 選ばれた列集合
     const string& option = string{} ///< [in] オプション文字列
@@ -198,7 +213,7 @@ public:
 
   /// @brief ヒューリスティックで最小被覆問題を解く．
   /// @return 解のコスト
-  int
+  SizeType
   heuristic(
     vector<SizeType>& solution,         ///< [out] 選ばれた列集合
     const string& algorithm = string{},	///< [in] アルゴリズム名
@@ -240,7 +255,7 @@ private:
 
   // 列のコスト配列
   // サイズは mColSize
-  vector<int> mColCostArray;
+  vector<SizeType> mColCostArray;
 
   // 要素のリスト
   // (row_pos, col_pos) のペアのリスト

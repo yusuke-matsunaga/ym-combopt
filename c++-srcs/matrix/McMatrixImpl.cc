@@ -6,7 +6,7 @@
 /// Copyright (C) 2005-2010, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/McMatrixImpl.h"
+#include "matrix/McMatrixImpl.h"
 #include "ym/McColComp.h"
 #include "ym/Range.h"
 
@@ -17,22 +17,6 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 int mcmatrix_debug = 0;
-
-//////////////////////////////////////////////////////////////////////
-// クラス McColComp
-//////////////////////////////////////////////////////////////////////
-
-// @brief col1 の代わりに col2 を使っても全体のコストが上がらない時に true を返す．
-bool
-McColComp::operator()(
-  SizeType col1,
-  SizeType col2
-) const
-{
-  // デフォルトでは常に true を返す．
-  return true;
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス McMatrixImpl
@@ -60,7 +44,7 @@ McMatrixImpl::McMatrixImpl(
 // @brief コンストラクタ
 McMatrixImpl::McMatrixImpl(
   SizeType row_size,
-  const vector<int>& cost_array,
+  const vector<SizeType>& cost_array,
   const vector<pair<SizeType, SizeType>>& elem_list
 )
 {
@@ -308,10 +292,10 @@ McMatrixImpl::row_dominance()
     bool dirty1 = mRowHeadArray[row_pos1].is_dirty();
 
     // row1 の行に要素を持つ列で要素数が最小のものを求める．
-    int min_num = row_size() + 1;
+    SizeType min_num = row_size() + 1;
     SizeType min_col = 0;
     for ( auto col_pos: row_list(row_pos1) ) {
-      int col_num = col_elem_num(col_pos);
+      SizeType col_num = col_elem_num(col_pos);
       if ( min_num > col_num ) {
 	min_num = col_num;
 	min_col = col_pos;
@@ -392,7 +376,7 @@ McMatrixImpl::col_dominance(
     SizeType min_num = col_size() + 1;
     SizeType min_row = 0;
     for ( auto row_pos: col_list(col_pos1) ) {
-      int row_num = row_elem_num(row_pos);
+      SizeType row_num = row_elem_num(row_pos);
       if ( min_num > row_num ) {
 	min_num = row_num;
 	min_row = row_pos;
@@ -644,7 +628,7 @@ McMatrixImpl::resize(
 
     mColHeadArray = new McHead[mColSize];
     mColArray = new McCell*[mColSize];
-    mCostArray = new int[mColSize];
+    mCostArray = new SizeType[mColSize];
     mColMark = new SizeType[mColSize];
     for ( auto col_pos: Range(mColSize) ) {
       mColHeadArray[col_pos].init(col_pos, true);
@@ -688,12 +672,12 @@ McMatrixImpl::copy(
 
 // @brief 列集合のコストを返す．
 // @param[in] col_list 列のリスト
-int
+SizeType
 McMatrixImpl::cost(
   const vector<SizeType>& col_list
 ) const
 {
-  int cur_cost = 0;
+  SizeType cur_cost = 0;
   for ( auto col: col_list ) {
     cur_cost += col_cost(col);
   }

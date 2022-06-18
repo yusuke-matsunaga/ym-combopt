@@ -52,6 +52,7 @@ set ( matrix_SOURCES
   c++-srcs/matrix/McColList.cc
   c++-srcs/matrix/McRowList.cc
 #  c++-srcs/matrix/McBlock.cc
+  c++-srcs/matrix/McMatrix.cc
   c++-srcs/matrix/McMatrixImpl.cc
   )
 

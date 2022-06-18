@@ -45,7 +45,7 @@ public:
   /// * elem_list は (row_pos, col_pos) の pair のリスト
   McMatrixImpl(
     SizeType row_size,                                ///< [in] 行数
-    const vector<int>& cost_array,		      ///< [in] コストの配列
+    const vector<SizeType>& cost_array,		      ///< [in] コストの配列
     const vector<pair<SizeType, SizeType>>& elem_list ///< [in] 要素のリスト
     = vector<pair<SizeType, SizeType>>{}
   );
@@ -181,7 +181,7 @@ public:
   }
 
   /// @brief 列のコストを取り出す．
-  int
+  SizeType
   col_cost(
     SizeType col_pos ///< [in] 列位置 ( 0 <= col_pos < col_size() )
   ) const
@@ -191,14 +191,14 @@ public:
   }
 
   /// @brief 列のコストの配列を取り出す．
-  const int*
+  const SizeType*
   col_cost_array() const
   {
     return mCostArray;
   }
 
   /// @brief 列集合のコストを返す．
-  int
+  SizeType
   cost(
     const vector<SizeType>& col_list ///< [in] 列のリスト
   ) const;
@@ -479,7 +479,7 @@ private:
 
   // コストの配列
   // サイズは mColSize;
-  int* mCostArray{0};
+  SizeType* mCostArray{0};
 
   // 削除の履歴を覚えておくスタック
   McHead** mDelStack{nullptr};

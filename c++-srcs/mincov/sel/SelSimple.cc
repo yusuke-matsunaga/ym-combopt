@@ -3,9 +3,8 @@
 /// @brief SelSimple の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "SelSimple.h"
 #include "ym/McMatrix.h"
