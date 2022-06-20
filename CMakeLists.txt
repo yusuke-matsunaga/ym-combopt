@@ -63,7 +63,7 @@ set ( udgraph_SOURCES
   )
 
 set ( coloring_SOURCES
-  c++-srcs/coloring/coloring.cc
+  c++-srcs/coloring/UdGraph_coloring.cc
   c++-srcs/coloring/ColGraph.cc
   c++-srcs/coloring/Dsatur.cc
   c++-srcs/coloring/IsCov.cc

@@ -21,7 +21,7 @@ TabuCol::TabuCol(
   const UdGraph& graph,
   SizeType k
 ) : ColGraph{graph},
-    mK(k)
+    mK{k}
 {
   init();
 }
@@ -32,7 +32,7 @@ TabuCol::TabuCol(
   const vector<SizeType>& color_map,
   SizeType k
 ) : ColGraph{graph, color_map},
-    mK(k)
+    mK{k}
 {
   init();
 }
@@ -59,7 +59,8 @@ TabuCol::coloring(
   SizeType iter_limit,
   SizeType L,
   double alpha,
-  vector<SizeType>& color_map)
+  vector<SizeType>& color_map
+)
 {
   gen_random_solution();
 
@@ -100,7 +101,9 @@ TabuCol::coloring(
 void
 TabuCol::gen_random_solution()
 {
-  SizeType n = node_num();
+  while ( new_color() < mK ) {
+    ;
+  }
 
   // ランダムに色を割り当てる．
   for ( auto node_id: node_list() ) {
@@ -108,6 +111,8 @@ TabuCol::gen_random_solution()
     SizeType color = rd_int(mRandGen);
     set_color(node_id, color);
   }
+
+  SizeType n = node_num();
 
   // mGammaTable を初期化する．
   for ( auto i: Range(n * mK) ) {

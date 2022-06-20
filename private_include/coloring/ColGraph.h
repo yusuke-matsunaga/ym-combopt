@@ -90,7 +90,7 @@ public:
     SizeType node_id ///< [in] ノード番号 ( 0 <= node_id < node_num() )
   ) const
   {
-    ASSERT_COND( node_id >= 0 && node_id < node_num() );
+    ASSERT_COND( 0 <= node_id && node_id < node_num() );
 
     return mColorMap[node_id];
   }
@@ -111,8 +111,8 @@ public:
     SizeType color    ///< [in] 色 ( 1 <= color <= color_num() )
   )
   {
-    ASSERT_COND( node_id >= 0 && node_id < node_num() );
-    ASSERT_COND( color >= 1 && color <= color_num() );
+    ASSERT_COND( 0 <= node_id && node_id < node_num() );
+    ASSERT_COND( 1 <= color && color <= color_num() );
 
     mColorMap[node_id] = color;
   }
@@ -209,119 +209,6 @@ private:
   SizeType* mColorMap;
 
 };
-
-#if 0
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief ノード数を得る．
-inline
-int
-ColGraph::node_num() const
-{
-  return mNodeNum;
-}
-
-// @brief 枝数を得る．
-inline
-int
-ColGraph::edge_num() const
-{
-  return mEdgeNum;
-}
-
-// @brief ノード番号のリストを返す．
-//
-// 彩色されていたノードは含まないのでサイズは node_num() より小さい場合がある．
-inline
-Array<int>
-ColGraph::node_list() const
-{
-  return Array<int>(mNodeList, 0, mNodeNum1);
-}
-
-// @brief 隣接するノード番号のリストを得る．
-// @param[in] node_id 対象のノード番号 ( 0 <= node_id < node_num() )
-inline
-Array<int>
-ColGraph::adj_list(int node_id) const
-{
-  ASSERT_COND( node_id >= 0 && node_id < node_num() );
-
-  const AdjList& adj_list = mAdjListArray[node_id];
-  return Array<int>(adj_list.mBody, 0, adj_list.mNum);
-}
-
-// @brief 現在使用中の色数を返す．
-inline
-int
-ColGraph::color_num() const
-{
-  return mColNum;
-}
-
-// @brief ノードの色を返す．
-// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
-inline
-int
-ColGraph::color(int node_id) const
-{
-  ASSERT_COND( node_id >= 0 && node_id < node_num() );
-
-  return mColorMap[node_id];
-}
-
-// @brief 新しい色を割り当てる．
-// @return 割り当てた新しい色を返す．
-inline
-int
-ColGraph::new_color()
-{
-  ++ mColNum;
-  return mColNum;
-}
-
-// @brief ノードに色を割り当てる．
-// @param[in] node_id ノード番号 ( 0 <= node_id < node_num() )
-// @param[in] color 色 ( 1 <= color <= color_num() )
-inline
-void
-ColGraph::set_color(int node_id,
-		    int color)
-{
-  ASSERT_COND( node_id >= 0 && node_id < node_num() );
-  ASSERT_COND( color >= 1 && color <= color_num() );
-
-  mColorMap[node_id] = color;
-}
-
-// @brief ノードに色を割り当てる．
-// @param[in] node_id_list ノード番号のリスト
-// @param[in] color 色 ( 1 <= color <= color_num() )
-inline
-void
-ColGraph::set_color(const vector<int>& node_id_list,
-		    int color)
-{
-  for ( auto node_id: node_id_list ) {
-    set_color(node_id, color);
-  }
-}
-
-inline
-ColGraph::AdjList::AdjList() :
-  mNum(0),
-  mBody(nullptr)
-{
-}
-
-inline
-ColGraph::AdjList::~AdjList()
-{
-  delete [] mBody;
-}
-#endif
 
 END_NAMESPACE_YM_UDGRAPH
 

@@ -149,11 +149,13 @@ Isx2::get_indep_set()
     std::uniform_int_distribution<SizeType> rd(0, mCandList.size() - 1);
     SizeType r = rd(mRandGen);
     SizeType node0 = mCandList[r];
+    cout << "node0 = " << node0 << endl;
     mIndepSet.push_back(node0);
   }
   while ( !mCandList.empty() ) {
     SizeType node_id = select_node();
     mIndepSet.push_back(node_id);
+    cout << "node_id = " << node_id << endl;
 
     // cand_list を更新する．
     update_cand_list(node_id);
