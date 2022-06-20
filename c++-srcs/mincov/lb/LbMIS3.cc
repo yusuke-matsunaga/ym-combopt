@@ -80,8 +80,7 @@ LbMIS3::operator()(
     }
   }
 
-  vector<SizeType> node_set;
-  max_clique(graph, node_set);
+  auto node_set = graph.max_clique();
 #warning "TODO: 未完成"
   int cost = 0;
 

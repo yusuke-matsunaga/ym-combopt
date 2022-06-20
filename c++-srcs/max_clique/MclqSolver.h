@@ -38,16 +38,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief greedy ヒューリスティックで解を求める．
-  SizeType
-  greedy(
-    vector<SizeType>& node_set
-  );
+  vector<SizeType>
+  greedy();
 
   /// @brief 分枝限定法を用いた厳密解を求める．
-  SizeType
-  exact(
-    vector<SizeType>& node_set
-  );
+  vector<SizeType>
+  exact();
 
 
 private:

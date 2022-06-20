@@ -183,6 +183,42 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
+  // ファイル入出力
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief DIMACS 形式のファイルを読み込む．
+  ///
+  /// エラーの場合には例外が送出される．
+  static
+  UdGraph
+  read_dimacs(
+    const string& filename ///< [in] 入力元のファイル名
+  );
+
+  /// @brief DIMACS 形式のファイルを読み込む．
+  ///
+  /// エラーの場合には例外が送出される．
+  static
+  UdGraph
+  read_dimacs(
+    istream& s    ///< [in] 入力元のストリーム
+  );
+
+  /// @brief 内容を DIMACS 形式で出力する．
+  void
+  write_dimacs(
+    const string& filename ///< [in] 出力先のファイル名
+  ) const;
+
+  /// @brief 内容を DIMACS 形式で出力する．
+  void
+  write_dimacs(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
   // グラフアルゴリズム
   //////////////////////////////////////////////////////////////////////
 
@@ -193,6 +229,22 @@ public:
     vector<SizeType>& color_map, ///< [out] ノードに対する彩色結果(=SizeType)を収める配列
     const string& algorithm      ///< [in] アルゴリズム名
     = string{}                   ///< 空の時にはデフォルトのアルゴリズムを用いる．
+  ) const;
+
+  /// @brief (最大)独立集合を求める．
+  /// @return 独立集合の要素(ノード番号)を収める配列
+  vector<SizeType>
+  independent_set(
+    const string& algorithm      ///< [in] アルゴリズム名
+    = string{}                   ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
+  ) const;
+
+  /// @brief (最大)クリークを求める．
+  /// @return クリークの要素(ノード番号)を収める配列
+  vector<SizeType>
+  max_clique(
+    const string& algorithm     ///< [in] アルゴリズム名
+    = string{}		        ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
   ) const;
 
 
@@ -209,74 +261,50 @@ private:
 
 };
 
+
+//////////////////////////////////////////////////////////////////////
+/// @class UdgError UdGraph.h "UdGraph.h"
+/// @brief UdGraph 関係のエラーを表す例外クラス
+//////////////////////////////////////////////////////////////////////
+class UdgError :
+  public exception
+{
+public:
+
+  /// @brief コンストラクタ
+  UdgError(
+    const string& msg ///< [in] エラーメッセージ
+  ) : mMsg{msg}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~UdgError() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 内容を表す文字列を返す．
+  const string&
+  str() const
+  {
+    return mMsg;
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // メッセージ
+  string mMsg;
+
+};
+
 END_NAMESPACE_YM_UDGRAPH
-
-BEGIN_NAMESPACE_YM
-
-/// @relates UdGraph
-/// @brief DIMACS 形式のファイルを読み込む．
-/// @retval true 読み込みが成功した．
-/// @retval false 読み込みが失敗した．
-extern
-bool
-read_dimacs(
-  const string& filename, ///< [in] 入力元のファイル名
-  UdGraph& graph          ///< [out] 読み込んだ内容を設定するグラフ
-);
-
-/// @relates UdGraph
-/// @brief DIMACS 形式のファイルを読み込む．
-/// @retval true 読み込みが成功した．
-/// @retval false 読み込みが失敗した．
-extern
-bool
-read_dimacs(
-  istream& s,    ///< [in] 入力元のストリーム
-  UdGraph& graph ///< [out] 読み込んだ内容を設定するグラフ
-);
-
-/// @relates UdGraph
-/// @brief 内容を DIMACS 形式で出力する．
-extern
-void
-write_dimacs(
-  const string& filename, ///< [in] 出力先のファイル名
-  const UdGraph& graph    ///< [in] 対象のグラフ
-);
-
-/// @relates UdGraph
-/// @brief 内容を DIMACS 形式で出力する．
-extern
-void
-write_dimacs(
-  ostream& s,          ///< [in] 出力先のストリーム
-  const UdGraph& graph ///< [in] 対象のグラフ
-);
-
-/// @relates UdGraph
-/// @brief (最大)独立集合を求める．
-/// @return 要素数を返す．
-extern
-SizeType
-independent_set(
-  const UdGraph& graph,        ///< [in] 対象のグラフ
-  vector<SizeType>& node_set,  ///< [out] 独立集合の要素(ノード番号)を収める配列
-  const string& algorithm      ///< [in] アルゴリズム名
-  = string{}                   ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
-);
-
-/// @relates UdGraph
-/// @brief (最大)クリークを求める．
-/// @return 要素数を返す．
-extern
-SizeType
-max_clique(
-  const UdGraph& graph,       ///< [in] 対象のグラフ
-  vector<SizeType>& node_set, ///< [out] クリークの要素(ノード番号)を収める配列
-  const string& algorithm     ///< [in] アルゴリズム名
-  = string{}		      ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
-);
-
-END_NAMESPACE_YM
 
 #endif // YM_UDGRAPH_H

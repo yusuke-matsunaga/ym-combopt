@@ -33,7 +33,8 @@ mc_recur(
   const vector<MclqNode*>& selected_node_list,
   const vector<MclqNode*>& rest_node_list,
   SizeType best_so_far,
-  vector<SizeType>& node_set)
+  vector<SizeType>& node_set
+)
 {
 #if 0
   cout << "mc_recur(selected_node_list = " << selected_node_list.size()
@@ -119,12 +120,10 @@ mc_recur(
 END_NONAMESPACE
 
 // @brief 最大クリークを求める．
-SizeType
-MclqSolver::exact(
-  vector<SizeType>& node_set
-)
+vector<SizeType>
+MclqSolver::exact()
 {
-  node_set.clear();
+  vector<SizeType> node_set;
 
   // 処理対象のノードを収めるリスト
   vector<MclqNode*> node_list;
@@ -134,9 +133,9 @@ MclqSolver::exact(
   }
 
   count = 0;
-  mc_recur(vector<MclqNode*>{}, node_list, 0, node_set);
+  mc_recur({}, node_list, 0, node_set);
 
-  return node_set.size();
+  return node_set;
 }
 
 END_NAMESPACE_YM_UDGRAPH

@@ -32,6 +32,7 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 
 class UdGraph;
 class UdEdge;
+class UdgError;
 
 END_NAMESPACE_YM_UDGRAPH
 
@@ -39,6 +40,7 @@ BEGIN_NAMESPACE_YM
 
 using nsUdGraph::UdGraph;
 using nsUdGraph::UdEdge;
+using nsUdGraph::UdgError;
 
 END_NAMESPACE_YM
 

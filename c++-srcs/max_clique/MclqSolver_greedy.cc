@@ -28,27 +28,19 @@ public:
   operator()(
     MclqNode* node1,
     MclqNode* node2
-  );
+  )
+  {
+    return node2->adj_num() - node1->adj_num();
+  }
 
 };
 
-// @brief 比較関数
-int
-MclqComp::operator()(
-  MclqNode* node1,
-  MclqNode* node2
-)
-{
-  return node2->adj_num() - node1->adj_num();
-}
-
 END_NONAMESPACE
 
+
 // @brief greedy ヒューリスティックで解を求める．
-SizeType
-MclqSolver::greedy(
-  vector<SizeType>& node_set
-)
+vector<SizeType>
+MclqSolver::greedy()
 {
   using MclqHeap = NodeHeap<MclqNode, MclqComp>;
   MclqHeap node_heap(mNodeNum);
@@ -64,7 +56,7 @@ MclqSolver::greedy(
   // 作業用のフラグ配列
   vector<bool> tmp_mark(mNodeNum, false);
 
-  node_set.clear();
+  vector<SizeType> node_set;
 
   // 未処理の MclqNode のうち MclqNode::adj_num() が最大のものを取り出し，解に加える．
   while ( !node_heap.empty() ) {
@@ -114,7 +106,7 @@ MclqSolver::greedy(
     }
   }
 
-  return node_set.size();
+  return node_set;
 }
 
 END_NAMESPACE_YM_UDGRAPH

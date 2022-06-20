@@ -11,7 +11,7 @@
 #include "ym/split.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_UDGRAPH
 
 //////////////////////////////////////////////////////////////////////
 // クラス UdGraph の DIMACS 形式のファイルの読み書きに関する関数
@@ -30,14 +30,14 @@ syntax_error(
 		  MsgType::Error,
 		  "DIMACS002",
 		  err.str());
+  throw UdgError{err.str()};
 }
 
 END_NONAMESPACE
 
-bool
-read_dimacs(
-  const string& filename,
-  UdGraph& graph
+UdGraph
+UdGraph::read_dimacs(
+  const string& filename
 )
 {
   ifstream s(filename);
@@ -48,24 +48,23 @@ read_dimacs(
 		    MsgType::Error,
 		    "DIMACS005",
 		    err.str());
-    return false;
+    throw UdgError{err.str()};
   }
-  return read_dimacs(s, graph);
+  return read_dimacs(s);
 }
 
-bool
-read_dimacs(
-  istream& s,
-  UdGraph& graph
+UdGraph
+UdGraph::read_dimacs(
+  istream& s
 )
 {
   bool first = true;
   int line = 1;
   string buff;
-  int node_num = 0;
-  int edge_num = 0;
-  vector<pair<int, int> > tmp_edge_list;
-  int max_node_id = 0;
+  SizeType node_num = 0;
+  SizeType edge_num = 0;
+  vector<pair<SizeType, SizeType> > tmp_edge_list;
+  SizeType max_node_id = 0;
   // ファイルをスキャンする．
   // - 'p' 行から node_num, edge_num を得る．
   // - 'e' 行の内容を tmp_edge_list に入れる．
@@ -79,7 +78,6 @@ read_dimacs(
     auto str_list = split(buff);
     if ( str_list.empty() ) {
       syntax_error(line);
-      return false;
     }
 
     if ( str_list[0] == "p" ) {
@@ -91,12 +89,11 @@ read_dimacs(
 			MsgType::Error,
 			"DIMACS001",
 			err.str());
-	return false;
+	throw UdgError{err.str()};
       }
 
       if ( str_list.size() != 4 || str_list[1] != "edge" ) {
 	syntax_error(line);
-	return false;
       }
       node_num = atoi(str_list[2].c_str());
       edge_num = atoi(str_list[3].c_str());
@@ -104,10 +101,9 @@ read_dimacs(
     else if ( str_list[0] == "e" ) {
       if ( str_list.size() != 3 ) {
 	syntax_error(line);
-	return false;
       }
-      int id1 = atoi(str_list[1].c_str());
-      int id2 = atoi(str_list[2].c_str());
+      SizeType id1 = atoi(str_list[1].c_str());
+      SizeType id2 = atoi(str_list[2].c_str());
       tmp_edge_list.push_back(make_pair(id1, id2));
       if ( max_node_id < id1 ) {
 	max_node_id = id1;
@@ -118,7 +114,6 @@ read_dimacs(
     }
     else {
       syntax_error(line);
-      return false;
     }
     ++ line;
   }
@@ -138,23 +133,22 @@ read_dimacs(
     // 実は edge_num は使わない．
   }
 
-  graph.resize(node_num);
+  UdGraph graph{node_num};
   for ( auto edge_pair: tmp_edge_list ) {
-    int id1 = edge_pair.first - 1;
-    int id2 = edge_pair.second - 1;
+    SizeType id1 = edge_pair.first - 1;
+    SizeType id2 = edge_pair.second - 1;
     graph.connect(id1, id2);
   }
 
-  return true;
+  return graph;
 }
 
 void
-write_dimacs(
-  const string& filename,
-  const UdGraph& graph
-)
+UdGraph::write_dimacs(
+  const string& filename
+) const
 {
-  ofstream s(filename);
+  ofstream s{filename};
   if ( !s ) {
     ostringstream err;
     err << filename << ": Could not create file";
@@ -162,21 +156,20 @@ write_dimacs(
 		    MsgType::Error,
 		    "DIMACS006",
 		    err.str());
-    return;
+    throw UdgError{err.str()};
   }
-  write_dimacs(s, graph);
+  write_dimacs(s);
 }
 
 void
-write_dimacs(
-  ostream& s,
-  const UdGraph& graph
-)
+UdGraph::write_dimacs(
+  ostream& s
+) const
 {
-  s << "p edge " << graph.node_num() << " " << graph.edge_list().size() << endl;
-  for ( auto edge: graph.edge_list() ) {
+  s << "p edge " << node_num() << " " << edge_list().size() << endl;
+  for ( auto edge: edge_list() ) {
     s << "e " << edge.id1() + 1 << " " << edge.id2() + 1 << endl;
   }
 }
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_UDGRAPH
