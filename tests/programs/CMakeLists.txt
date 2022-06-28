@@ -24,6 +24,10 @@ add_executable( coloring
   $<TARGET_OBJECTS:ym_combopt_obj>
   )
 
+target_link_libraries ( coloring
+  ${YM_LIB_DEPENDS}
+  )
+
 add_executable( coloring_d
   coloring.cc
   $<TARGET_OBJECTS:ym_base_obj_d>
@@ -32,4 +36,8 @@ add_executable( coloring_d
 
 target_compile_options ( coloring_d
   PRIVATE "-g"
+  )
+
+target_link_libraries ( coloring_d
+  ${YM_LIB_DEPENDS}
   )
