@@ -248,7 +248,7 @@ DsatNode::init(
 )
 {
   mId = id;
-  mColorSet = new ymuint64[vectlen];
+  mColorSet = new std::uint64_t[vectlen];
   for ( int i = 0; i < vectlen; ++ i ) {
     mColorSet[i] = 0ULL;
   }

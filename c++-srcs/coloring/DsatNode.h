@@ -68,8 +68,8 @@ public:
     SizeType color
   ) const
   {
-    ymuint blk = color / 64;
-    ymuint sft = color % 64;
+    auto blk = color / 64;
+    auto sft = color % 64;
     return ((mColorSet[blk] >> sft) & 1ULL) == 1UL;
   }
 
@@ -79,8 +79,8 @@ public:
     SizeType color
   )
   {
-    ymuint blk = color / 64;
-    ymuint sft = color % 64;
+    auto blk = color / 64;
+    auto sft = color % 64;
     mColorSet[blk] |= (1ULL << sft);
     ++ mSatDegree;
   }
@@ -116,7 +116,7 @@ private:
   SizeType mHeapIdx;
 
   // 隣接するノードの色の集合を表すビットベクタ
-  ymuint64* mColorSet;
+  std::uint64_t* mColorSet;
 
   // SAT degree
   SizeType mSatDegree;
