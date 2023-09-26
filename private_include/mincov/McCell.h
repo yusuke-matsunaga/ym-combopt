@@ -1,20 +1,20 @@
 ﻿#ifndef YM_MCCELL_H
 #define YM_MCCELL_H
 
-/// @file ym/McCell.h
+/// @file mincov/McCell.h
 /// @brief McCell のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McCell McCell.h "ym/McCell.h"
+/// @class McCell McCell.h "mincov/McCell.h"
 /// @brief mincov 用の行列要素を表すクラス
 //////////////////////////////////////////////////////////////////////
 class McCell

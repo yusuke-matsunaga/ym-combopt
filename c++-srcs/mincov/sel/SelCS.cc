@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "SelCS.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -17,12 +17,14 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 次の列を選ぶ．
-int
-SelCS::operator()(const McMatrix& matrix)
+SizeType
+SelCS::select(
+  const McMatrix& matrix
+)
 {
   // 各行にカバーしている列数に応じた重みをつけ，
   // その重みの和が最大となる列を選ぶ．
-  int nr = matrix.row_size();
+  SizeType nr = matrix.row_size();
   vector<double> row_weights(nr);
   for ( auto row_pos: matrix.row_head_list() ) {
     double min_cost = DBL_MAX;
@@ -36,13 +38,12 @@ SelCS::operator()(const McMatrix& matrix)
   }
 
   double min_delta = DBL_MAX;
-  int min_col = 0;
-
+  SizeType min_col = 0;
   for ( auto col_pos: matrix.col_head_list() ) {
     double col_cost = matrix.col_cost(col_pos);
 
-    vector<int> col_delta(matrix.col_size(), 0);
-    vector<int> col_list;
+    vector<SizeType> col_delta(matrix.col_size(), 0);
+    vector<SizeType> col_list;
     for ( auto row_pos: matrix.col_list(col_pos) ) {
       for ( auto col_pos1: matrix.row_list(row_pos) ) {
 	if ( col_delta[col_pos1] == 0 ) {
@@ -53,10 +54,10 @@ SelCS::operator()(const McMatrix& matrix)
     }
 
     vector<bool> row_mark(matrix.row_size(), false);
-    vector<int> row_list;
+    vector<SizeType> row_list;
     for ( auto col_pos1: col_list ) {
       double cost1 = matrix.col_cost(col_pos1);
-      int num = matrix.col_elem_num(col_pos1);
+      SizeType num = matrix.col_elem_num(col_pos1);
       cost1 /= num;
       for ( auto row_pos: matrix.col_list(col_pos) ) {
 	if ( row_weights[row_pos] < cost1 ) {

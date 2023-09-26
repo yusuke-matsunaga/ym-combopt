@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "matrix/McMatrixImpl.h"
-#include "ym/McColComp.h"
+#include "mincov/McColComp.h"
 #include "ym/Range.h"
 
 

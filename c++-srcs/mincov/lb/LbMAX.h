@@ -8,7 +8,7 @@
 /// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "LbCalc.h"
+#include "mincov/LbCalc.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -23,10 +23,14 @@ class LbMAX :
 public:
 
   /// @brief コンストラクタ
-  LbMAX() = default;
+  LbMAX(
+    vector<unique_ptr<LbCalc>>&& child_list
+  ) : mChildList{std::move(child_list)}
+  {
+  }
 
   /// @brief デストラクタ
-  ~LbMAX();
+  ~LbMAX() = default;
 
 
 public:
@@ -36,18 +40,9 @@ public:
 
   /// @brief 下界の計算をする．
   int
-  operator()(
+  calc(
     const McMatrix& matrix
   ) override;
-
-  /// @brief 下界の計算クラスを追加する．
-  void
-  add_calc(
-    LbCalc* calc
-  )
-  {
-    mCalcList.push_back(unique_ptr<LbCal>{calc});
-  }
 
 
 private:
@@ -56,7 +51,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 下界の計算クラスのリスト
-  vector<unique_ptr<LbCalc>> mCalcList;
+  vector<unique_ptr<LbCalc>> mChildList;
 
 };
 

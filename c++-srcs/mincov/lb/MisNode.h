@@ -8,7 +8,7 @@
 /// Copyright (C) 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV

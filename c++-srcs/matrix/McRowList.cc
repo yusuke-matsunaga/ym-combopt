@@ -6,8 +6,7 @@
 /// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
-#include "ym/McRowList.h"
+#include "mincov/McRowList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV

@@ -7,6 +7,10 @@
 /// All rights reserved.
 
 #include "ym/MinCov.h"
+#include "ym/JsonValue.h"
+#include "mincov/McMatrix.h"
+#include "Solver.h"
+#if 0
 #include "Greedy.h"
 #include "Exact.h"
 #include "lb/LbMIS1.h"
@@ -16,49 +20,10 @@
 #include "sel/SelSimple.h"
 #include "sel/SelNaive.h"
 #include "sel/SelCS.h"
+#endif
 #include "ym/Range.h"
 
-
 BEGIN_NAMESPACE_YM_MINCOV
-
-BEGIN_NONAMESPACE
-
-// オプション文字列をパーズする
-// * オプションは
-//   <オプションキーワード>[:<オプション値>][, <オプションキーワード>[:<オプション値>]]
-//   の形式と仮定する．
-// * 空白の除去は行わない．単純に ',' と ':' のみで区切る．
-// * 結果を opt_list に格納する．
-void
-parse_option(const string& option_str,
-	     vector<pair<string, string>>& opt_list)
-{
-  // ',' で区切る
-  string tmp_str(option_str);
-  for ( ; ; ) {
-    string::size_type p = tmp_str.find_first_of(',');
-    string tmp = tmp_str.substr(0, p);
-    // tmp を ':' で区切る．
-    string::size_type q = tmp.find_first_of(':');
-    if ( q == string::npos ) {
-      // ':' がなかった
-      opt_list.push_back(make_pair(tmp, string()));
-    }
-    else {
-      string l_str = tmp.substr(0, q);
-      string r_str = tmp.substr(q + 1, string::npos);
-      opt_list.push_back(make_pair(l_str, r_str));
-    }
-    if ( p == string::npos ) {
-      // 末尾だったので終わる．
-      break;
-    }
-    // tmp_str を切り詰める．
-    tmp_str = tmp_str.substr(p + 1, string::npos);
-  }
-}
-
-END_NONAMESPACE
 
 //////////////////////////////////////////////////////////////////////
 // クラス MinCov
@@ -66,60 +31,43 @@ END_NONAMESPACE
 
 // @brief 最小被覆問題を解く．
 SizeType
+MinCov::solve(
+  vector<SizeType>& solution,
+  const string& option_str
+)
+{
+  McMatrix matrix{row_size(), mColCostArray, mElemList};
+  auto option = JsonValue::parse(option_str);
+  auto solver = Solver::new_obj(matrix, option);
+  SizeType cost = solver->solve(solution);
+
+  { // 結果が正しいか検証しておく．
+    vector<SizeType> uncov_row_list;
+    bool stat = verify_solution(solution, uncov_row_list);
+    if ( !stat ) {
+      for ( auto row: uncov_row_list ) {
+	cout << "Error: Row#" << row << " is not covered" << endl;
+      }
+    }
+  }
+
+  return cost;
+}
+
+#if 0
+// @brief 最小被覆問題を解く．
+SizeType
 MinCov::exact(
   vector<SizeType>& solution,
-  const string& option
+  const JsonValue& json_obj
 )
 {
   sanity_check();
 
-  // ここの仕事はオプション文字列を解析して
-  // Exact を呼ぶこと．
-  vector<pair<string, string>> opt_list;
-  parse_option(option, opt_list);
-
   vector<string> lb_str_list;
-  string sel_str;
-  for ( auto opt_pair: opt_list ) {
-    auto opt_kwd = opt_pair.first;
-    auto opt_val = opt_pair.second;
-    if ( opt_kwd == string("lower_bound") ) {
-      lb_str_list.push_back(opt_val);
-    }
-    else if ( opt_kwd == string("selector") ) {
-      // 重複していたら最後の指定が有効となる．
-      sel_str = opt_val;
-    }
-    else if ( opt_kwd == string("partition") ) {
-      if ( opt_val == string() || opt_val == string("on") ) {
-	Exact::set_partition_flag(true);
-      }
-      else if ( opt_val == string("off") ) {
-	Exact::set_partition_flag(false);
-      }
-      else {
-	cerr << "Error in MinCov::exact(): illegal value for 'partition': "
-	     << opt_val << ", ignored." << endl;
-	// 無視
-      }
-    }
-    else if ( opt_kwd == string("debug") ) {
-      if ( opt_val == string() || opt_val == string("on") ) {
-	Exact::set_debug_flag(true);
-      }
-      else if ( opt_val == string("off") ) {
-	Exact::set_debug_flag(false);
-      }
-      else {
-	cerr << "Error in MinCov::exact(): illegal value for 'debug': "
-	     << opt_val << ", ignored." << endl;
-	// 無視
-      }
-    }
-    else if ( opt_kwd == string("debug_depth") ) {
-      int debug_depth = atoi(opt_val.c_str());
-      Exact::set_max_depth(debug_depth);
-    }
+  if ( json_obj.has_key("lower_bound") ) {
+    auto value = expect_string(json_obj["lower_bound"], "lower_bound");
+    lb_str_list.push_back(value);
   }
 
   LbCS lb_cs;
@@ -152,38 +100,9 @@ MinCov::exact(
     lb_list.push_back(&lb_mis1);
   }
 
-  SelSimple sel_simple;
-  SelNaive sel_naive;
-  SelCS sel_cs;
-  Selector* selector = nullptr;
-  if ( sel_str == string() || sel_str == string("simple") ) {
-    selector = &sel_simple;
-  }
-  else if ( sel_str == string("naive") ) {
-    selector = &sel_naive;
-  }
-  else if ( sel_str == string("cs") ) {
-    selector = &sel_cs;
-  }
-  else {
-    cerr << "Error in MinCov::exact(): illegal value for 'selector': "
-	 << sel_str << ", 'SelSimple' is used." << endl;
-    selector = &sel_simple;
-  }
-
   McMatrix matrix(row_size(), mColCostArray, mElemList);
-  Exact solver(matrix, lb_list, *selector);
+  Exact solver(matrix, json_obj);
   SizeType cost = solver.solve(solution);
-
-  { // 結果が正しいか検証しておく．
-    vector<SizeType> uncov_row_list;
-    bool stat = verify_solution(solution, uncov_row_list);
-    if ( !stat ) {
-      for ( auto row: uncov_row_list ) {
-	cout << "Error: Row#" << row << " is not covered" << endl;
-      }
-    }
-  }
 
   return cost;
 }
@@ -198,11 +117,6 @@ greedy(
   vector<SizeType>& solution
 )
 {
-  // ここの仕事はオプション文字列を解析して
-  // Greedy を呼ぶこと．
-  vector<pair<string, string>> opt_list;
-  parse_option(option, opt_list);
-
   string sel_str;
   for ( auto opt_pair: opt_list ) {
     auto opt_kwd = opt_pair.first;
@@ -292,6 +206,7 @@ MinCov::heuristic(
 
   return matrix.cost(solution);
 }
+#endif
 
 // @brief mElemList をチェックする．
 void

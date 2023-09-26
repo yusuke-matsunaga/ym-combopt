@@ -5,20 +5,20 @@
 /// @brief McMatrixImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
-#include "ym/McHead.h"
-#include "ym/McHeadList.h"
-#include "ym/McColList.h"
-#include "ym/McRowList.h"
+#include "mincov/mincov_nsdef.h"
+#include "mincov/McHead.h"
+#include "mincov/McHeadList.h"
+#include "mincov/McColList.h"
+#include "mincov/McRowList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McMatrixImpl McMatrixImpl.h "ym/McMatrixImpl.h"
+/// @class McMatrixImpl McMatrixImpl.h "mincov/McMatrixImpl.h"
 /// @brief mincov 用の行列を表すクラス
 ///
 /// * 単純には m x n のブーリアン行列

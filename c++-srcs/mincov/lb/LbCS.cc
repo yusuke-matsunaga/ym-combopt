@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "LbCS.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 
 // @brief 下限を求める．
 int
-LbCS::operator()(
+LbCS::calc(
   const McMatrix& matrix
 )
 {

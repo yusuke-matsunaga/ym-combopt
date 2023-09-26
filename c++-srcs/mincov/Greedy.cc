@@ -8,7 +8,7 @@
 
 #include "Greedy.h"
 #include "mincov/Selector.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 #include "ym/Range.h"
 
 
@@ -18,54 +18,51 @@ BEGIN_NAMESPACE_YM_MINCOV
 // クラス Greedy
 //////////////////////////////////////////////////////////////////////
 
-// @grief greedy アルゴリズムで解を求める．
-void
-Greedy::solve(
+// @brief コンストラクタ
+Greedy::Greedy(
   McMatrix& matrix,
-  Selector& selector,
+  const JsonValue& opt_obj
+) : Solver{matrix, opt_obj}
+{
+}
+
+// @grief greedy アルゴリズムで解を求める．
+SizeType
+Greedy::solve(
   vector<SizeType>& solution
 )
 {
-  if ( mDebug ) {
+  if ( debug() ) {
     cout << "Greedy::solve() start" << endl;
-    matrix.print(cout);
+    matrix().print(cout);
   }
 
-  while ( matrix.active_row_num() > 0 ) {
+  while ( matrix().active_row_num() > 0 ) {
     // 次の分岐のための列をとってくる．
-    auto col = selector(matrix);
-    if ( mDebug ) {
+    auto col = select();
+    if ( debug() ) {
       cout << " selecting Col#" << col << endl;
     }
 
     // その列を選択する．
-    matrix.select_col(col);
+    matrix().select_col(col);
     solution.push_back(col);
 
-    if ( mDebug ) {
+    if ( debug() ) {
       cout << "Col#" << col << " is selected heuristically" << endl;
     }
 
     // 行列を縮約する．
     vector<SizeType> dummy;
-    matrix.reduce_loop(solution, dummy);
+    matrix().reduce_loop(solution, dummy);
 
-    if ( mDebug ) {
+    if ( debug() ) {
       cout << "After reduction" << endl;
-      matrix.print(cout);
+      matrix().print(cout);
     }
   }
-}
 
-// @brief デバッグフラグをセットする．
-void
-Greedy::set_debug_flag(
-  bool flag
-)
-{
-  mDebug = flag;
+  return matrix().cost(solution);
 }
-
-bool Greedy::mDebug = false;
 
 END_NAMESPACE_YM_MINCOV

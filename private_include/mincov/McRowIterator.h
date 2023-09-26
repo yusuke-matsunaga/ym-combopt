@@ -1,36 +1,36 @@
-#ifndef YM_MCCOLITERATOR_H
-#define YM_MCCOLITERATOR_H
+#ifndef YM_MCROWITERATOR_H
+#define YM_MCROWITERATOR_H
 
-/// @file ym/McColIterator.h
-/// @brief McColIterator のヘッダファイル
+/// @file mincov/McRowIterator.h
+/// @brief McRowIterator のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
-#include "ym/McCell.h"
+#include "mincov/mincov_nsdef.h"
+#include "mincov/McCell.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McColIterator McColIterator.h "ym/McColIterator.h"
-/// @brief McMatrix の要素を列方向にたどる反復子
+/// @class McRowIterator McRowIterator.h "mincov/McRowIterator.h"
+/// @brief McMatrix の要素を行方向にたどる反復子
 //////////////////////////////////////////////////////////////////////
-class McColIterator
+class McRowIterator
 {
 public:
 
   /// @brief コンストラクタ
-  McColIterator(
+  McRowIterator(
     McCell* cell = nullptr ///< [in] 対象の McCell
   ) : mCurCell{cell}
   {
   }
 
   /// @brief デストラクタ
-  ~McColIterator() = default;
+  ~McRowIterator() = default;
 
 
 public:
@@ -39,32 +39,32 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief dereference 演算子
-  /// @return 要素の行番号を返す．
+  /// @return 要素の列番号を返す．
   SizeType
   operator*() const
   {
-    return mCurCell->row_pos();
+    return mCurCell->col_pos();
   }
 
   /// @brief インクリメント演算子
-  McColIterator
+  McRowIterator
   operator++()
   {
     if ( mCurCell != nullptr ) {
-      mCurCell = mCurCell->col_next();
+      mCurCell = mCurCell->row_next();
     }
 
     return *this;
   }
 
   /// @brief インクリメント演算子(後置)
-  McColIterator
-  operator++(int) // 引数はダミー
+  McRowIterator
+  operator++(int)
   {
-    McColIterator ans{mCurCell};
+    McRowIterator ans{mCurCell};
 
     if ( mCurCell != nullptr ) {
-      mCurCell = mCurCell->col_next();
+      mCurCell = mCurCell->row_next();
     }
 
     return ans;
@@ -73,7 +73,7 @@ public:
   /// @brief 等価比較演算子
   bool
   operator==(
-    const McColIterator& right
+    const McRowIterator& right
   ) const
   {
     return mCurCell == right.mCurCell;
@@ -94,8 +94,8 @@ private:
 inline
 bool
 operator!=(
-  const McColIterator& left, ///< [in] オペランド1
-  const McColIterator& right ///< [in] オペランド2
+  const McRowIterator& left, ///< [in] オペランド1
+  const McRowIterator& right ///< [in] オペランド2
 )
 {
   return !left.operator==(right);
@@ -103,4 +103,4 @@ operator!=(
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // YM_MCCOLITERATOR_H
+#endif // YM_MCROWITERATOR_H

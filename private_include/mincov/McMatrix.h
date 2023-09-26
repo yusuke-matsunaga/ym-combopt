@@ -8,17 +8,17 @@
 /// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
-#include "ym/McHeadList.h"
-#include "ym/McColComp.h"
-#include "ym/McColList.h"
-#include "ym/McRowList.h"
+#include "mincov/mincov_nsdef.h"
+#include "mincov/McHeadList.h"
+#include "mincov/McColComp.h"
+#include "mincov/McColList.h"
+#include "mincov/McRowList.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McMatrix McMatrix.h "ym/McMatrix.h"
+/// @class McMatrix McMatrix.h "mincov/McMatrix.h"
 /// @brief mincov 用の行列を表すクラス
 ///
 /// * 単純には m x n のブーリアン行列

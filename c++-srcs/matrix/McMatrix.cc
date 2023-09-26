@@ -6,9 +6,9 @@
 /// Copyright (C) 2005-2010, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 #include "matrix/McMatrixImpl.h"
-#include "ym/McColComp.h"
+#include "mincov/McColComp.h"
 #include "ym/Range.h"
 
 

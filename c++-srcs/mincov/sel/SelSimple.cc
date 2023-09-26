@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "SelSimple.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -17,15 +17,15 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 次の列を選ぶ．
-// @param[in] block 対象の行列
-// @return 選ばれた列番号を返す．
-int
-SelSimple::operator()(const McMatrix& matrix)
+SizeType
+SelSimple::select(
+  const McMatrix& matrix
+)
 {
   // 各行にカバーしている列数に応じた重みをつけ，
   // その重みの和が最大となる列を選ぶ．
   double max_weight = 0.0;
-  int max_col = 0;
+  SizeType max_col = 0;
   for ( auto col_pos: matrix.col_head_list() ) {
     double weight = 0.0;
     for ( auto row_pos: matrix.col_list(col_pos) ) {

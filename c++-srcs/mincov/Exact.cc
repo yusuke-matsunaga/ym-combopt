@@ -7,13 +7,16 @@
 /// All rights reserved.
 
 #include "Exact.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
+#include "ym/JsonValue.h"
 #include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
+
+BEGIN_NONAMESPACE
 
 static
 int solve_id = 0;
@@ -40,6 +43,20 @@ verify_block(
   }
 }
 
+unique_ptr<LbCalc>
+new_LbCalc(
+  const JsonValue& opt_obj
+)
+{
+  JsonValue lb_opt;
+  if ( opt_obj.has_key("lower_bound") ) {
+    lb_opt = opt_obj.at("lower_bound");
+  }
+  return LbCalc::new_obj(lb_opt);
+}
+
+END_NONAMESPACE
+
 //////////////////////////////////////////////////////////////////////
 // クラス Exact
 //////////////////////////////////////////////////////////////////////
@@ -47,11 +64,10 @@ verify_block(
 // @brief コンストラクタ
 Exact::Exact(
   McMatrix& matrix,
-  const vector<LbCalc*>& lb_calc_list,
-  Selector& selector
-) : mMatrix(matrix),
-    mLbCalcList(lb_calc_list),
-    mSelector(selector)
+  const JsonValue& opt_obj
+) : Solver{matrix, opt_obj},
+    mLbCalc{new_LbCalc(opt_obj)},
+    mDoPartition{get_bool(opt_obj, "partition")}
 {
 }
 
@@ -61,7 +77,7 @@ Exact::~Exact()
 }
 
 // @brief 最小被覆問題を解く．
-int
+SizeType
 Exact::solve(
   vector<SizeType>& solution
 )
@@ -75,7 +91,7 @@ Exact::solve(
 
   solution = mBestSolution;
 
-  if ( mDebug ) {
+  if ( debug() ) {
     cout << "Total branch: " << solve_id << endl;
   }
 
@@ -93,25 +109,22 @@ Exact::_solve(
   ++ solve_id;
 
   vector<SizeType> dummy;
-  mMatrix.reduce_loop(mCurSolution, dummy);
+  matrix().reduce_loop(mCurSolution, dummy);
 
-  int tmp_cost = mMatrix.cost(mCurSolution);
-
-  for ( auto lb_calc_p: mLbCalcList ) {
-    int tmp_lb = (*lb_calc_p)(mMatrix) + tmp_cost;
-    if ( lb < tmp_lb ) {
-      lb = tmp_lb;
-    }
+  auto tmp_cost = matrix().cost(mCurSolution);
+  auto tmp_lb = mLbCalc->calc(matrix()) + tmp_cost;
+  if ( lb < tmp_lb ) {
+    lb = tmp_lb;
   }
 
-  bool cur_debug = mDebug;
-  if ( depth > mMaxDepth ) {
+  bool cur_debug = debug();
+  if ( depth > debug_depth() ) {
     cur_debug = false;
   }
 
   if ( cur_debug ) {
-    int nr = mMatrix.active_row_num();
-    int nc = mMatrix.active_col_num();
+    int nr = matrix().active_row_num();
+    int nc = matrix().active_col_num();
     cout << "[" << depth << "] " << nr << "x" << nc
 	 << " sel=" << tmp_cost << " bnd=" << mBest
 	 << " lb=" << lb
@@ -126,7 +139,7 @@ Exact::_solve(
     return false;
   }
 
-  if ( mMatrix.active_row_num() == 0 ) {
+  if ( matrix().active_row_num() == 0 ) {
     // 自明な解
     mBest = tmp_cost;
     mBestSolution = mCurSolution;
@@ -194,18 +207,18 @@ Exact::_solve(
 #endif
 
   // 次の分岐のための列をとってくる．
-  SizeType col = mSelector(mMatrix);
+  SizeType col = select();
 
 #if defined(VERIFY_MINCOV)
-  McMatrix orig_matrix(mMatrix);
+  McMatrix orig_matrix(matrix());
   vector<int> orig_solution(mCurSolution);
 #endif
 
   SizeType cur_n = mCurSolution.size();
-  mMatrix.save();
+  matrix().save();
 
   // その列を選択したときの最良解を求める．
-  mMatrix.select_col(col);
+  matrix().select_col(col);
   mCurSolution.push_back(col);
 
   if ( cur_debug ) {
@@ -214,14 +227,14 @@ Exact::_solve(
 
   bool stat1 = _solve(lb, depth + 1);
 
-  mMatrix.restore();
+  matrix().restore();
   SizeType c = mCurSolution.size() - cur_n;
   for ( SizeType i = 0; i < c; ++ i ) {
     mCurSolution.pop_back();
   }
 
 #if defined(VERIFYY_MINCOV)
-  verify_matrix(orig_matrix, mMatrix);
+  verify_matrix(orig_matrix, matrix());
   ASSERT_COND( orig_solution == mCurSlution );
 #endif
 
@@ -234,7 +247,7 @@ Exact::_solve(
   }
 
   // その列を選択しなかったときの最良解を求める．
-  mMatrix.delete_col(col);
+  matrix().delete_col(col);
 
   if ( cur_debug ) {
     cout << "[" << depth << "]B deselect column#" << col << endl;
@@ -244,48 +257,5 @@ Exact::_solve(
 
   return stat1 || stat2;
 }
-
-// @brief 対象のブロックを返す．
-const McMatrix&
-Exact::matrix() const
-{
-  return mMatrix;
-}
-
-// @brief partition フラグを設定する．
-void
-Exact::set_partition_flag(
-  bool flag
-)
-{
-  mDoPartition = flag;
-}
-
-// @brief デバッグフラグを設定する．
-void
-Exact::set_debug_flag(
-  bool flag
-)
-{
-  mDebug = flag;
-}
-
-// @brief mMaxDepth を設定する．
-void
-Exact::set_max_depth(
-  int depth
-)
-{
-  mMaxDepth = depth;
-}
-
-bool
-Exact::mDoPartition = true;
-
-bool
-Exact::mDebug = false;
-
-int
-Exact::mMaxDepth = 0;
 
 END_NAMESPACE_YM_MINCOV

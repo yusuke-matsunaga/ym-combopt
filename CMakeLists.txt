@@ -24,9 +24,7 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( tests/gtest/udgraph )
-add_subdirectory ( tests/programs )
-#add_subdirectory ( tests/python )
+add_subdirectory ( tests )
 
 
 # ===================================================================
@@ -34,15 +32,19 @@ add_subdirectory ( tests/programs )
 # ===================================================================
 
 set ( mincov_SOURCES
+  c++-srcs/mincov/Solver.cc
   c++-srcs/mincov/Greedy.cc
   c++-srcs/mincov/Exact.cc
+  c++-srcs/mincov/lb/LbCalc.cc
   c++-srcs/mincov/lb/LbCS.cc
   c++-srcs/mincov/lb/LbMIS1.cc
   c++-srcs/mincov/lb/LbMIS2.cc
   c++-srcs/mincov/lb/LbMIS3.cc
+  c++-srcs/mincov/lb/LbMAX.cc
   c++-srcs/mincov/lb/MisNodeHeap.cc
   c++-srcs/mincov/MaxClique.cc
   c++-srcs/mincov/MinCov.cc
+  c++-srcs/mincov/sel/Selector.cc
   c++-srcs/mincov/sel/SelCS.cc
   c++-srcs/mincov/sel/SelNaive.cc
   c++-srcs/mincov/sel/SelSimple.cc

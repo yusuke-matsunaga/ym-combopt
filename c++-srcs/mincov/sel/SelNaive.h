@@ -5,7 +5,7 @@
 /// @brief SelNaive のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -29,10 +29,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の列を選ぶ．
-  /// @param[in] matrix 対象の行列
   /// @return 選ばれた列番号を返す．
-  int
-  operator()(const McMatrix& matrix) override;
+  SizeType
+  select(
+    const McMatrix& matrix ///< [in] 対象の行列
+  ) override;
 
 };
 

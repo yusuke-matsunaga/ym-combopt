@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "SelNaive.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -17,14 +17,14 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 次の列を選ぶ．
-// @param[in] block 対象の行列
-// @return 選ばれた列番号を返す．
-int
-SelNaive::operator()(const McMatrix& matrix)
+SizeType
+SelNaive::select(
+  const McMatrix& matrix
+)
 {
   // 最もカバーしている行の多い列を選ぶ
-  int max_num = 0;
-  int max_col = 0;
+  SizeType max_num = 0;
+  SizeType max_col = 0;
   for ( auto col_pos: matrix.col_head_list() ) {
     if ( max_num < matrix.col_elem_num(col_pos) ) {
       max_num = matrix.col_elem_num(col_pos);

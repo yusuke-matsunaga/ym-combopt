@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "LbMIS3.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 #include "ym/UdGraph.h"
 
 
@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 
 // @brief 下限を求める．
 int
-LbMIS3::operator()(
+LbMIS3::calc(
   const McMatrix& matrix
 )
 {

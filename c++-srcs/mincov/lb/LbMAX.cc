@@ -17,19 +17,18 @@ BEGIN_NAMESPACE_YM_MINCOV
 
 // @brief 下界の計算をする．
 int
-LbMAX::operator()(
+LbMAX::calc(
   const McMatrix& matrix
 )
 {
   int max_val = 0;
-  for ( auto calc_p: mCalcList ) {
-    int val = (*calc_p)(matrix);
+  for ( auto& calc: mChildList ) {
+    int val = calc->calc(matrix);
     if ( max_val < val ) {
       max_val = val;
     }
   }
   return max_val;
 }
-
 
 END_NAMESPACE_YM_MINCOV

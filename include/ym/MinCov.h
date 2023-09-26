@@ -5,10 +5,11 @@
 /// @brief MinCov のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015, 2016, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
+#include "ym/combopt.h"
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -40,11 +41,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 空のコンストラクタ
-  MinCov()
-  {
-    mRowSize = 0;
-    mColSize = 0;
-  }
+  MinCov() = default;
 
   /// @brief サイズを指定したコンストラクタ
   ///
@@ -118,7 +115,7 @@ public:
   /// * 空の行列となる．
   void
   resize(
-    SizeType row_size,                ///< [in] 行数
+    SizeType row_size,                     ///< [in] 行数
     const vector<SizeType>& col_cost_array ///< [in] 列のコスト配列
   )
   {
@@ -206,9 +203,23 @@ public:
   /// @brief 最小被覆問題を解く．
   /// @return 解のコスト
   SizeType
+  solve(
+    vector<SizeType>& solution,         ///< [out] 選ばれた列集合
+    const string& option_str = string{} ///< [in] オプション文字列
+  );
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる下請け関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 最小被覆問題を解く．
+  /// @return 解のコスト
+  SizeType
   exact(
-    vector<SizeType>& solution,     ///< [out] 選ばれた列集合
-    const string& option = string{} ///< [in] オプション文字列
+    vector<SizeType>& solution, ///< [out] 選ばれた列集合
+    const JsonValue& json_obj   ///< [in] オプションを表すJSONオブジェクト
   );
 
   /// @brief ヒューリスティックで最小被覆問題を解く．
@@ -219,12 +230,6 @@ public:
     const string& algorithm = string{},	///< [in] アルゴリズム名
     const string& option = string{}	///< [in] オプション文字列
   );
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる下請け関数
-  //////////////////////////////////////////////////////////////////////
 
   /// @brief mElemList をチェックする．
   ///
@@ -248,10 +253,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 行数
-  SizeType mRowSize;
+  SizeType mRowSize{0};
 
   // 列数
-  SizeType mColSize;
+  SizeType mColSize{0};
 
   // 列のコスト配列
   // サイズは mColSize

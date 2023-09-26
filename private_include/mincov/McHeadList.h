@@ -1,16 +1,16 @@
 #ifndef YM_MCHEADLIST_H
 #define YM_MCHEADLIST_H
 
-/// @file ym/McHeadList.h
+/// @file mincov/McHeadList.h
 /// @brief McHeadList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
-#include "ym/McHead.h"
-#include "ym/McHeadIterator.h"
+#include "mincov/mincov_nsdef.h"
+#include "mincov/McHead.h"
+#include "mincov/McHeadIterator.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV

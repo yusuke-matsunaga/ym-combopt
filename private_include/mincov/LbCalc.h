@@ -8,8 +8,8 @@
 /// Copyright (C) 2014 Yusuke Matsunaga
 /// All rights reserved.
 
-
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -22,9 +22,16 @@ class LbCalc
 {
 public:
 
+  /// @brief インスタンスを生成するクラスメソッド
+  static
+  unique_ptr<LbCalc>
+  new_obj(
+    const JsonValue& opt_obj ///< [in] オプションを表すJSONオブジェクト
+  );
+
   /// @brief デストラクタ
   virtual
-  ~LbCalc() { }
+  ~LbCalc() = default;
 
 
 public:
@@ -33,10 +40,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 下界の計算をする
-  /// @param[in] matrix 対象の行列
   virtual
   int
-  operator()(const McMatrix& matrix) = 0;
+  calc(
+    const McMatrix& matrix ///< [in] 対象の行列
+  ) = 0;
 
 };
 

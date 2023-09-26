@@ -5,11 +5,11 @@
 /// @brief Selector のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014 Yusuke Matsunaga
+/// Copyright (C) 2014, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-
-#include "ym/mincov_nsdef.h"
+#include "mincov_nsdef.h"
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -22,9 +22,16 @@ class Selector
 {
 public:
 
+  /// @brief インスタンスを生成するクラスメソッド
+  static
+  unique_ptr<Selector>
+  new_obj(
+    const JsonValue& option ///< [in] オプションを表すJSONオブジェクト
+  );
+
   /// @brief デストラクタ
   virtual
-  ~Selector() { }
+  ~Selector() = default;
 
 
 public:
@@ -33,11 +40,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の列を選ぶ．
-  /// @param[in] matrix 対象の行列
   /// @return 選ばれた列番号を返す．
   virtual
-  int
-  operator()(const McMatrix& matrix) = 0;
+  SizeType
+  select(
+    const McMatrix& matrix ///< [in] 対象の行列
+  ) = 0;
 
 };
 

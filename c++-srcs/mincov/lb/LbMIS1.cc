@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "LbMIS1.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -41,7 +41,7 @@ struct Lt
 
 // @brief 下限を求める．
 int
-LbMIS1::operator()(
+LbMIS1::calc(
   const McMatrix& matrix
 )
 {

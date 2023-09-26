@@ -1,20 +1,20 @@
 ﻿#ifndef YM_MCCOLCOMP_H
 #define YM_MCCOLCOMP_H
 
-/// @file ym/McColComp.h
+/// @file mincov/McColComp.h
 /// @brief McColComp のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McColComp McColComp.h "McColComp.h"
+/// @class McColComp McColComp.h "mincov/McColComp.h"
 /// @brief McMatrix::reduce で用いる列比較関数
 //////////////////////////////////////////////////////////////////////
 class McColComp

@@ -1,16 +1,6 @@
 
-
 # ===================================================================
 # インクルードパスの設定
-# ===================================================================
-include_directories (
-  ${PROJECT_SOURCE_DIR}/ym-base/cython-src
-  ${PROJECT_SOURCE_DIR}/ym-combopt/cython-src
-  )
-
-
-# ===================================================================
-#  マクロの定義
 # ===================================================================
 
 
@@ -20,34 +10,18 @@ include_directories (
 
 
 # ===================================================================
-#  cython 用のソースファイルの設定
+#  ソースファイルの設定
 # ===================================================================
-
-set ( CYTHON_SOURCES
-  pym_combopt.pyx
-  )
-
-set_source_files_properties (
-  ${CYTHON_SOURCES}
-  PROPERTIES CYTHON_IS_CXX TRUE
-  )
 
 
 # ===================================================================
-#  module ターゲットの設定
+#  テスト用のターゲットの設定
 # ===================================================================
 
-cython_add_module ( pym_combopt
-  ${CYTHON_SOURCES}
+ym_add_gtest( combopt_dimacs_test
+  udgraph/dimacs_test.cc
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_combopt_obj_d>
-  )
-
-target_compile_options ( pym_combopt
-  PRIVATE "-g"
-  )
-
-
-target_link_libraries ( pym_combopt
-  ${YM_LIB_DEPENDS}
+  DEFINITIONS
+  "-DTESTDATA_DIR=\"${TESTDATA_DIR}\""
   )

@@ -8,7 +8,7 @@
 /// Copyright (C) 2015, 2016, 2018, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/udgraph_nsdef.h"
+#include "ym/combopt.h"
 
 
 BEGIN_NAMESPACE_YM_UDGRAPH

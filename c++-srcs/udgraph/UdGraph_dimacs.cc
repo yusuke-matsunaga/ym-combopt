@@ -30,7 +30,7 @@ syntax_error(
 		  MsgType::Error,
 		  "DIMACS002",
 		  err.str());
-  throw UdgError{err.str()};
+  throw std::invalid_argument{err.str()};
 }
 
 END_NONAMESPACE
@@ -48,7 +48,7 @@ UdGraph::read_dimacs(
 		    MsgType::Error,
 		    "DIMACS005",
 		    err.str());
-    throw UdgError{err.str()};
+    throw std::invalid_argument{err.str()};
   }
   return read_dimacs(s);
 }
@@ -89,7 +89,7 @@ UdGraph::read_dimacs(
 			MsgType::Error,
 			"DIMACS001",
 			err.str());
-	throw UdgError{err.str()};
+	throw std::invalid_argument{err.str()};
       }
 
       if ( str_list.size() != 4 || str_list[1] != "edge" ) {
@@ -156,7 +156,7 @@ UdGraph::write_dimacs(
 		    MsgType::Error,
 		    "DIMACS006",
 		    err.str());
-    throw UdgError{err.str()};
+    throw std::invalid_argument{err.str()};
   }
   write_dimacs(s);
 }

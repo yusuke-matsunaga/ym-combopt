@@ -63,8 +63,8 @@ coloring(
     cout << "Coloring(" << algorithm << ") end." << endl
 	 << " " << nc << " colors. " << timer.get_time() / 1000.0 << "(s)" << endl;
   }
-  catch ( UdgError& error ) {
-    cerr << error.str() << endl;
+  catch ( std::invalid_argument& error ) {
+    cerr << error.what() << endl;
     return 1;
   }
   return 0;

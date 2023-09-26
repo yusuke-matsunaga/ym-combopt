@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "LbMIS2.h"
-#include "ym/McMatrix.h"
+#include "mincov/McMatrix.h"
 #include "MisNode.h"
 #include "MisNodeHeap.h"
 
@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 
 // @brief 下限を求める．
 int
-LbMIS2::operator()(
+LbMIS2::calc(
   const McMatrix& matrix
 )
 {

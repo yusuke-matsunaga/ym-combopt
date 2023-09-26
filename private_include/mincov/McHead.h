@@ -1,14 +1,14 @@
 ﻿#ifndef YM_MCHEAD_H
 #define YM_MCHEAD_H
 
-/// @file ym/McHead.h
+/// @file mincov/McHead.h
 /// @brief McHead のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV

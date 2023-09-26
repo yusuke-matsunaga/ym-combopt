@@ -8,8 +8,8 @@
 /// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
-#include "ym/McMatrix.h"
+#include "Solver.h"
+#include "mincov/McMatrix.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
 
@@ -20,15 +20,15 @@ BEGIN_NAMESPACE_YM_MINCOV
 /// @class Exact Exact.h "Exact.h"
 /// @brief 最小被覆問題の厳密解を求めるクラス
 //////////////////////////////////////////////////////////////////////
-class Exact
+class Exact :
+  public Solver
 {
 public:
 
   /// @brief コンストラクタ
   Exact(
-    McMatrix& block,                ///< [in] 問題の行列
-    const vector<LbCalc*>& lb_list, ///< [in] 下界の計算クラスのリスト
-    Selector& selector		    ///< [in] 列を選択するクラス
+    McMatrix& matrix,        ///< [in] 問題の行列
+    const JsonValue& opt_obj ///< [in] オプションを表す JSON オブジェクト
   );
 
   /// @brief デストラクタ
@@ -42,35 +42,10 @@ public:
 
   /// @brief 最小被覆問題を解く．
   /// @return 解のコスト
-  int
+  SizeType
   solve(
     vector<SizeType>& solution ///< [out] 選ばれた列集合
-  );
-
-  /// @brief 対象の行列を返す．
-  const McMatrix&
-  matrix() const;
-
-  /// @brief partition フラグを設定する．
-  static
-  void
-  set_partition_flag(
-    bool flag
-  );
-
-  /// @brief デバッグフラグを設定する．
-  static
-  void
-  set_debug_flag(
-    bool flag
-  );
-
-  /// @brief mMaxDepth を設定する．
-  static
-  void
-  set_max_depth(
-    int depth
-  );
+  ) override;
 
 
 private:
@@ -91,14 +66,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 下界の計算クラスのリスト
-  const vector<LbCalc*>& mLbCalcList;
-
-  // 列を選択するクラス
-  Selector& mSelector;
-
-  // 対象の行列
-  McMatrix& mMatrix;
+  // 下界の計算クラス
+  unique_ptr<LbCalc> mLbCalc;
 
   // 現在のベスト
   int mBest;
@@ -110,16 +79,7 @@ private:
   vector<SizeType> mCurSolution;
 
   // block_partition を行うとき true にするフラグ
-  static
   bool mDoPartition;
-
-  // デバッグフラグ
-  static
-  bool mDebug;
-
-  // デバッグで表示する最大深さ
-  static
-  int mMaxDepth;
 
 };
 

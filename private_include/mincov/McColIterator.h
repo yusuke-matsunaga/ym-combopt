@@ -1,35 +1,36 @@
-#ifndef YM_MCHEADITERATOR_H
-#define YM_MCHEADITERATOR_H
+#ifndef YM_MCCOLITERATOR_H
+#define YM_MCCOLITERATOR_H
 
-/// @file ym/McHeadIterator.h
-/// @brief McHeadIterator のヘッダファイル
+/// @file mincov/McColIterator.h
+/// @brief McColIterator のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
+#include "mincov/McCell.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McHeadIterator McHeadIterator.h "ym/McHeadIterator.h"
-/// @brief McHead の反復子
+/// @class McColIterator McColIterator.h "mincov/McColIterator.h"
+/// @brief McMatrix の要素を列方向にたどる反復子
 //////////////////////////////////////////////////////////////////////
-class McHeadIterator
+class McColIterator
 {
 public:
 
   /// @brief コンストラクタ
-  McHeadIterator(
-    const McHead* head = nullptr
-  ) : mCurHead{head}
+  McColIterator(
+    McCell* cell = nullptr ///< [in] 対象の McCell
+  ) : mCurCell{cell}
   {
   }
 
   /// @brief デストラクタ
-  ~McHeadIterator() = default;
+  ~McColIterator() = default;
 
 
 public:
@@ -38,31 +39,32 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief dereference 演算子
+  /// @return 要素の行番号を返す．
   SizeType
   operator*() const
   {
-    return mCurHead->pos();
+    return mCurCell->row_pos();
   }
 
   /// @brief インクリメント演算子
-  McHeadIterator
+  McColIterator
   operator++()
   {
-    if ( mCurHead != nullptr ) {
-      mCurHead = mCurHead->next();
+    if ( mCurCell != nullptr ) {
+      mCurCell = mCurCell->col_next();
     }
 
     return *this;
   }
 
-  /// @brief インクリメント演算子
-  McHeadIterator
-  operator++(int)
+  /// @brief インクリメント演算子(後置)
+  McColIterator
+  operator++(int) // 引数はダミー
   {
-    McHeadIterator ans{mCurHead};
+    McColIterator ans{mCurCell};
 
-    if ( mCurHead != nullptr ) {
-      mCurHead = mCurHead->next();
+    if ( mCurCell != nullptr ) {
+      mCurCell = mCurCell->col_next();
     }
 
     return ans;
@@ -71,10 +73,10 @@ public:
   /// @brief 等価比較演算子
   bool
   operator==(
-    const McHeadIterator& right
+    const McColIterator& right
   ) const
   {
-    return mCurHead == right.mCurHead;
+    return mCurCell == right.mCurCell;
   }
 
 
@@ -83,8 +85,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 現在の ヘッダ
-  const McHead* mCurHead;
+  // 現在のセル
+  McCell* mCurCell;
 
 };
 
@@ -92,8 +94,8 @@ private:
 inline
 bool
 operator!=(
-  const McHeadIterator& left,
-  const McHeadIterator& right
+  const McColIterator& left, ///< [in] オペランド1
+  const McColIterator& right ///< [in] オペランド2
 )
 {
   return !left.operator==(right);
@@ -101,4 +103,4 @@ operator!=(
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // YM_MCHEADITERATOR_H
+#endif // YM_MCCOLITERATOR_H

@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/mincov_nsdef.h"
+#include "mincov/mincov_nsdef.h"
 #include "MisNode.h"
 
 

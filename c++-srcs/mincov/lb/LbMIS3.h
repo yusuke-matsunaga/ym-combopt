@@ -29,7 +29,7 @@ public:
 
   /// @brief 下界の計算をする
   int
-  operator()(
+  calc(
     const McMatrix& matrix
   ) override;
 

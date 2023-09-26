@@ -1,35 +1,35 @@
-#ifndef YM_MCCOLLIST_H
-#define YM_MCCOLLIST_H
+#ifndef YM_MCROWLIST_H
+#define YM_MCROWLIST_H
 
-/// @file ym/McColList.h
-/// @brief McColList のヘッダファイル
+/// @file mincov/McRowList.h
+/// @brief McRowList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/mincov_nsdef.h"
-#include "ym/McColIterator.h"
+#include "mincov/mincov_nsdef.h"
+#include "mincov/McRowIterator.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
 
 //////////////////////////////////////////////////////////////////////
-/// @class McColList McColList.h "ym/McColList.h"
-/// @brief McMatrix の要素を列方向にたどるためのクラス
+/// @class McRowList McRowList.h "mincov/McRowList.h"
+/// @brief McMatrix の要素を行方向にたどるためのクラス
 ///
 /// このクラスは読み出し専用でリストの内容を変えることはできない．
 //////////////////////////////////////////////////////////////////////
-class McColList
+class McRowList
 {
 public:
 
-  using iterator = McColIterator;
+  using iterator = McRowIterator;
 
 public:
 
   /// @brief コンストラクタ
-  McColList(
+  McRowList(
     McCell* begin_cell, ///< [in] 先頭の要素
     McCell* end_cell	///< [in] 末尾の要素
   ) : mBegin{begin_cell},
@@ -38,7 +38,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~McColList() = default;
+  ~McRowList() = default;
 
 
 public:
@@ -46,25 +46,32 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 先頭の要素の列番号を返す．
+  SizeType
+  front() const
+  {
+    return mBegin->col_pos();
+  }
+
   /// @brief 先頭の反復子を返す．
   iterator
   begin() const
   {
-    return McColIterator{mBegin};
+    return McRowIterator{mBegin};
   }
 
   /// @brief 末尾の反復子を返す．
   iterator
   end() const
   {
-    return McColIterator{mEnd};
+    return McRowIterator{mEnd};
   }
 
   friend
   bool
   operator==(
-    const McColList& list1,
-    const McColList& list2
+    const McRowList& list1,
+    const McRowList& list2
   );
 
 
@@ -81,38 +88,36 @@ private:
 
 };
 
-/// @relates McColList
+/// @relates McRowList
 /// @brief 等価比較演算子
-///< [in] list1, list2 オペランド
 bool
 operator==(
-  const McColList& list1,
-  const McColList& list2
+  const McRowList& list1,  ///< [in] オペランド1
+  const McRowList& list2   ///< [in] オペランド2
 );
 
-/// @relates McColList
+/// @relates McRowList
 /// @brief 非等価比較演算子
-///< [in] list1, list2 オペランド
 inline
 bool
 operator!=(
-  const McColList& list1,
-  const McColList& list2
+  const McRowList& list1, ///< [in] オペランド1
+  const McRowList& list2  ///< [in] オペランド2
 )
 {
   return !operator==(list1, list2);
 }
 
-/// @relates McColList
+/// @relates McRowList
 /// @brief 包含関係を調べる．
 ///
 /// list1 が list2 の要素をすべて含んでいたら true を返す．
 bool
 check_containment(
-  const McColList& list1, ///< [in] オペランド1
-  const McColList& list2  ///< [in] オペランド2
+  const McRowList& list1,  ///< [in] オペランド1
+  const McRowList& list2   ///< [in] オペランド2
 );
 
 END_NAMESPACE_YM_MINCOV
 
-#endif // YM_MCCOLLIST_H
+#endif // YM_MCROWLIST_H
