@@ -20,8 +20,9 @@
 
 ym_add_gtest( combopt_dimacs_test
   udgraph/dimacs_test.cc
-  $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_combopt_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   DEFINITIONS
   "-DTESTDATA_DIR=\"${TESTDATA_DIR}\""
   )
