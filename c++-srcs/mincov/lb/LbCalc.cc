@@ -52,7 +52,7 @@ LbCalc::new_obj(
     if ( !childs_obj.is_array() ) {
       throw std::invalid_argument{"'child_list' should be an array"};
     }
-    SizeType n = childs_obj.array_size();
+    SizeType n = childs_obj.size();
     vector<unique_ptr<LbCalc>> child_list(n);
     for ( SizeType i = 0; i < n; ++ i ) {
       child_list[i] = new_obj(childs_obj[i]);
