@@ -22,7 +22,6 @@ add_executable( coloring
   coloring.cc
   $<TARGET_OBJECTS:ym_combopt_obj>
   $<TARGET_OBJECTS:ym_base_obj>
-  $<TARGET_OBJECTS:ym_json_obj>
   )
 
 target_link_libraries ( coloring
@@ -33,7 +32,6 @@ add_executable( coloring_d
   coloring.cc
   $<TARGET_OBJECTS:ym_combopt_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
-  $<TARGET_OBJECTS:ym_json_obj_d>
   )
 
 target_compile_options ( coloring_d
