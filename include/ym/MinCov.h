@@ -132,7 +132,9 @@ public:
     SizeType cost     ///< [in] コスト
   )
   {
-    ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
+    if ( col_pos >=  col_size()  ) {
+      throw std::out_of_range{"col_pos is out of range"};
+    }
 
     mColCostArray[col_pos] = cost;
   }
@@ -146,6 +148,12 @@ public:
     SizeType col_pos  ///< [in] 追加する要素の列番号
   )
   {
+    if ( row_pos >=  row_size()  ) {
+      throw std::out_of_range{"row_pos is out of range"};
+    }
+    if ( col_pos >=  col_size()  ) {
+      throw std::out_of_range{"col_pos is out of range"};
+    }
     mElemList.push_back(make_pair(row_pos, col_pos));
   }
 
@@ -175,7 +183,9 @@ public:
     SizeType col_pos ///< [in] 列番号 ( 0 <= col_pos < col_size )
   ) const
   {
-    ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
+    if ( col_pos >=  col_size()  ) {
+      throw std::out_of_range{"col_pos is out of range"};
+    }
 
     return mColCostArray[col_pos];
   }
@@ -204,8 +214,8 @@ public:
   /// @return 解のコスト
   SizeType
   solve(
-    vector<SizeType>& solution,         ///< [out] 選ばれた列集合
-    const string& option_str = string{} ///< [in] オプション文字列
+    vector<SizeType>& solution, ///< [out] 選ばれた列集合
+    const JsonValue& option     ///< [in] オプションを表すJSONオブジェクト
   );
 
 
@@ -219,16 +229,15 @@ private:
   SizeType
   exact(
     vector<SizeType>& solution, ///< [out] 選ばれた列集合
-    const JsonValue& json_obj   ///< [in] オプションを表すJSONオブジェクト
+    const JsonValue& option     ///< [in] オプションを表すJSONオブジェクト
   );
 
   /// @brief ヒューリスティックで最小被覆問題を解く．
   /// @return 解のコスト
   SizeType
   heuristic(
-    vector<SizeType>& solution,         ///< [out] 選ばれた列集合
-    const string& algorithm = string{},	///< [in] アルゴリズム名
-    const string& option = string{}	///< [in] オプション文字列
+    vector<SizeType>& solution, ///< [out] 選ばれた列集合
+    const JsonValue& option     ///< [in] オプションを表すJSONオブジェクト
   );
 
   /// @brief mElemList をチェックする．

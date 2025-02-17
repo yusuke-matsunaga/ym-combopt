@@ -151,7 +151,7 @@ public:
   ) const;
 
   /// @brief 列のコストの配列を取り出す．
-  const SizeType*
+  const vector<SizeType>&
   col_cost_array() const;
 
   /// @brief 列集合のコストを返す．

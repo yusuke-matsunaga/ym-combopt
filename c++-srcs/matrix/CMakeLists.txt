@@ -6,13 +6,6 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories (
-  ${PROJECT_BINARY_DIR}/include
-  ${PROJECT_SOURCE_DIR}/ym-common/include
-  ${PROJECT_SOURCE_DIR}/ym-base/include
-  include
-  private_include
-  )
 
 
 # ===================================================================
@@ -24,13 +17,20 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( tests )
-add_subdirectory ( c++-srcs )
-
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
+
+set ( matrix_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/McHeadList.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/McColList.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/McRowList.cc
+#  ${CMAKE_CURRENT_SOURCE_DIR}/McBlock.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/McMatrix.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/McMatrixImpl.cc
+  PARENT_SCOPE
+  )
 
 
 # ===================================================================

@@ -5,14 +5,11 @@
 /// @brief Solver のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "mincov/mincov_nsdef.h"
 #include "ym/json.h"
-//#include "mincov/McMatrix.h"
-//#include "mincov/LbCalc.h"
-//#include "mincov/Selector.h"
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -76,10 +73,6 @@ protected:
     return mMatrix;
   }
 
-  /// @brief 列を選択する．
-  SizeType
-  select();
-
   /// @brief デバッグレベルを得る．
   int
   debug() const
@@ -93,6 +86,20 @@ protected:
   {
     return mDebugDepth;
   }
+
+  /// @brief Selector オブジェクトを作る．
+  static
+  std::unique_ptr<Selector>
+  new_Selector(
+    const JsonValue&  option
+  );
+
+  /// @brief LbCalc オブジェクトを作る．
+  static
+  std::unique_ptr<LbCalc>
+  new_LbCalc(
+    const JsonValue&  option
+  );
 
 
 protected:
@@ -135,12 +142,6 @@ private:
 
   // 対象の行列
   McMatrix& mMatrix;
-
-  // 下界の計算クラス
-  unique_ptr<LbCalc> mLbCalc;
-
-  // 列を選択するクラス
-  unique_ptr<Selector> mSelector;
 
   // デバッグレベル
   int mDebug;

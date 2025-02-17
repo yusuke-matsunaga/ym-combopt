@@ -3,12 +3,13 @@
 /// @brief Greedy の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Greedy.h"
-#include "mincov/Selector.h"
 #include "mincov/McMatrix.h"
+#include "mincov/Selector.h"
+#include "ym/JsonValue.h"
 #include "ym/Range.h"
 
 
@@ -22,7 +23,8 @@ BEGIN_NAMESPACE_YM_MINCOV
 Greedy::Greedy(
   McMatrix& matrix,
   const JsonValue& opt_obj
-) : Solver{matrix, opt_obj}
+) : Solver{matrix, opt_obj},
+    mSelector{new_Selector(opt_obj)}
 {
 }
 
@@ -39,7 +41,7 @@ Greedy::solve(
 
   while ( matrix().active_row_num() > 0 ) {
     // 次の分岐のための列をとってくる．
-    auto col = select();
+    auto col = mSelector->select(matrix());
     if ( debug() ) {
       cout << " selecting Col#" << col << endl;
     }

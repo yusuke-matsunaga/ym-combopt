@@ -6,13 +6,6 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories (
-  ${PROJECT_BINARY_DIR}/include
-  ${PROJECT_SOURCE_DIR}/ym-common/include
-  ${PROJECT_SOURCE_DIR}/ym-base/include
-  include
-  private_include
-  )
 
 
 # ===================================================================
@@ -24,13 +17,23 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( tests )
-add_subdirectory ( c++-srcs )
+#add_subdirectory ( gtest )
 
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
+
+set ( coloring_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/UdGraph_coloring.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/ColGraph.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Dsatur.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/IsCov.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Isx.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Isx2.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/TabuCol.cc
+  PARENT_SCOPE
+  )
 
 
 # ===================================================================

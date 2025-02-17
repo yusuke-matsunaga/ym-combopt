@@ -3,7 +3,7 @@
 /// @brief Solver の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Solver.h"
@@ -19,33 +19,6 @@
 BEGIN_NAMESPACE_YM_MINCOV
 
 BEGIN_NONAMESPACE
-
-unique_ptr<LbCalc>
-new_LbCalc(
-  const JsonValue& opt_obj
-)
-{
-  JsonValue lb_opt;
-  if ( opt_obj.has_key("lower_bound") ) {
-    lb_opt = opt_obj.at("lower_bound");
-  }
-  return LbCalc::new_obj(lb_opt);
-}
-
-unique_ptr<Selector>
-new_Selector(
-  const JsonValue& opt_obj
-)
-{
-  JsonValue sel_opt;
-  if ( opt_obj.has_key("selector") ) {
-    sel_opt = opt_obj.at("selector");
-    if ( !sel_opt.is_object() ) {
-      throw std::invalid_argument{"selector should be a JSON-object"};
-    }
-  }
-  return Selector::new_obj(sel_opt);
-}
 
 END_NONAMESPACE
 
@@ -85,9 +58,6 @@ Solver::Solver(
   McMatrix& matrix,
   const JsonValue& opt_obj
 ) : mMatrix{matrix},
-    //mLbCalc{new_LbCalc(opt_obj)},
-    mSelector{new_Selector(opt_obj)},
-    //mDoPartition{get_bool(opt_obj, "partition")},
     mDebug{get_int(opt_obj, "debug")},
     mDebugDepth{get_int(opt_obj, "debug_depth")}
 {
@@ -98,11 +68,31 @@ Solver::~Solver()
 {
 }
 
-// @brief 列を選択する．
-SizeType
-Solver::select()
+std::unique_ptr<Selector>
+Solver::new_Selector(
+  const JsonValue& opt_obj
+)
 {
-  return mSelector->select(mMatrix);
+  JsonValue sel_opt;
+  if ( opt_obj.has_key("selector") ) {
+    sel_opt = opt_obj.at("selector");
+    if ( !sel_opt.is_object() ) {
+      throw std::invalid_argument{"selector should be a JSON-object"};
+    }
+  }
+  return Selector::new_obj(sel_opt);
+}
+
+std::unique_ptr<LbCalc>
+Solver::new_LbCalc(
+  const JsonValue& opt_obj
+)
+{
+  JsonValue lb_opt;
+  if ( opt_obj.has_key("lower_bound") ) {
+    lb_opt = opt_obj.at("lower_bound");
+  }
+  return LbCalc::new_obj(lb_opt);
 }
 
 bool

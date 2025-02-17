@@ -7,11 +7,6 @@
 # インクルードパスの設定
 # ===================================================================
 include_directories (
-  ${PROJECT_BINARY_DIR}/include
-  ${PROJECT_SOURCE_DIR}/ym-common/include
-  ${PROJECT_SOURCE_DIR}/ym-base/include
-  include
-  private_include
   )
 
 
@@ -24,8 +19,11 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( tests )
-add_subdirectory ( c++-srcs )
+add_subdirectory ( mincov )
+add_subdirectory ( matrix )
+add_subdirectory ( udgraph )
+add_subdirectory ( coloring )
+add_subdirectory ( max_clique )
 
 
 # ===================================================================
@@ -36,3 +34,11 @@ add_subdirectory ( c++-srcs )
 # ===================================================================
 #  ターゲットの設定
 # ===================================================================
+
+ym_add_object_library ( ym_combopt
+  ${mincov_SOURCES}
+  ${matrix_SOURCES}
+  ${udgraph_SOURCES}
+  ${coloring_SOURCES}
+  ${max_clique_SOURCES}
+  )

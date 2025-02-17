@@ -96,30 +96,16 @@ McMatrixImpl::~McMatrixImpl()
 void
 McMatrixImpl::clear()
 {
-  for ( auto cell: mCellList ) {
-    delete cell;
-  }
   mCellList.clear();
-
-  delete [] mRowHeadArray;
-  delete [] mRowArray;
-  delete [] mColHeadArray;
-  delete [] mColArray;
-  delete [] mCostArray;
-  delete [] mDelStack;
-  delete [] mRowMark;
-  delete [] mColMark;
-  delete [] mDelList;
-
-  mRowHeadArray = nullptr;
-  mRowArray = nullptr;
-  mColHeadArray = nullptr;
-  mColArray = nullptr;
-  mCostArray = nullptr;
-  mDelStack = nullptr;
-  mRowMark = nullptr;
-  mColMark = nullptr;
-  mDelList = nullptr;
+  mRowHeadArray.clear();
+  mRowArray.clear();
+  mColHeadArray.clear();
+  mColArray.clear();
+  mCostArray.clear();
+  mDelStack.clear();
+  mRowMark.clear();
+  mColMark.clear();
+  mDelList.clear();
 }
 
 // @brief 要素を追加する．
@@ -132,9 +118,7 @@ McMatrixImpl::insert_elem(
   ASSERT_COND( row_pos >= 0 && row_pos < row_size() );
   ASSERT_COND( col_pos >= 0 && col_pos < col_size() );
 
-  auto cell = alloc_cell(row_pos, col_pos);
-
-  // cell を行方向のリストに挿入する．
+  // 行方向の挿入位置を求める．
   auto row_head = &mRowHeadArray[row_pos];
   auto row_dummy = mRowArray[row_pos];
   McCell* pcell;
@@ -151,7 +135,6 @@ McMatrixImpl::insert_elem(
       ncell = pcell->mRightLink;
       if ( ncell->col_pos() == col_pos ) {
 	// 列番号が重複しているので無視する．
-	free_cell(cell);
 	return;
       }
       if ( ncell->col_pos() > col_pos ) {
@@ -161,6 +144,8 @@ McMatrixImpl::insert_elem(
       ASSERT_COND( ncell != row_dummy );
     }
   }
+
+  auto cell = alloc_cell(row_pos, col_pos);
   cell->mLeftLink = pcell;
   pcell->mRightLink = cell;
   cell->mRightLink = ncell;
@@ -170,7 +155,7 @@ McMatrixImpl::insert_elem(
     mRowHeadList.insert(row_head);
   }
 
-  // cell を列方向のリストに挿入する．
+  // 列方向の挿入位置を求める．
   auto col_head = &mColHeadArray[col_pos];
   auto col_dummy = mColArray[col_pos];
   if ( col_head->num() == 0 || col_dummy->col_prev()->row_pos() < row_pos ) {
@@ -617,34 +602,28 @@ McMatrixImpl::resize(
     mRowSize = row_size;
     mColSize = col_size;
 
-    mRowHeadArray = new McHead[mRowSize];
-    mRowArray = new McCell*[mRowSize];
-    mRowMark = new SizeType[mRowSize];
+    mRowHeadArray.resize(mRowSize);
+    mRowArray.resize(mRowSize, nullptr);
+    mRowMark.resize(mRowSize, 0);
     for ( auto row_pos: Range(mRowSize) ) {
       mRowHeadArray[row_pos].init(row_pos, false);
       mRowArray[row_pos] = alloc_cell(row_pos, -1);
-      mRowMark[row_pos] = 0;
     }
 
-    mColHeadArray = new McHead[mColSize];
-    mColArray = new McCell*[mColSize];
-    mCostArray = new SizeType[mColSize];
-    mColMark = new SizeType[mColSize];
+    mColHeadArray.resize(mColSize);
+    mColArray.resize(mColSize, nullptr);
+    mCostArray.resize(mColSize, 1);
+    mColMark.resize(mColSize, 0);
     for ( auto col_pos: Range(mColSize) ) {
       mColHeadArray[col_pos].init(col_pos, true);
       mColArray[col_pos] = alloc_cell(-1, col_pos);
-      mCostArray[col_pos] = 1;
-      mColMark[col_pos] = 0;
     }
 
-    mDelStack = new McHead*[row_size + col_size];
+    mDelStack.resize(row_size + col_size);
     mStackTop = 0;
 
-    SizeType rc_max = mRowSize;
-    if ( rc_max < mColSize ) {
-      rc_max = mColSize;
-    }
-    mDelList = new SizeType[rc_max];
+    auto rc_max = std::max(mRowSize, mColSize);
+    mDelList.resize(rc_max);
 
     ASSERT_COND( check_mark_sanity() );
   }
@@ -656,8 +635,8 @@ McMatrixImpl::copy(
   const McMatrixImpl& src
 )
 {
-  ASSERT_COND(row_size() == src.row_size() );
-  ASSERT_COND(col_size() == src.col_size() );
+  ASSERT_COND( row_size() == src.row_size() );
+  ASSERT_COND( col_size() == src.col_size() );
 
   for ( auto row_pos: Range(row_size()) ) {
     for ( auto col_pos: row_list(row_pos) ) {
@@ -671,7 +650,6 @@ McMatrixImpl::copy(
 }
 
 // @brief 列集合のコストを返す．
-// @param[in] col_list 列のリスト
 SizeType
 McMatrixImpl::cost(
   const vector<SizeType>& col_list
@@ -710,8 +688,6 @@ McMatrixImpl::verify(
 }
 
 // @brief mRowMark, mColMark の sanity check
-// @retval true mRowMark, mColMark の内容が全て 0 だった．
-// @retval false mRowMark, mColMark に非0の要素が含まれていた．
 bool
 McMatrixImpl::check_mark_sanity()
 {
@@ -735,32 +711,9 @@ McMatrixImpl::alloc_cell(
   SizeType col_pos
 )
 {
-  if ( mFreeTop != nullptr ) {
-    auto cell = mFreeTop;
-    mFreeTop = cell->mLeftLink;
-    cell->mRowPos = row_pos;
-    cell->mColPos = col_pos;
-    cell->mLeftLink = nullptr;
-    cell->mRightLink = nullptr;
-    cell->mUpLink = nullptr;
-    cell->mDownLink = nullptr;
-    return cell;
-  }
-  else {
-    auto cell = new McCell(row_pos, col_pos);
-    mCellList.push_back(cell);
-    return cell;
-  }
-}
-
-// @brief セルの解放
-void
-McMatrixImpl::free_cell(
-  McCell* cell
-)
-{
-  cell->mLeftLink = mFreeTop;
-  mFreeTop = cell;
+  auto cell = new McCell(row_pos,  col_pos);
+  mCellList.push_back(std::unique_ptr<McCell>{cell});
+  return cell;
 }
 
 // @brief 内容を出力する．

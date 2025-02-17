@@ -191,7 +191,7 @@ public:
   }
 
   /// @brief 列のコストの配列を取り出す．
-  const SizeType*
+  const vector<SizeType>&
   col_cost_array() const
   {
     return mCostArray;
@@ -431,58 +431,49 @@ private:
     SizeType col_pos  ///< [in] 列番号
   );
 
-  /// @brief セルの解放
-  void
-  free_cell(
-    McCell* cell
-  );
-
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 確保したセルのリスト
-  vector<McCell*> mCellList;
-
-  // フリーリストの先頭
-  McCell* mFreeTop{nullptr};
-
   // 行数
   SizeType mRowSize{0};
 
   // 行のヘッダの配列
   // サイズは mRowSize
-  McHead* mRowHeadArray{nullptr};
+  vector<McHead> mRowHeadArray;
 
   // 現在アクティブな行のヘッダのリスト
   McHeadList mRowHeadList;
 
   // 行の先頭を表すダミーセルの配列
   // サイズは mRowSize
-  McCell** mRowArray{nullptr};
+  vector<McCell*> mRowArray;
 
   // 列数
   SizeType mColSize{0};
 
   // 列のヘッダの配列
   // サイズは mColSize
-  McHead* mColHeadArray{nullptr};
+  vector<McHead> mColHeadArray;
 
   // 現在アクティブな列のヘッダのリスト
   McHeadList mColHeadList;
 
   // 列の先頭を表すダミーセルの配列
   // サイズは mColSize
-  McCell** mColArray{nullptr};
+  vector<McCell*> mColArray;
 
   // コストの配列
   // サイズは mColSize;
-  SizeType* mCostArray{0};
+  vector<SizeType> mCostArray;
+
+  // 確保したセルの所有権を持つ．
+  vector<std::unique_ptr<McCell>> mCellList;
 
   // 削除の履歴を覚えておくスタック
-  McHead** mDelStack{nullptr};
+  vector<McHead*> mDelStack;
 
   // mDelStack のポインタ
   SizeType mStackTop{0};
@@ -490,17 +481,17 @@ private:
   // 作業用に使う行のマーク配列
   // サイズは mRowSize
   mutable
-  SizeType* mRowMark{nullptr};
+  vector<SizeType> mRowMark;
 
   // 作業用に使う列のマーク配列
   // サイズは mColSize
   mutable
-  SizeType* mColMark{nullptr};
+  vector<SizeType> mColMark;
 
   // 作業用に使う配列
   // サイズは max(mRowSize, mColSize)
   mutable
-  SizeType* mDelList{nullptr};
+  vector<SizeType> mDelList;
 
 };
 

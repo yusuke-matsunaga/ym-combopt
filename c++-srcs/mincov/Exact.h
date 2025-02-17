@@ -5,13 +5,15 @@
 /// @brief Exact のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Solver.h"
+#if 0
 #include "mincov/McMatrix.h"
 #include "mincov/LbCalc.h"
 #include "mincov/Selector.h"
+#endif
 
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -67,7 +69,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 下界の計算クラス
-  unique_ptr<LbCalc> mLbCalc;
+  std::unique_ptr<LbCalc> mLbCalc;
+
+  // 列を選択するクラス
+  std::unique_ptr<Selector> mSelector;
 
   // 現在のベスト
   int mBest;

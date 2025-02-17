@@ -10,17 +10,6 @@
 #include "ym/JsonValue.h"
 #include "mincov/McMatrix.h"
 #include "Solver.h"
-#if 0
-#include "Greedy.h"
-#include "Exact.h"
-#include "lb/LbMIS1.h"
-#include "lb/LbMIS2.h"
-#include "lb/LbMIS3.h"
-#include "lb/LbCS.h"
-#include "sel/SelSimple.h"
-#include "sel/SelNaive.h"
-#include "sel/SelCS.h"
-#endif
 #include "ym/Range.h"
 
 BEGIN_NAMESPACE_YM_MINCOV
@@ -33,11 +22,10 @@ BEGIN_NAMESPACE_YM_MINCOV
 SizeType
 MinCov::solve(
   vector<SizeType>& solution,
-  const string& option_str
+  const JsonValue& option
 )
 {
   McMatrix matrix{row_size(), mColCostArray, mElemList};
-  auto option = JsonValue::parse(option_str);
   auto solver = Solver::new_obj(matrix, option);
   SizeType cost = solver->solve(solution);
 

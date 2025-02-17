@@ -209,7 +209,7 @@ McMatrix::col_cost(
 }
 
 // @brief 列のコストの配列を取り出す．
-const SizeType*
+const vector<SizeType>&
 McMatrix::col_cost_array() const
 {
   return mImpl->col_cost_array();

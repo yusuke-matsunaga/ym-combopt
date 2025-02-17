@@ -5,7 +5,7 @@
 /// @brief Greedy のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Solver.h"
@@ -45,6 +45,9 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // 列を選択するクラス
+  std::unique_ptr<Selector> mSelector;
 
 };
 

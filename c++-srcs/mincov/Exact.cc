@@ -3,7 +3,7 @@
 /// @brief Exact の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Exact.h"
@@ -207,7 +207,7 @@ Exact::_solve(
 #endif
 
   // 次の分岐のための列をとってくる．
-  SizeType col = select();
+  SizeType col = mSelector->select(matrix());
 
 #if defined(VERIFY_MINCOV)
   McMatrix orig_matrix(matrix());
