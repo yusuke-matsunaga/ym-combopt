@@ -5,7 +5,7 @@
 /// @brief McBlock のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/mincov_nsdef.h"
@@ -114,7 +114,7 @@ public:
   }
 
   /// @brief 列のコストを取り出す．
-  int
+  SizeType
   col_cost(
     SizeType col_pos ///< [in] 列位置 ( 0 <= col_pos < col_size() )
   ) const
@@ -123,7 +123,7 @@ public:
   }
 
   /// @brief 列集合のコストを返す．
-  int
+  SizeType
   cost(
     const vector<SizeType>& col_list ///< [in] 列のリスト
   ) const;
@@ -154,7 +154,8 @@ public:
   /// @brief 簡単化を行う．
   void
   reduce(
-    vector<SizeType>& selected_cols ///< [in] 簡単化中で選択された列の集合を追加する配列
+    vector<SizeType>& selected_cols ///< [in] 簡単化中で選択された
+                                    ///<      列の集合を追加する配列
   );
 
   /// @brief ブロック分割する．
@@ -205,7 +206,7 @@ private:
 
   /// @brief 行に接続している列に印をつける．
   /// @return 印の付けられた列数を返す．
-  int
+  SizeType
   mark_cols(
     Sizetype row_pos,       ///< [in] 開始する行番号
     vector<bool>& row_mark, ///< [inout] 行の印
@@ -252,94 +253,6 @@ private:
   McHeadList mColHeadList;
 
 };
-
-#if 0
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief 行数を返す．
-inline
-int
-McBlock::row_size() const
-{
-  return mMatrix.row_size();
-}
-
-// @brief 行の先頭のリストを返す．
-inline
-const McHeadList&
-McBlock::row_head_list() const
-{
-  return mRowHeadList;
-}
-
-// @brief 行の先頭のリストを返す．
-inline
-McHeadList&
-McBlock::row_head_list()
-{
-  return mRowHeadList;
-}
-
-// @brief 実効的な行数を返す．
-inline
-int
-McBlock::row_num() const
-{
-  return mRowHeadList.num();
-}
-
-// @brief 列数を返す．
-inline
-int
-McBlock::col_size() const
-{
-  return mMatrix.col_size();
-}
-
-/// @brief 列の先頭のリストを返す．
-inline
-const McHeadList&
-McBlock::col_head_list() const
-{
-  return mColHeadList;
-}
-
-// @brief 列の先頭のリストを返す．
-inline
-McHeadList&
-McBlock::col_head_list()
-{
-  return mColHeadList;
-}
-
-// @brief 実効的な列数を返す．
-inline
-int
-McBlock::col_num() const
-{
-  return mColHeadList.num();
-}
-
-// @brief 列のコストを取り出す．
-// @param[in] col_pos 列位置 ( 0 <= col_pos < col_size() )
-inline
-int
-McBlock::col_cost(int col_pos) const
-{
-  return mMatrix.col_cost(col_pos);
-}
-
-// @brief 列を選択しない．
-// @param[in] col_pos 選択しない列
-inline
-void
-McBlock::deselect_col(int col_pos)
-{
-  delete_col(col_pos);
-}
-#endif
 
 END_NAMESPACE_YM_MINCOV
 

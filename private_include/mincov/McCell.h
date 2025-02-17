@@ -5,7 +5,7 @@
 /// @brief McCell のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "mincov/mincov_nsdef.h"
@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 class McCell
 {
-  friend class McMatrixImpl;
+  friend class McMatrix;
 
 public:
 

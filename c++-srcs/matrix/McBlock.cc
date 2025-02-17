@@ -3,7 +3,7 @@
 /// @brief McBlock の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -20,11 +20,9 @@ int mcblock_debug = 0;
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[int] matrix 対象の行列
-//
-// 行列全体を対象のブロックとする．
-McBlock::McBlock(McMatrix& matrix) :
-  mMatrix(matrix)
+McBlock::McBlock(
+  McMatrix& matrix
+) : mMatrix(matrix)
 {
   vector<McHead*> row_head_list;
   row_head_list.reserve(row_size());
@@ -48,13 +46,11 @@ McBlock::McBlock(McMatrix& matrix) :
 }
 
 // @brief コンストラクタ
-// @param[int] matrix 対象の行列
-//
-// 指定された行と列のみを対象のブロックとする．
-McBlock::McBlock(McMatrix& matrix,
-		 const vector<int>& row_list,
-		 const vector<int>& col_list) :
-  mMatrix(matrix)
+McBlock::McBlock(
+  McMatrix& matrix,
+  const vector<int>& row_list,
+  const vector<int>& col_list
+) : mMatrix(matrix)
 {
   vector<McHead*> row_head_list;
   row_head_list.reserve(row_list.size());
@@ -79,9 +75,10 @@ McBlock::~McBlock()
 }
 
 // @brief 列集合のコストを返す．
-// @param[in] col_list 列のリスト
 int
-McBlock::cost(const vector<int>& col_list) const
+McBlock::cost(
+  const vector<int>& col_list
+) const
 {
   int sum_cost = 0;
   for ( auto col_pos: col_list ) {
@@ -91,11 +88,10 @@ McBlock::cost(const vector<int>& col_list) const
 }
 
 // @brief 列集合がカバーになっているか検証する．
-// @param[in] col_list 列のリスト
-// @retval true col_list がカバーになっている．
-// @retval false col_list でカバーされていない行がある．
 bool
-McBlock::verify(const vector<int>& col_list) const
+McBlock::verify(
+  const vector<int>& col_list
+) const
 {
   // カバーされた行の印
   vector<bool> row_mark(row_size(), false);
@@ -118,7 +114,9 @@ McBlock::verify(const vector<int>& col_list) const
 
 // @brief 内容を表示する．
 void
-McBlock::print(ostream& s) const
+McBlock::print(
+  ostream& s
+) const
 {
   for ( auto row_pos: mRowHeadList ) {
     s << "Row#" << row_pos << "[" << row_elem_num(row_pos) << "]:";
@@ -149,9 +147,10 @@ McBlock::print(ostream& s) const
 }
 
 // @brief 列を選択し，被覆される行を削除する．
-// @param[in] col_pos 選択した列
 void
-McBlock::select_col(int col_pos)
+McBlock::select_col(
+  SizeType col_pos
+)
 {
   auto col_head1 = mMatrix._col_head(col_pos);
   ASSERT_COND( !col_head1->is_deleted() );
@@ -165,9 +164,10 @@ McBlock::select_col(int col_pos)
 }
 
 // @brief 行を削除する．
-// @param[in] row_pos 削除する行番号
 void
-McBlock::delete_row(int row_pos)
+McBlock::delete_row(
+  SizeType row_pos
+)
 {
   auto row_head1 = mMatrix._row_head(row_pos);
   ASSERT_COND( !row_head1->is_deleted() );
@@ -183,7 +183,9 @@ McBlock::delete_row(int row_pos)
 
 // @brief 行を復元する．
 void
-McBlock::restore_row(McHead* row_head1)
+McBlock::restore_row(
+  McHead* row_head1
+)
 {
   ASSERT_COND( row_head1->is_deleted() );
 
@@ -196,9 +198,10 @@ McBlock::restore_row(McHead* row_head1)
 }
 
 // @brief 列を削除する．
-// @param[in] col_pos 削除する列番号
 void
-McBlock::delete_col(int col_pos)
+McBlock::delete_col(
+  SizeType col_pos
+)
 {
   auto col_head1 = mMatrix._col_head(col_pos);
   ASSERT_COND( !col_head1->is_deleted() );
@@ -214,7 +217,9 @@ McBlock::delete_col(int col_pos)
 
 // @brief 列を復元する．
 void
-McBlock::restore_col(McHead* col_head1)
+McBlock::restore_col(
+  McHead* col_head1
+)
 {
   ASSERT_COND( col_head1->is_deleted() );
 
@@ -227,12 +232,14 @@ McBlock::restore_col(McHead* col_head1)
 }
 
 // @brief 簡単化を行う．
-// @param[out] selected_cols 簡単化中で選択された列の集合を追加する配列
 void
-McBlock::reduce(vector<int>& selected_cols)
+McBlock::reduce(
+  vector<SizeType>& selected_cols
+)
 {
   if ( mcblock_debug > 0 ) {
-    cout << "McMatrix::reduce() start: " << row_num() << " x " << col_num() << endl;
+    cout << "McMatrix::reduce() start: " << row_num()
+	 << " x " << col_num() << endl;
     print(cout);
   }
 
@@ -242,7 +249,8 @@ McBlock::reduce(vector<int>& selected_cols)
     if ( col_dominance() ) {
       no_change = 0;
       if ( mcblock_debug > 0 ) {
-	cout << " after col_dominance: " << row_num() << " x " << col_num()  << endl;
+	cout << " after col_dominance: " << row_num()
+	     << " x " << col_num()  << endl;
 	print(cout);
       }
     }
@@ -257,7 +265,8 @@ McBlock::reduce(vector<int>& selected_cols)
     if ( essential_col(selected_cols) ) {
       no_change = 0;
       if ( mcblock_debug > 0 ) {
-	cout << " after essential_col: " << row_num() << " x " << col_num()  << endl;
+	cout << " after essential_col: " << row_num()
+	     << " x " << col_num()  << endl;
 	print(cout);
       }
     }
@@ -272,7 +281,8 @@ McBlock::reduce(vector<int>& selected_cols)
     if ( row_dominance() ) {
       no_change = 0;
       if ( mcblock_debug > 0 ) {
-	cout << " after row_dominance: "  << row_num() << " x " << col_num() << endl;
+	cout << " after row_dominance: "  << row_num()
+	     << " x " << col_num() << endl;
 	print(cout);
       }
     }
@@ -286,7 +296,6 @@ McBlock::reduce(vector<int>& selected_cols)
 }
 
 // @brief 行支配を探し，行を削除する．
-// @return 削除された行があったら true を返す．
 bool
 McBlock::row_dominance()
 {
@@ -352,7 +361,6 @@ McBlock::row_dominance()
 }
 
 // @brief 列支配を探し，列を削除する．
-// @return 削除された列があったら true を返す．
 bool
 McBlock::col_dominance()
 {
@@ -426,15 +434,15 @@ McBlock::col_dominance()
 }
 
 // @brief 必須列を探し，列を選択する．
-// @param[out] selected_cols 選択された列を追加する列集合
-// @return 選択された列があったら true を返す．
 bool
-McBlock::essential_col(vector<int>& selected_cols)
+McBlock::essential_col(
+  vector<SizeType>& selected_cols
+)
 {
-  int old_size = selected_cols.size();
+  SizeType old_size = selected_cols.size();
   for ( auto row_pos1: row_head_list() ) {
     if ( row_elem_num(row_pos1) == 1 ) {
-      int col_pos = row_list(row_pos1).front();
+      SizeType col_pos = row_list(row_pos1).front();
       if ( mMatrix.mColMark[col_pos] ) {
 	continue;
       }
@@ -449,9 +457,9 @@ McBlock::essential_col(vector<int>& selected_cols)
       }
     }
   }
-  int size = selected_cols.size();
+  SizeType size = selected_cols.size();
   for ( auto i: Range(old_size, size) ) {
-    int col_pos = selected_cols[i];
+    SizeType col_pos = selected_cols[i];
     select_col(col_pos);
     mMatrix.mColMark[col_pos] = 0;
   }
@@ -462,21 +470,20 @@ McBlock::essential_col(vector<int>& selected_cols)
 }
 
 // @brief ブロック分割する．
-// @param[out] remainder 分割された他方のブロックを入れる変数
-// @retval true 分割できた．
-// @retval false 分割できなかった．
 bool
-McBlock::partition(McBlock& remainder)
+McBlock::partition(
+  McBlock& remainder
+)
 {
   vector<bool> row_mark(row_size(), false);
   vector<bool> col_mark(col_size(), false);
 
   // 最初の行に接続している列にマークをつける．
   auto row0 = row_head_list().front();
-  int row0_pos = row0->pos();
+  SizeType row0_pos = row0->pos();
   row_mark[row0_pos] = true;
-  int nc1 = mark_cols(row0->pos(), row_mark, col_mark);
-  int nc = col_num();
+  SizeType nc1 = mark_cols(row0->pos(), row_mark, col_mark);
+  SizeType nc = col_num();
   if ( nc1 == nc ) {
     // 分割できなかった．
     return false;
@@ -520,16 +527,14 @@ McBlock::partition(McBlock& remainder)
 }
 
 // @brief 列に接続している行に印をつける．
-// @param[in] col_pos 開始する列番号
-// @param[inout] row_mark 行の印
-// @param[inout] col_mark 列の印
-// @return 印の付けられた列数を返す．
-int
-McBlock::mark_rows(int col_pos,
-		   vector<bool>& row_mark,
-		   vector<bool>& col_mark)
+SizeType
+McBlock::mark_rows(
+  SizeType col_pos,
+  vector<bool>& row_mark,
+  vector<bool>& col_mark
+)
 {
-  int nc = 0;
+  SizeType nc = 0;
   for ( auto row_pos: col_list(col_pos) ) {
     if ( !row_mark[row_pos] ) {
       row_mark[row_pos] = true;
@@ -540,16 +545,14 @@ McBlock::mark_rows(int col_pos,
 }
 
 // @brief 行に接続している列に印をつける．
-// @param[in] row_pos 開始する行番号
-// @param[inout] row_mark 行の印
-// @param[inout] col_mark 列の印
-// @return 印の付けられた列数を返す．
-int
-McBlock::mark_cols(int row_pos,
-		   vector<bool>& row_mark,
-		   vector<bool>& col_mark)
+SizeType
+McBlock::mark_cols(
+  SizeType row_pos,
+  vector<bool>& row_mark,
+  vector<bool>& col_mark
+)
 {
-  int nc = 0;
+  SizeType nc = 0;
   for ( auto col_pos: row_list(row_pos) ) {
     if ( !col_mark[col_pos] ) {
       col_mark[col_pos] = true;

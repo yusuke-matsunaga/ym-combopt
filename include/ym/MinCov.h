@@ -36,6 +36,14 @@ BEGIN_NAMESPACE_YM_MINCOV
 class MinCov
 {
 public:
+
+  /// @brief 初期化用の要素を表す型
+  struct ElemType {
+    SizeType row_pos; ///< 行番号
+    SizeType col_pos; ///< 列番号
+  };
+
+public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
@@ -132,9 +140,7 @@ public:
     SizeType cost     ///< [in] コスト
   )
   {
-    if ( col_pos >=  col_size()  ) {
-      throw std::out_of_range{"col_pos is out of range"};
-    }
+    _check_col(col_pos);
 
     mColCostArray[col_pos] = cost;
   }
@@ -148,13 +154,10 @@ public:
     SizeType col_pos  ///< [in] 追加する要素の列番号
   )
   {
-    if ( row_pos >=  row_size()  ) {
-      throw std::out_of_range{"row_pos is out of range"};
-    }
-    if ( col_pos >=  col_size()  ) {
-      throw std::out_of_range{"col_pos is out of range"};
-    }
-    mElemList.push_back(make_pair(row_pos, col_pos));
+    _check_row(row_pos);
+    _check_col(col_pos);
+
+    mElemList.push_back(ElemType{row_pos, col_pos});
   }
 
 
@@ -183,9 +186,7 @@ public:
     SizeType col_pos ///< [in] 列番号 ( 0 <= col_pos < col_size )
   ) const
   {
-    if ( col_pos >=  col_size()  ) {
-      throw std::out_of_range{"col_pos is out of range"};
-    }
+    _check_col(col_pos);
 
     return mColCostArray[col_pos];
   }
@@ -198,7 +199,7 @@ public:
   }
 
   /// @brief 要素のリストを得る．
-  const vector<pair<SizeType, SizeType>>&
+  const vector<ElemType>&
   elem_list() const
   {
     return mElemList;
@@ -255,6 +256,28 @@ private:
     vector<SizeType>& uncov_row_list  ///< [in] 被覆されていない行のリスト
   );
 
+  /// @brief row_pos が範囲内かチェックする．
+  void
+  _check_row(
+    SizeType row_pos
+  ) const
+  {
+    if ( row_pos >= row_size() ) {
+      throw std::out_of_range{"row_pos is out of range"};
+    }
+  }
+
+  /// @brief col_pos が範囲内かチェックする．
+  void
+  _check_col(
+    SizeType col_pos
+  ) const
+  {
+    if ( col_pos >= col_size() ) {
+      throw std::out_of_range{"col_pos is out of range"};
+    }
+  }
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -272,8 +295,7 @@ private:
   vector<SizeType> mColCostArray;
 
   // 要素のリスト
-  // (row_pos, col_pos) のペアのリスト
-  vector<pair<SizeType, SizeType>> mElemList;
+  vector<ElemType> mElemList;
 
 };
 

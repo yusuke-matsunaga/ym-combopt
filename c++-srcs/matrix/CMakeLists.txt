@@ -17,6 +17,8 @@
 # サブディレクトリの設定
 # ===================================================================
 
+add_subdirectory( gtest )
+
 
 # ===================================================================
 #  ソースの設定
@@ -28,7 +30,6 @@ set ( matrix_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/McRowList.cc
 #  ${CMAKE_CURRENT_SOURCE_DIR}/McBlock.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/McMatrix.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/McMatrixImpl.cc
   PARENT_SCOPE
   )
 

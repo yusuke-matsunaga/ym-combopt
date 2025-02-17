@@ -3,7 +3,7 @@
 /// @brief McColList の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "mincov/McColList.h"
@@ -18,13 +18,15 @@ BEGIN_NAMESPACE_YM_MINCOV
 // @brief 等価比較演算子
 // @param[in] list1, list2 オペランド
 bool
-operator==(const McColList& list1,
-	   const McColList& list2)
+operator==(
+  const McColList& list1,
+  const McColList& list2
+)
 {
-  McColIterator it1 = list1.begin();
-  McColIterator it2 = list2.begin();
-  McColIterator end1 = list1.end();
-  McColIterator end2 = list2.end();
+  auto it1 = list1.begin();
+  auto it2 = list2.begin();
+  auto end1 = list1.end();
+  auto end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
     if ( *it1 != *it2 ) {
@@ -42,21 +44,20 @@ operator==(const McColList& list1,
 }
 
 // @brief 包含関係を調べる．
-// @param[in] list1, list2 オペランド
-//
-// list1 が list2 の要素をすべて含んでいたら true を返す．
 bool
-check_containment(const McColList& list1,
-		  const McColList& list2)
+check_containment(
+  const McColList& list1,
+  const McColList& list2
+)
 {
-  McColIterator it1 = list1.begin();
-  McColIterator it2 = list2.begin();
-  McColIterator end1 = list1.end();
-  McColIterator end2 = list2.end();
+  auto it1 = list1.begin();
+  auto it2 = list2.begin();
+  auto end1 = list1.end();
+  auto end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
-    int rpos1 = *it1;
-    int rpos2 = *it2;
+    auto rpos1 = *it1;
+    auto rpos2 = *it2;
     if ( rpos1 > rpos2 ) {
       // list1 になくて list2 にある要素がある．
       return false;

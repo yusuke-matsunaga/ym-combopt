@@ -3,7 +3,7 @@
 /// @brief MinCov の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/MinCov.h"
@@ -201,8 +201,8 @@ void
 MinCov::sanity_check()
 {
   vector<bool> row_mark(row_size(), false);
-  for ( auto p: mElemList ) {
-    SizeType row_pos = p.first;
+  for ( auto& elem: mElemList ) {
+    SizeType row_pos = elem.row_pos;
     row_mark[row_pos] = true;
   }
   for ( auto row_pos: Range(row_size()) ) {

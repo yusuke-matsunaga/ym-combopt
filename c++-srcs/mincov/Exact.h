@@ -9,11 +9,6 @@
 /// All rights reserved.
 
 #include "Solver.h"
-#if 0
-#include "mincov/McMatrix.h"
-#include "mincov/LbCalc.h"
-#include "mincov/Selector.h"
-#endif
 
 
 BEGIN_NAMESPACE_YM_MINCOV

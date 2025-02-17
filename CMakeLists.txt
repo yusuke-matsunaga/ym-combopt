@@ -14,6 +14,9 @@ include_directories (
   private_include
   )
 
+# テストデータのパス
+set ( TESTDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/testdata/" )
+
 
 # ===================================================================
 #  マクロの定義
@@ -24,8 +27,11 @@ include_directories (
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( tests )
 add_subdirectory ( c++-srcs )
+#if ( Python3_FOUND )
+#  add_subdirectory( py_capi )
+#  add_subdirectory( pytest )
+#endif (Python3_FOUND)
 
 
 # ===================================================================

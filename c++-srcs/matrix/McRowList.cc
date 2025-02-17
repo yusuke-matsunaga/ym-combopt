@@ -3,7 +3,7 @@
 /// @brief McRowList の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "mincov/McRowList.h"
@@ -16,15 +16,16 @@ BEGIN_NAMESPACE_YM_MINCOV
 //////////////////////////////////////////////////////////////////////
 
 // @brief 等価比較演算子
-// @param[in] list1, list2 オペランド
 bool
-operator==(const McRowList& list1,
-	   const McRowList& list2)
+operator==(
+  const McRowList& list1,
+  const McRowList& list2
+)
 {
-  McRowIterator it1 = list1.begin();
-  McRowIterator it2 = list2.begin();
-  McRowIterator end1 = list1.end();
-  McRowIterator end2 = list2.end();
+  auto it1 = list1.begin();
+  auto it2 = list2.begin();
+  auto end1 = list1.end();
+  auto end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
     if ( *it1 != *it2 ) {
@@ -42,21 +43,20 @@ operator==(const McRowList& list1,
 }
 
 // @brief 包含関係を調べる．
-// @param[in] list1, list2 オペランド
-//
-// list1 が list2 の要素をすべて含んでいたら true を返す．
 bool
-check_containment(const McRowList& list1,
-		  const McRowList& list2)
+check_containment(
+  const McRowList& list1,
+  const McRowList& list2
+)
 {
-  McRowIterator it1 = list1.begin();
-  McRowIterator it2 = list2.begin();
-  McRowIterator end1 = list1.end();
-  McRowIterator end2 = list2.end();
+  auto it1 = list1.begin();
+  auto it2 = list2.begin();
+  auto end1 = list1.end();
+  auto end2 = list2.end();
 
   while ( it1 != end1 && it2 != end2 ) {
-    int cpos1 = *it1;
-    int cpos2 = *it2;
+    auto cpos1 = *it1;
+    auto cpos2 = *it2;
     if ( cpos1 > cpos2 ) {
       // list1 になくて list2 にある要素がある．
       return false;
