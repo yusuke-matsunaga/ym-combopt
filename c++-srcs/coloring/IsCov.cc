@@ -77,7 +77,7 @@ IsCov::select_node(
   vector<SizeType> min_list;
   SizeType min_num = mGraph.node_num();
   for ( auto node_id: cand_list ) {
-    int c = mGraph.adj_list(node_id).num();
+    int c = mGraph.adj_list(node_id).size();
     if ( min_num >= c ) {
       if ( min_num > c ) {
 	min_num = c;

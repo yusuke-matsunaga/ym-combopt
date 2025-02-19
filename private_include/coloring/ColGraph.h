@@ -5,14 +5,13 @@
 /// @brief ColGraph のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
-#include "ym/Array.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 /// @class ColGraph ColGraph.h "ColGraph.h"
@@ -34,7 +33,7 @@ public:
   );
 
   /// @brief デストラクタ
-  ~ColGraph();
+  ~ColGraph() = default;
 
 
 public:
@@ -59,22 +58,23 @@ public:
   /// @brief ノード番号のリストを返す．
   ///
   /// 彩色されていたノードは含まないのでサイズは node_num() より小さい場合がある．
-  Array<SizeType>
+  const vector<SizeType>&
   node_list() const
   {
-    return Array<SizeType>{mNodeList, 0, mNodeNum1};
+    return mNodeList;
   }
 
   /// @brief 隣接するノード番号のリストを得る．
-  Array<SizeType>
+  const vector<SizeType>&
   adj_list(
     SizeType node_id ///< [in] 対象のノード番号 ( 0 <= node_id < node_num() )
   ) const
   {
-    ASSERT_COND( node_id >= 0 && node_id < node_num() );
+    if ( node_id >= node_num() ) {
+      throw std::out_of_range{"node_id is out of range"};
+    }
 
-    const auto& adj_list = mAdjListArray[node_id];
-    return Array<SizeType>{adj_list.mBody, 0, adj_list.mNum};
+    return mAdjListArray[node_id];
   }
 
   /// @brief 現在使用中の色数を返す．
@@ -90,7 +90,9 @@ public:
     SizeType node_id ///< [in] ノード番号 ( 0 <= node_id < node_num() )
   ) const
   {
-    ASSERT_COND( 0 <= node_id && node_id < node_num() );
+    if ( node_id >= node_num() ) {
+      throw std::out_of_range{"node_id is out of range"};
+    }
 
     return mColorMap[node_id];
   }
@@ -111,8 +113,15 @@ public:
     SizeType color    ///< [in] 色 ( 1 <= color <= color_num() )
   )
   {
-    ASSERT_COND( 0 <= node_id && node_id < node_num() );
-    ASSERT_COND( 1 <= color && color <= color_num() );
+    if ( node_id >= node_num() ) {
+      throw std::out_of_range{"node_id is out of range"};
+    }
+    if ( color == 0 ) {
+      throw std::invalid_argument{"color should not be 0"};
+    }
+    if ( color >= color_num() ) {
+      throw std::out_of_range{"color is out of range"};
+    }
 
     mColorMap[node_id] = color;
   }
@@ -151,39 +160,8 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 内容をセットする．
-  ///
-  /// コンストラクタのみから使われると仮定しているので
-  /// 古い内容の破棄は行わない．
-  void
-  init(
-    const UdGraph& graph,             ///< [in] 対象のグラフ
-    const vector<SizeType>& color_map ///< [in] 部分的な彩色結果
-  );
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // 隣接リストを表す構造体
-  struct AdjList
-  {
-    ~AdjList()
-    {
-      delete [] mBody;
-    }
-
-    // 要素数
-    SizeType mNum{0};
-
-    // 実体の配列
-    SizeType* mBody{nullptr};
-  };
 
   // ノード数
   SizeType mNodeNum;
@@ -192,24 +170,19 @@ private:
   SizeType mEdgeNum;
 
   // ノードの隣接リストの配列
-  // サイズは mNodeNum;
-  AdjList* mAdjListArray;
-
-  // 未彩色のノード数
-  SizeType mNodeNum1;
+  vector<vector<SizeType>> mAdjListArray;
 
   // 未彩色のノードの配列
-  // サイズは mNodeNum1;
-  SizeType* mNodeList;
+  vector<SizeType> mNodeList;
 
   // 現在使用中の色数
   SizeType mColNum;
 
   // 彩色結果の配列
-  SizeType* mColorMap;
+  vector<SizeType> mColorMap;
 
 };
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING
 
 #endif // COLGRAPH_H

@@ -1,6 +1,6 @@
 
-/// @file coloring.cc
-/// @brief coloring の実装ファイル
+/// @file max_clique.cc
+/// @brief max_clique の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2022 Yusuke Matsunaga
@@ -23,7 +23,7 @@ usage(
 
 
 int
-coloring(
+max_clique(
   int argc,
   char** argv
 )
@@ -60,11 +60,11 @@ coloring(
     opt_dict.emplace("algorithm", JsonValue{algorithm});
     auto option = JsonValue{opt_dict};
     timer.start();
-    vector<SizeType> color_map;
-    auto nc = graph.coloring(color_map, option);
+    auto node_set = graph.max_clique(option);
     timer.stop();
-    cout << "Coloring(" << algorithm << ") end." << endl
-	 << " " << nc << " colors. " << timer.get_time() / 1000.0 << "(s)" << endl;
+    cout << "Max_Clique(" << algorithm << ") end." << endl
+	 << "  Clique Size: " << node_set.size() << ". "
+	 << timer.get_time() / 1000.0 << "(s)" << endl;
   }
   catch ( std::invalid_argument& error ) {
     cerr << error.what() << endl;
@@ -82,5 +82,5 @@ main(
   char** argv
 )
 {
-  return nsYm::coloring(argc, argv);
+  return nsYm::max_clique(argc, argv);
 }

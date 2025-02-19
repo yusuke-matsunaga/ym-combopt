@@ -3,7 +3,7 @@
 /// @brief ColGraph の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "coloring/ColGraph.h"
@@ -11,7 +11,7 @@
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 // クラス ColGraph
@@ -20,25 +20,55 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 // @brief コンストラクタ
 ColGraph::ColGraph(
   const UdGraph& graph
-)
+) : ColGraph(graph, vector<SizeType>(graph.node_num(), 0))
 {
-  init(graph, vector<SizeType>(graph.node_num(), 0));
 }
 
 // @brief コンストラクタ
 ColGraph::ColGraph(
   const UdGraph& graph,
   const vector<SizeType>& color_map
-)
+) : mNodeNum{graph.node_num()},
+    mAdjListArray(mNodeNum),
+    mColorMap(mNodeNum, 0)
 {
-  init(graph, color_map);
-}
+  // mColorMap の初期化を行う．
+  // 同時に使用されている色番号の最大値を求める．
+  // ここでは「抜け」はチェックしていない．
+  // さらに未彩色のノードのリストを作る．
+  if ( color_map.size() != mNodeNum ) {
+    throw std::invalid_argument{"color_map.size() != graph.node_num()"};
+  }
+  mNodeList.reserve(mNodeNum);
+  mColNum = 0;
+  for ( auto node_id: Range(mNodeNum) ) {
+    SizeType c = color_map[node_id];
+    mColorMap[node_id] = c;
+    if ( c == 0 ) {
+      mNodeList.push_back(node_id);
+    }
+    else {
+      mColNum = std::max(mColNum, c);
+    }
+  }
 
-// @brief デストラクタ
-ColGraph::~ColGraph()
-{
-  delete [] mAdjListArray;
-  delete [] mColorMap;
+  // 隣接リストの設定を行う．
+  mEdgeNum = 0;
+  for ( auto edge: graph.edge_list() ) {
+    auto id1 = edge.id1();
+    auto id2 = edge.id2();
+    if ( id1 == id2 ) {
+      // そもそもセルフループは彩色不可なので無視する．
+      continue;
+    }
+    if ( mColorMap[id1] > 0 && mColorMap[id2] > 0 ) {
+      // すでに彩色済みのノードに関する枝も無視する．
+      continue;
+    }
+    ++ mEdgeNum;
+    mAdjListArray[id1].push_back(id2);
+    mAdjListArray[id2].push_back(id1);
+  }
 }
 
 // @brief 彩色結果を得る．
@@ -85,90 +115,4 @@ ColGraph::verify() const
   return true;
 }
 
-// @brief 内容をセットする．
-void
-ColGraph::init(
-  const UdGraph& graph,
-  const vector<SizeType>& color_map
-)
-{
-  mNodeNum = graph.node_num();
-  mAdjListArray = new AdjList[mNodeNum];
-  mColorMap = new SizeType[mNodeNum];
-
-  // mColorMap の初期化を行う．
-  // 同時に使用されている色番号の最大値を求める．
-  // ここでは「抜け」はチェックしていない．
-  ASSERT_COND( color_map.size() == mNodeNum );
-  mNodeNum1 = 0;
-  mColNum = 0;
-  for ( auto node_id: Range(mNodeNum) ) {
-    SizeType c = color_map[node_id];
-    mColorMap[node_id] = c;
-    if ( c == 0 ) {
-      ++ mNodeNum1;
-    }
-    else {
-      if ( mColNum < c ) {
-	mColNum = c;
-      }
-    }
-  }
-
-  // 未彩色のノードのリストを作る．
-  mNodeList = new SizeType[mNodeNum1];
-  SizeType wpos = 0;
-  for ( auto node_id: Range(mNodeNum) ) {
-    if ( color(node_id) == 0 ) {
-      mNodeList[wpos] = node_id;
-      ++ wpos;
-    }
-  }
-  ASSERT_COND( wpos == mNodeNum1 );
-
-  // 各ノードに接続する枝数を数える．
-  mEdgeNum = 0;
-  for ( auto edge: graph.edge_list() ) {
-    SizeType id1 = edge.id1();
-    SizeType id2 = edge.id2();
-    if ( id1 == id2 ) {
-      // そもそもセルフループは彩色不可なので無視する．
-      continue;
-    }
-    if ( mColorMap[id1] > 0 && mColorMap[id2] > 0 ) {
-      // すでに彩色済みのノードに関する枝も無視する．
-      continue;
-    }
-    ++ mEdgeNum;
-    ++ mAdjListArray[id1].mNum;
-    ++ mAdjListArray[id2].mNum;
-  }
-
-  // 隣接リストの領域を確保する．
-  for ( auto i: Range(mNodeNum) ) {
-    auto& adj_list = mAdjListArray[i];
-    adj_list.mBody = new SizeType[adj_list.mNum];
-    // ちょっとしたギミックで mNum を 0 に戻す．
-    adj_list.mNum = 0;
-  }
-
-  // 隣接リストの設定を行う．
-  for ( auto edge: graph.edge_list() ) {
-    SizeType id1 = edge.id1();
-    SizeType id2 = edge.id2();
-    if ( id1 == id2 ) {
-      // そもそもセルフループは彩色不可なので無視する．
-      continue;
-    }
-    if ( mColorMap[id1] > 0 && mColorMap[id2] > 0 ) {
-      // すでに彩色済みのノードに関する枝も無視する．
-      continue;
-    }
-    AdjList& adj_list1 = mAdjListArray[id1];
-    AdjList& adj_list2 = mAdjListArray[id2];
-    adj_list1.mBody[adj_list1.mNum] = id2; ++ adj_list1.mNum;
-    adj_list2.mBody[adj_list2.mNum] = id1; ++ adj_list2.mNum;
-  }
-}
-
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING

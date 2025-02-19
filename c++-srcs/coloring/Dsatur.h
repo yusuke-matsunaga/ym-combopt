@@ -5,7 +5,7 @@
 /// @brief Dsatur のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2013, 2015, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
@@ -76,7 +76,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノードの実体の配列
-  DsatNode* mNodeArray;
+  vector<DsatNode> mNodeArray;
 
 };
 

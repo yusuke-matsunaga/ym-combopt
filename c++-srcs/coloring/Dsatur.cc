@@ -3,16 +3,16 @@
 /// @brief Dsatur の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2013, 2015, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Dsatur.h"
 #include "DsatNode.h"
-#include "NodeHeap.h"
+#include "ym/HeapTree.h"
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 BEGIN_NONAMESPACE
 
@@ -58,7 +58,7 @@ void
 update_sat_degree(
   DsatNode* node,
   ColGraph& graph,
-  DsatNode* node_array,
+  vector<DsatNode>& node_array,
   NodeHeap<DsatNode, DsatComp>& node_heap
 )
 {
@@ -109,36 +109,32 @@ Dsatur::init()
 {
   if ( node_num() > 0 ) {
     // 部分的に彩色済みの場合には n < node_num()
-    SizeType n = node_list().num() + color_num();
+    auto n = node_list().size() + color_num();
     SizeType vectlen = (n + 63) / 64;
-    mNodeArray = new DsatNode[node_num()];
+    mNodeArray.resize(node_num());
     for ( auto node_id: Range(node_num()) ) {
-      DsatNode* node = &mNodeArray[node_id];
-      node->init(node_id, adj_list(node_id).num(), vectlen);
+      DsatNode& node = mNodeArray[node_id];
+      node.init(node_id, adj_list(node_id).size(), vectlen);
     }
     for ( auto node_id: Range(node_num()) ) {
       SizeType c = color(node_id);
       for ( auto node1_id: adj_list(node_id) ) {
 	if ( color(node1_id) == 0 ) {
-	  DsatNode* node1 = &mNodeArray[node1_id];
+	  DsatNode& node1 = mNodeArray[node1_id];
 	  // node1 が未着色の場合
-	  if ( !node1->check_adj_color(c) ) {
+	  if ( !node1.check_adj_color(c) ) {
 	    // node1 にとって color は新規の隣り合う色だった．
-	    node1->add_adj_color(c);
+	    node1.add_adj_color(c);
 	  }
 	}
       }
     }
-  }
-  else {
-    mNodeArray = nullptr;
   }
 }
 
 // @brief デストラクタ
 Dsatur::~Dsatur()
 {
-  delete [] mNodeArray;
 }
 
 // @brief 彩色する．
@@ -167,7 +163,7 @@ Dsatur::coloring(
     // max_node につけることのできる最小の色番号を求める．
     SizeType cnum = 0;
     vector<int> free_list;
-    free_list.reserve(adj_list(max_node->id()).num());
+    free_list.reserve(adj_list(max_node->id()).size());
     for ( auto node1_id: adj_list(max_node->id()) ) {
       SizeType c = color(node1_id);
       if ( c == 0 ) {
@@ -255,4 +251,4 @@ DsatNode::init(
   mAdjDegree = adj_degree;
 }
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING

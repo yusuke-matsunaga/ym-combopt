@@ -25,12 +25,34 @@ BEGIN_NAMESPACE(nsMincov)
 END_NAMESPACE(nsMincov) \
 END_NAMESPACE_YM
 
+/// @brief udgraph 用の名前空間の開始
 #define BEGIN_NAMESPACE_YM_UDGRAPH \
 BEGIN_NAMESPACE_YM \
 BEGIN_NAMESPACE(nsUdGraph)
 
+/// @brief udgraph 用の名前空間の終了
 #define END_NAMESPACE_YM_UDGRAPH \
 END_NAMESPACE(nsUdGraph) \
+END_NAMESPACE_YM
+
+/// @brief max_clique 用の名前空間の開始
+#define BEGIN_NAMESPACE_YM_MAXCLIQUE \
+BEGIN_NAMESPACE_YM \
+BEGIN_NAMESPACE(nsMaxClique)
+
+/// @brief max_clique 用の名前空間の終了
+#define END_NAMESPACE_YM_MAXCLIQUE \
+END_NAMESPACE(nsMaxClique) \
+END_NAMESPACE_YM
+
+/// @brief coloring 用の名前空間の開始
+#define BEGIN_NAMESPACE_YM_COLORING \
+BEGIN_NAMESPACE_YM \
+BEGIN_NAMESPACE(nsColoring)
+
+/// @brief coloring 用の名前空間の終了
+#define END_NAMESPACE_YM_COLORING \
+END_NAMESPACE(nsColoring) \
 END_NAMESPACE_YM
 
 /// @namespace nsYm::nsMincov

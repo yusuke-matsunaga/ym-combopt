@@ -5,13 +5,13 @@
 /// @brief MclqNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2014, 2015, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_MAXCLIQUE
 
 //////////////////////////////////////////////////////////////////////
 /// @class MclqNode MclqNode.h "MclqNode.h"
@@ -25,10 +25,7 @@ public:
   MclqNode() = default;
 
   /// @brief デストラクタ
-  ~MclqNode()
-  {
-    delete [] mAdjLink;
-  }
+  ~MclqNode() = default;
 
 
 public:
@@ -48,13 +45,11 @@ public:
   /// @brief 隣接ノードの情報を設定する．
   void
   set_adj_link(
-    SizeType adj_num,
-    MclqNode** adj_link
+    const vector<MclqNode*>& adj_link
   )
   {
     mAdjLink = adj_link;
-    mAdjSize = adj_num;
-    mNum = adj_num;
+    mNum = mAdjLink.size();
   }
 
   /// @brief ノード番号を返す．
@@ -64,29 +59,18 @@ public:
     return mId;
   }
 
-  /// @brief 削除済みフラグを返す．
-  bool
-  deleted() const
-  {
-    return mHeapIdx == 0;
-  }
-
   /// @brief 隣接するノード数を返す．
   SizeType
   adj_size() const
   {
-    return mAdjSize;
+    return mAdjLink.size();
   }
 
-  /// @brief 隣接するノードを返す．
-  MclqNode*
-  adj_node(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < adj_size() )
-  ) const
+  /// @brief 隣接するノードのリストを返す．
+  const vector<MclqNode*>&
+  adj_node_list() const
   {
-    ASSERT_COND( pos >= 0 && pos < adj_size() );
-
-    return mAdjLink[pos];
+    return mAdjLink;
   }
 
   /// @brief 有効な隣接ノード数を返す．
@@ -103,24 +87,6 @@ public:
     -- mNum;
   }
 
-  /// @brief ヒープ上の位置(+1)を返す．
-  ///
-  /// ヒープになければ 0 を返す．
-  SizeType
-  heap_location() const
-  {
-    return mHeapIdx;
-  }
-
-  /// @brief ヒープ上の位置を設定する．
-  void
-  set_heap_location(
-    SizeType pos
-  )
-  {
-    mHeapIdx = pos;
-  }
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -131,121 +97,13 @@ private:
   SizeType mId;
 
   // 隣接するノードのポインタ配列
-  MclqNode** mAdjLink{nullptr};
-
-  // mAdjLink のサイズ
-  SizeType mAdjSize{0};
+  vector<MclqNode*> mAdjLink;
 
   // mAdjLink 中の有効な要素数
   SizeType mNum{0};
 
-  // ヒープ上のインデックス
-  SizeType mHeapIdx{0};
-
 };
 
-#if 0
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief デストラクタ
-inline
-MclqNode::~MclqNode()
-{
-  delete [] mAdjLink;
-}
-
-// @brief 内容を初期化する．
-// @param[in] id ノード番号
-inline
-void
-MclqNode::set(int id)
-{
-  mId = id;
-}
-
-// @brief 隣接ノードの情報を設定する．
-inline
-void
-MclqNode::set_adj_link(int adj_num,
-		       MclqNode** adj_link)
-{
-  mAdjLink = adj_link;
-  mAdjSize = adj_num;
-  mNum = adj_num;
-}
-
-// @brief ノード番号を返す．
-inline
-int
-MclqNode::id() const
-{
-  return mId;
-}
-
-// @brief 削除済みフラグを返す．
-inline
-bool
-MclqNode::deleted() const
-{
-  return mHeapIdx == 0;
-}
-
-// @brief 隣接するノード数を返す．
-inline
-int
-MclqNode::adj_size() const
-{
-  return mAdjSize;
-}
-
-// @brief 隣接するノードを返す．
-// @param[in] pos 位置番号 ( 0 <= pos < adj_size() )
-inline
-MclqNode*
-MclqNode::adj_node(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < adj_size() );
-
-  return mAdjLink[pos];
-}
-
-// @brief 有効な隣接ノード数を返す．
-inline
-int
-MclqNode::adj_num() const
-{
-  return mNum;
-}
-
-// @brief adj_num を１減らす
-inline
-void
-MclqNode::dec_adj_num()
-{
-  -- mNum;
-}
-
-// @brief ヒープ上の位置(+1)を返す．
-//
-// ヒープになければ 0 を返す．
-inline
-int
-MclqNode::heap_location() const
-{
-  return mHeapIdx;
-}
-
-// @brief ヒープ上の位置を設定する．
-inline
-void
-MclqNode::set_heap_location(int pos)
-{
-  mHeapIdx = pos;
-}
-#endif
-
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_MAXCLIQUE
 
 #endif // MCLQNODE_H

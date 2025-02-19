@@ -66,9 +66,14 @@ tabucol(
 SizeType
 UdGraph::coloring(
   vector<SizeType>& color_map,
-  const string& algorithm
+  const JsonValue& option
 ) const
 {
+  string algorithm = "dsatur"; // デフォルトフォールバック
+  if ( option.is_object() && option.has_key("algorithm") ) {
+    auto alg_obj = option.get("algorithm");
+    algorithm = alg_obj.get_string();
+  }
   if ( algorithm == "dsatur" ) {
     return dsatur(*this, color_map);
   }

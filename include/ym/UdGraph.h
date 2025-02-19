@@ -5,10 +5,11 @@
 /// @brief UdGraph のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2015, 2016, 2018, 2021, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_UDGRAPH
@@ -34,16 +35,9 @@ public:
   UdEdge(
     SizeType id1, ///< [in] ノード1の番号
     SizeType id2  ///< [in] ノード2の番号
-  )
+  ) : mId1{std::min(id1, id2)},
+      mId2{std::max(id1, id2)}
   {
-    if ( id1 <= id2 ) {
-      mId1 = id1;
-      mId2 = id2;
-    }
-    else {
-      mId1 = id2;
-      mId2 = id1;
-    }
   }
 
   /// @brief デストラクタ
@@ -90,7 +84,8 @@ private:
 ///
 /// - Undirected Graph の略
 /// - 枝(ノード番号の対)のリストを持つ．
-/// - このクラスはインターフェイス用のもので凝ったデータ構造は持っていない．
+/// - このクラスはインターフェイス用のもので凝ったデータ構造は
+///   持っていない．
 //////////////////////////////////////////////////////////////////////
 class UdGraph
 {
@@ -102,7 +97,9 @@ public:
   explicit
   UdGraph(
     SizeType node_num = 0 ///< [in] ノード数
-  );
+  ) : mNodeNum{node_num}
+  {
+  }
 
   /// @brief コピーコンストラクタ
   UdGraph(
@@ -116,7 +113,7 @@ public:
   ) = default;
 
   /// @brief デストラクタ
-  ~UdGraph();
+  ~UdGraph() = default;
 
 
 public:
@@ -130,18 +127,33 @@ public:
   void
   resize(
     SizeType node_num ///< [in] ノード数
-  );
+  )
+  {
+    mEdgeList.clear();
+    mNodeNum = node_num;
+  }
 
   /// @brief 2つのノードを接続する．
   ///
   /// - 無向グラフなので id1 <= id2 になるように正規化する．
   /// - id1 == id2 も許す(反射)
-  /// - 多重辺は許さない．
+  /// - 多重辺のチェックは行わない．
   void
   connect(
     SizeType id1, ///< [in] ノード1の番号 ( 0 <= id1 < node_num() )
     SizeType id2  ///< [in] ノード2の番号 ( 0 <= id2 < node_num() )
-  );
+  )
+  {
+    if ( id1 >= node_num() ) {
+      throw std::out_of_range{"id1 is out of range"};
+    }
+    if ( id2 >= node_num() ) {
+      throw std::out_of_range{"id2 is out of range"};
+    }
+
+    // 正規化は UdEdge で行われる．
+    mEdgeList.push_back(UdEdge(id1, id2));
+  }
 
 
 public:
@@ -151,11 +163,17 @@ public:
 
   /// @brief ノード数を得る．
   SizeType
-  node_num() const;
+  node_num() const
+  {
+    return mNodeNum;
+  }
 
   /// @brief 枝の総数を返す．
   SizeType
-  edge_num() const;
+  edge_num() const
+  {
+    return mEdgeList.size();
+  }
 
   /// @brief 反射の時に true を返す．
   ///
@@ -168,11 +186,21 @@ public:
   const UdEdge&
   edge(
     SizeType idx ///< [in] 枝番号 ( 0 <= idx < edge_num() )
-  ) const;
+  ) const
+  {
+    if ( idx >= edge_num() ) {
+      throw std::out_of_range{"idx is out of range"};
+    }
+
+    return mEdgeList[idx];
+  }
 
   /// @brief 全ての枝のリストを返す．
   const vector<UdEdge>&
-  edge_list() const;
+  edge_list() const
+  {
+    return mEdgeList;
+  }
 
   /// @brief グラフの内容を出力する．
   void
@@ -226,25 +254,26 @@ public:
   /// @return 彩色数を返す．
   SizeType
   coloring(
-    vector<SizeType>& color_map, ///< [out] ノードに対する彩色結果(=SizeType)を収める配列
-    const string& algorithm      ///< [in] アルゴリズム名
-    = string{}                   ///< 空の時にはデフォルトのアルゴリズムを用いる．
+    vector<SizeType>& color_map, ///< [out] ノードに対する彩色結果(=SizeType)
+                                 ///<       を収める配列
+    const JsonValue& option      ///< [in] オプション
+    = JsonValue{}
   ) const;
 
   /// @brief (最大)独立集合を求める．
   /// @return 独立集合の要素(ノード番号)を収める配列
   vector<SizeType>
   independent_set(
-    const string& algorithm      ///< [in] アルゴリズム名
-    = string{}                   ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
+    const JsonValue& option ///< [in] オプション
+    = JsonValue{}
   ) const;
 
   /// @brief (最大)クリークを求める．
   /// @return クリークの要素(ノード番号)を収める配列
   vector<SizeType>
   max_clique(
-    const string& algorithm     ///< [in] アルゴリズム名
-    = string{}		        ///< 空文字列の時はデフォルトアルゴリズムが用いられる．
+    const JsonValue& option ///< [in] オプション
+    = JsonValue{}
   ) const;
 
 

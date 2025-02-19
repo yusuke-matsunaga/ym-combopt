@@ -17,15 +17,17 @@
 # サブディレクトリの設定
 # ===================================================================
 
+add_subdirectory ( test-programs )
+
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
 
 set ( max_clique_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/MclqSolver.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/MclqSolver_greedy.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/MclqSolver_exact.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/UdGraph_max_clique.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/MclqGreedy.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/MclqExact.cc
   PARENT_SCOPE
   )
 

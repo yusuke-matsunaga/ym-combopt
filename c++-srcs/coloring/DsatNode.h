@@ -5,13 +5,13 @@
 /// @brief DsatNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2013, 2014, 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 /// @class DsatNode DsatNode.h "DsatNode.h"
@@ -85,24 +85,6 @@ public:
     ++ mSatDegree;
   }
 
-  /// @brief ヒープ上の位置(+1)を返す．
-  ///
-  /// ヒープになければ 0 を返す．
-  SizeType
-  heap_location() const
-  {
-    return mHeapIdx;
-  }
-
-  /// @brief ヒープ上の位置を設定する．
-  void
-  set_heap_location(
-    SizeType pos
-  )
-  {
-    mHeapIdx = pos;
-  }
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -111,9 +93,6 @@ private:
 
   // ID番号
   SizeType mId;
-
-  // ヒープ中の位置(+1)
-  SizeType mHeapIdx;
 
   // 隣接するノードの色の集合を表すビットベクタ
   std::uint64_t* mColorSet;
@@ -126,6 +105,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING
 
 #endif // DSATNODE_H
