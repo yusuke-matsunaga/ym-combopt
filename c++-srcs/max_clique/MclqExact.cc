@@ -49,7 +49,7 @@ mc_recur(
   }
 
   ++ count;
-  if ( count >= 10000 ) {
+  if ( count >= 1000000 ) {
     return 0;
   }
 
@@ -77,7 +77,11 @@ mc_recur(
     }
     tmp_node_list.push_back(make_pair(id1, n));
   }
-  sort(tmp_node_list.begin(), tmp_node_list.end(), NodeLt());
+  sort(tmp_node_list.begin(), tmp_node_list.end(),
+       [](const pair<SizeType, SizeType>& p1,
+	  const pair<SizeType, SizeType>& p2) {
+	 return p1.second > p2.second;
+       });
 
   SizeType max_val = best_so_far;
   for ( auto& p: tmp_node_list ) {
@@ -125,10 +129,12 @@ MclqExact(
   const MclqGraph& graph
 )
 {
+  // 答を入れるベクタ
   vector<SizeType> node_set;
 
   // 処理対象のノードを収めるリスト
   vector<SizeType> node_list;
+  node_list.reserve(graph.node_num());
   for ( SizeType id = 0; id < graph.node_num(); ++ id ) {
     node_list.push_back(id);
   }

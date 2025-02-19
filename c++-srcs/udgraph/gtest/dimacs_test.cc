@@ -42,4 +42,27 @@ TEST(UdGraphTest, read_dimacs)
   EXPECT_EQ( obuf2.str(), obuf.str() );
 }
 
+TEST(UdGraphTest, read_dimacs2)
+{
+  string filename = string(TESTDATA_DIR) + string("udgraph/johnson8-2-4.clq");
+  ifstream s{filename};
+  ASSERT_TRUE( s );
+
+  auto graph = UdGraph::read_dimacs(s);
+
+  EXPECT_EQ( 28, graph.node_num() );
+  EXPECT_EQ( 210, graph.edge_num() );
+
+  ostringstream obuf;
+  graph.write_dimacs(obuf);
+
+  istringstream s1(obuf.str());
+  UdGraph graph2 = UdGraph::read_dimacs(s1);
+
+  ostringstream obuf2;
+  graph2.write_dimacs(obuf2);
+
+  EXPECT_EQ( obuf2.str(), obuf.str() );
+}
+
 END_NAMESPACE_YM
