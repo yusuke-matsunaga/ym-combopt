@@ -3,14 +3,14 @@
 /// @brief IsCov の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "IsCov.h"
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 // クラス IsCov
@@ -127,4 +127,4 @@ IsCov::update_cand_list(
   }
 }
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING

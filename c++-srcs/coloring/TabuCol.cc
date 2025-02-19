@@ -3,14 +3,15 @@
 /// @brief TabuCol の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "TabuCol.h"
+#include "ym/UdGraph.h"
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 // クラス TabuCol
@@ -20,10 +21,8 @@ BEGIN_NAMESPACE_YM_UDGRAPH
 TabuCol::TabuCol(
   const UdGraph& graph,
   SizeType k
-) : ColGraph{graph},
-    mK{k}
+) : TabuCol{graph, vector<SizeType>(graph.node_num(), 0), k}
 {
-  init();
 }
 
 // @brief コンストラクタ
@@ -32,25 +31,10 @@ TabuCol::TabuCol(
   const vector<SizeType>& color_map,
   SizeType k
 ) : ColGraph{graph, color_map},
-    mK{k}
+    mK{k},
+    mGammaTable(node_num() * mK),
+    mTabuMatrix(node_num() * mK)
 {
-  init();
-}
-
-// @brief 内部データ構造の初期化を行う．
-void
-TabuCol::init()
-{
-  SizeType n = node_num();
-  mGammaTable = new int[n * mK];
-  mTabuMatrix = new SizeType[n * mK];
-}
-
-// @brief デストラクタ
-TabuCol::~TabuCol()
-{
-  delete [] mGammaTable;
-  delete [] mTabuMatrix;
 }
 
 // @brief 彩色が可能か調べる．
@@ -199,4 +183,4 @@ TabuCol::conflict_num() const
   return n;
 }
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING

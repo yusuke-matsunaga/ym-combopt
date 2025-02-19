@@ -8,6 +8,7 @@
 
 #include "Dsatur.h"
 #include "DsatNode.h"
+#include "ym/UdGraph.h"
 #include "ym/HeapTree.h"
 #include "ym/Range.h"
 
@@ -21,63 +22,48 @@ class DsatComp
 {
 public:
 
+  /// @brief コンストラクタ
+  DsatComp(
+    const Dsatur& dsatur
+  ) : mDsatur{dsatur}
+  {
+  }
+
   /// @brief ノードの比較関数
   int
   operator()(
-    DsatNode* node1,
-    DsatNode* node2
-  );
+    SizeType id1,
+    SizeType id2
+  ) const
+  {
+    auto sat1 = mDsatur.sat_degree(id1);
+    auto sat2 = mDsatur.sat_degree(id2);
+    if ( sat1 < sat2 ) {
+      return 1;
+    }
+    if ( sat1 > sat2 ) {
+      return -1;
+    }
+    auto adj1 = mDsatur.adj_degree(id1);
+    auto adj2 = mDsatur.adj_degree(id2);
+    if ( adj1 < adj2 ) {
+      return 1;
+    }
+    if ( adj1 > adj2 ) {
+      return -1;
+    }
+    return 0;
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  const Dsatur& mDsatur;
 
 };
-
-// @brief ノードの比較関数
-int
-DsatComp::operator()(
-  DsatNode* node1,
-  DsatNode* node2
-)
-{
-  if ( node1->sat_degree() < node2->sat_degree() ) {
-    return 1;
-  }
-  if ( node1->sat_degree() > node2->sat_degree() ) {
-    return -1;
-  }
-  if ( node1->adj_degree() < node2->adj_degree() ) {
-    return 1;
-  }
-  if ( node1->adj_degree() > node2->adj_degree() ) {
-    return -1;
-  }
-  return 0;
-}
-
-
-// @brief ノードに彩色して情報を更新する．
-void
-update_sat_degree(
-  DsatNode* node,
-  ColGraph& graph,
-  vector<DsatNode>& node_array,
-  NodeHeap<DsatNode, DsatComp>& node_heap
-)
-{
-  // node に隣接するノードの SAT degree を更新する．
-  SizeType color = graph.color(node->id());
-  for ( auto node1_id: graph.adj_list(node->id()) ) {
-    DsatNode* node1 = &node_array[node1_id];
-    if ( graph.color(node1_id) == 0 ) {
-      // node1 が未着色の場合
-      if ( !node1->check_adj_color(color) ) {
-	// node1 にとって color は新規の隣り合う色だった．
-	node1->add_adj_color(color);
-
-	// SAT degree が変わったのでヒープ上の位置も更新する．
-	node_heap.update(node1);
-      }
-    }
-  }
-}
 
 END_NONAMESPACE
 
@@ -88,53 +74,39 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 Dsatur::Dsatur(
-  const UdGraph& graph
-) : ColGraph{graph}
+  const UdGraph& graph ///< [in] 対象のグラフ
+) : Dsatur{graph, vector<SizeType>(graph.node_num(), 0)}
 {
-  init();
 }
 
 // @brief コンストラクタ
 Dsatur::Dsatur(
   const UdGraph& graph,
   const vector<SizeType>& color_map
-) : ColGraph{graph, color_map}
-{
-  init();
-}
-
-// @brief 初期化する．
-void
-Dsatur::init()
+) : ColGraph{graph, color_map},
+    mNodeArray(node_num())
 {
   if ( node_num() > 0 ) {
     // 部分的に彩色済みの場合には n < node_num()
     auto n = node_list().size() + color_num();
-    SizeType vectlen = (n + 63) / 64;
-    mNodeArray.resize(node_num());
     for ( auto node_id: Range(node_num()) ) {
-      DsatNode& node = mNodeArray[node_id];
-      node.init(node_id, adj_list(node_id).size(), vectlen);
+      auto& node_info = mNodeArray[node_id];
+      node_info.mColorSet.resize(n, false);
+      node_info.mSatDegree = 0;
     }
     for ( auto node_id: Range(node_num()) ) {
       SizeType c = color(node_id);
       for ( auto node1_id: adj_list(node_id) ) {
 	if ( color(node1_id) == 0 ) {
-	  DsatNode& node1 = mNodeArray[node1_id];
 	  // node1 が未着色の場合
-	  if ( !node1.check_adj_color(c) ) {
+	  if ( !check_adj_color(node1_id, c) ) {
 	    // node1 にとって color は新規の隣り合う色だった．
-	    node1.add_adj_color(c);
+	    add_adj_color(node1_id, c);
 	  }
 	}
       }
     }
   }
-}
-
-// @brief デストラクタ
-Dsatur::~Dsatur()
-{
 }
 
 // @brief 彩色する．
@@ -143,28 +115,29 @@ Dsatur::coloring(
   vector<SizeType>& color_map
 )
 {
-  // dsatur アルゴリズムを用いる．
-
-  NodeHeap<DsatNode, DsatComp>  node_heap(node_num());
-
+  DsatComp comp(*this);
+  HeapTree<SizeType, DsatComp> node_heap(comp, node_num());
   for ( auto node_id: node_list() ) {
-    node_heap.put_node(&mNodeArray[node_id]);
+    node_heap.put_item(node_id);
   }
 
   // 1: 隣接するノード数が最大のノードを選び彩色する．
   //    ソートしているので先頭のノードを選べば良い．
-  DsatNode* max_node = node_heap.get_min();
-  set_color(max_node->id(), new_color());
-  update_sat_degree(max_node, *this, mNodeArray, node_heap);
+  auto max_id = node_heap.get_min();
+  set_color(max_id, new_color());
+  auto node_list = update_sat_degree(max_id);
+  for ( auto node_id: node_list ) {
+    node_heap.update(node_id);
+  }
 
   // 2: saturation degree が最大の未彩色ノードを選び最小の色番号で彩色する．
   while ( !node_heap.empty() ) {
-    DsatNode* max_node = node_heap.get_min();
+    auto max_id = node_heap.get_min();
     // max_node につけることのできる最小の色番号を求める．
     SizeType cnum = 0;
     vector<int> free_list;
-    free_list.reserve(adj_list(max_node->id()).size());
-    for ( auto node1_id: adj_list(max_node->id()) ) {
+    free_list.reserve(adj_list(max_id).size());
+    for ( auto node1_id: adj_list(max_id) ) {
       SizeType c = color(node1_id);
       if ( c == 0 ) {
 	free_list.push_back(node1_id);
@@ -173,12 +146,12 @@ Dsatur::coloring(
     vector<SizeType> color_list;
     color_list.reserve(color_num());
     for ( auto c: Range(1, color_num() + 1) ) {
-      if ( !max_node->check_adj_color(c) ) {
+      if ( !check_adj_color(max_id, c) ) {
 	color_list.push_back(c);
       }
     }
     if ( color_list.empty() ) {
-      set_color(max_node->id(), new_color());
+      set_color(max_id, new_color());
     }
     else {
       SizeType min_count = free_list.size() + 1;
@@ -186,8 +159,7 @@ Dsatur::coloring(
       for ( auto col: color_list ) {
 	SizeType n = 0;
 	for ( auto node1_id: free_list ) {
-	  DsatNode* node1 = &mNodeArray[node1_id];
-	  if ( !node1->check_adj_color(col) ) {
+	  if ( !check_adj_color(node1_id, col) ) {
 	    ++ n;
 	  }
 	}
@@ -196,59 +168,62 @@ Dsatur::coloring(
 	  min_col = col;
 	}
       }
-      set_color(max_node->id(), min_col);
+      set_color(max_id, min_col);
     }
-    update_sat_degree(max_node, *this, mNodeArray, node_heap);
+    auto node_list = update_sat_degree(max_id);
+    for ( auto node_id: node_list ) {
+      node_heap.update(node_id);
+    }
   }
 
   // 検証
   // もちろん最小色数の保証はないが，同じ色が隣接していないことを確認する．
   // また，未彩色のノードがないことも確認する．
   // 違反が見つかったら例外を送出する．
-  if ( true ) {
-    ASSERT_COND( is_colored() );
-    ASSERT_COND( verify() );
+  if ( !is_colored() ) {
+    throw std::invalid_argument{"not colored"};
   }
-  if ( !is_colored() || !verify() ) {
-    cout << "Error" << endl;
+  if ( !verify() ) {
+    throw std::invalid_argument{"conflicting coloring"};
   }
 
   // 結果を color_map に入れる．
   return get_color_map(color_map);
 }
 
-
-//////////////////////////////////////////////////////////////////////
-// クラス DsatNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-DsatNode::DsatNode()
+// @brief SAT degree を返す．
+SizeType
+Dsatur::sat_degree(
+  SizeType node_id
+) const
 {
-  mColorSet = nullptr;
-  mSatDegree = 0;
+  auto& node_info = mNodeArray[node_id];
+  return node_info.mSatDegree;
 }
 
-// @brief デストラクタ
-DsatNode::~DsatNode()
-{
-  delete [] mColorSet;
-}
-
-// @brief 初期化する．
-void
-DsatNode::init(
-  SizeType id,
-  SizeType adj_degree,
-  SizeType vectlen
+// @brief 彩色の結果を SAT degree に反映させる．
+vector<SizeType>
+Dsatur::update_sat_degree(
+  SizeType node_id
 )
 {
-  mId = id;
-  mColorSet = new std::uint64_t[vectlen];
-  for ( int i = 0; i < vectlen; ++ i ) {
-    mColorSet[i] = 0ULL;
+  vector<SizeType> node_list;
+  node_list.reserve(adj_list(node_id).size());
+  // node に隣接するノードの SAT degree を更新する．
+  auto col = color(node_id);
+  for ( auto node1_id: adj_list(node_id) ) {
+    if ( color(node1_id) == 0 ) {
+      // node1 が未着色の場合
+      if ( !check_adj_color(node1_id, col) ) {
+	// node1 にとって col は新規の隣り合う色だった．
+	add_adj_color(node1_id, col);
+
+	// SAT degree が変わったのでヒープ上の位置も更新する．
+	node_list.push_back(node1_id);
+      }
+    }
   }
-  mAdjDegree = adj_degree;
+  return node_list;
 }
 
 END_NAMESPACE_YM_COLORING

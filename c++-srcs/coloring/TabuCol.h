@@ -5,15 +5,15 @@
 /// @brief TabuCol のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
-#include "coloring/ColGraph.h"
+#include "ColGraph.h"
 #include <random>
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 /// @class TabuCol TabuCol.h "TabuCol.h"
@@ -38,7 +38,7 @@ public:
   );
 
   /// @brief デストラクタ
-  ~TabuCol();
+  ~TabuCol() = default;
 
 
 public:
@@ -138,11 +138,11 @@ private:
 
   // γテーブル
   // サイズは node_num() * mK
-  int* mGammaTable;
+  vector<int> mGammaTable;
 
   // tabu list を表す配列
   // サイズは node_num() * mK
-  SizeType* mTabuMatrix;
+  vector<SizeType> mTabuMatrix;
 
   // 現在の繰り返し回数
   SizeType mIter;
@@ -152,6 +152,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING
 
 #endif // TABUCOL_H

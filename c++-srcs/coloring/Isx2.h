@@ -5,15 +5,15 @@
 /// @brief Isx2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/combopt.h"
-#include "coloring/ColGraph.h"
+#include "ColGraph.h"
 #include <random>
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 /// @class Isx2 Isx2.h "Isx2.h"
@@ -123,6 +123,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING
 
 #endif // ISX2_H

@@ -77,6 +77,19 @@ public:
     return mAdjListArray[node_id];
   }
 
+  /// @brief 隣接するノード数を返す．
+  SizeType
+  adj_degree(
+    SizeType node_id ///< [in] 対象のノード番号 ( 0 <= node_id < node_num() )
+  ) const
+  {
+    if ( node_id >= node_num() ) {
+      throw std::out_of_range{"node_id is out of range"};
+    }
+
+    return mAdjListArray[node_id].size();
+  }
+
   /// @brief 現在使用中の色数を返す．
   SizeType
   color_num() const
@@ -119,7 +132,7 @@ public:
     if ( color == 0 ) {
       throw std::invalid_argument{"color should not be 0"};
     }
-    if ( color >= color_num() ) {
+    if ( color > color_num() ) {
       throw std::out_of_range{"color is out of range"};
     }
 

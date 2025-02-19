@@ -9,12 +9,10 @@
 /// All rights reserved.
 
 #include "ym/combopt.h"
-#include "coloring/ColGraph.h"
+#include "ColGraph.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
-
-class DsatNode;
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 /// @class Dsatur Dsatur.h "Dsatur.h"
@@ -37,7 +35,7 @@ public:
   );
 
   /// @brief デストラクタ
-  ~Dsatur();
+  ~Dsatur() = default;
 
 
 public:
@@ -52,22 +50,65 @@ public:
     vector<SizeType>& color_map ///< [out] ノードに対する彩色結果(=int)を収める配列
   );
 
+  /// @brief SAT degree を返す．
+  SizeType
+  sat_degree(
+    SizeType node_id
+  ) const;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノードに関係する諸元を表す構造体
+  struct NodeInfo
+  {
+
+    // 隣接するノードの色の集合を表すビットベクタ
+    vector<bool> mColorSet;
+
+    // SAT degree
+    SizeType mSatDegree;
+
+  };
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる下請け関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 初期化する．
-  void
-  init();
+  /// @brief 彩色の結果を SAT degree に反映させる．
+  /// @return 変化したノードのリストを返す．
+  vector<SizeType>
+  update_sat_degree(
+    SizeType node_id
+  );
 
-  /// @brief ノードに色を割り当てる．
-  void
-  color_node(
+  /// @brief 隣接ノードに color の色を持つノードがあるか調べる．
+  bool
+  check_adj_color(
     SizeType node_id,
     SizeType color
-  );
+  )
+  {
+    auto& node_info = mNodeArray[node_id];
+    return node_info.mColorSet[color];
+  }
+
+  /// @brief 隣接ノードの色を追加する．
+  void
+  add_adj_color(
+    SizeType node_id,
+    SizeType color
+  )
+  {
+    auto& node_info = mNodeArray[node_id];
+    node_info.mColorSet[color] = true;
+    ++ node_info.mSatDegree;
+  }
 
 
 private:
@@ -76,10 +117,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノードの実体の配列
-  vector<DsatNode> mNodeArray;
+  vector<NodeInfo> mNodeArray;
 
 };
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING
 
 #endif // DSATUR_H

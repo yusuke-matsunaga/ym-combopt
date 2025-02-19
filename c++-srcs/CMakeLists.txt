@@ -22,7 +22,7 @@ include_directories (
 add_subdirectory ( mincov )
 add_subdirectory ( matrix )
 add_subdirectory ( udgraph )
-#add_subdirectory ( coloring )
+add_subdirectory ( coloring )
 add_subdirectory ( max_clique )
 
 

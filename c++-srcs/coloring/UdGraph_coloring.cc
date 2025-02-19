@@ -21,18 +21,24 @@ inline
 SizeType
 dsatur(
   const UdGraph& graph,
-  vector<SizeType>& color_map,
-  const vector<SizeType>& initial_color_map = vector<SizeType>{}
+  vector<SizeType>& color_map
 )
 {
-  if ( initial_color_map.size() == 0 ) {
-    Dsatur dsatsolver{graph};
-    return dsatsolver.coloring(color_map);
-  }
-  else {
-    Dsatur dsatsolver{graph, initial_color_map};
-    return dsatsolver.coloring(color_map);
-  }
+  nsColoring::Dsatur dsat{graph};
+  return dsat.coloring(color_map);
+}
+
+// dsatur で彩色問題を解く．
+inline
+SizeType
+dsatur(
+  const UdGraph& graph,
+  vector<SizeType>& color_map,
+  const vector<SizeType>& initial_color_map
+)
+{
+  nsColoring::Dsatur dsat{graph, initial_color_map};
+  return dsat.coloring(color_map);
 }
 
 // tabucol で彩色問題を解く．
@@ -50,7 +56,7 @@ tabucol(
   double alpha = 0.6;
   SizeType k1 = k0;
   for ( SizeType k = k0; k > 0; -- k ) {
-    TabuCol tabucol{graph, k};
+    nsColoring::TabuCol tabucol{graph, k};
     vector<SizeType> color_map1;
     if ( tabucol.coloring(limit, L, alpha, color_map1) ) {
       k1 = k;
@@ -77,30 +83,29 @@ UdGraph::coloring(
   if ( algorithm == "dsatur" ) {
     return dsatur(*this, color_map);
   }
-  else if ( algorithm == "iscov" ) {
-    nsUdGraph::IsCov iscsolver(*this);
+  if ( algorithm == "iscov" ) {
+    nsColoring::IsCov iscsolver(*this);
     SizeType c = iscsolver.covering(500, color_map);
     return dsatur(*this, color_map, color_map);
   }
-  else if ( algorithm == "isx" ) {
-    nsUdGraph::Isx isxsolver(*this);
+  if ( algorithm == "isx" ) {
+    nsColoring::Isx isxsolver(*this);
     SizeType c = isxsolver.coloring(500, color_map);
     //cout << "isx end: c = " << c << endl;
     return dsatur(*this, color_map, color_map);
   }
-  else if ( algorithm == "isx2" ) {
-    nsUdGraph::Isx2 isxsolver(*this);
+  if ( algorithm == "isx2" ) {
+    nsColoring::Isx2 isxsolver(*this);
     SizeType c = isxsolver.coloring(500, color_map);
     //cout << "isx2 end: c = " << c << endl;
     return dsatur(*this, color_map, color_map);
   }
-  else if ( algorithm == "tabucol" ) {
+  if ( algorithm == "tabucol" ) {
     return tabucol(*this, color_map);
   }
-  else {
-    // デフォルトフォールバック
-    return dsatur(*this, color_map);
-  }
+
+  // デフォルトフォールバック
+  return dsatur(*this, color_map);
 }
 
 END_NAMESPACE_YM_UDGRAPH

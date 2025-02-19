@@ -3,14 +3,14 @@
 /// @brief Isx の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Isx.h"
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM_UDGRAPH
+BEGIN_NAMESPACE_YM_COLORING
 
 //////////////////////////////////////////////////////////////////////
 // クラス Isx
@@ -161,4 +161,4 @@ Isx::random_select(
   return cand_list[r];
 }
 
-END_NAMESPACE_YM_UDGRAPH
+END_NAMESPACE_YM_COLORING

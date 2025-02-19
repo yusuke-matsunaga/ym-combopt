@@ -6,7 +6,7 @@
 /// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "coloring/ColGraph.h"
+#include "ColGraph.h"
 #include "ym/UdGraph.h"
 #include "ym/Range.h"
 
@@ -37,6 +37,7 @@ ColGraph::ColGraph(
   // ここでは「抜け」はチェックしていない．
   // さらに未彩色のノードのリストを作る．
   if ( color_map.size() != mNodeNum ) {
+    abort();
     throw std::invalid_argument{"color_map.size() != graph.node_num()"};
   }
   mNodeList.reserve(mNodeNum);
